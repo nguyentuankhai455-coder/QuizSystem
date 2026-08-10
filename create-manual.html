@@ -169,6 +169,7 @@
             font-size: 20px;
         }
 
+        /* ===== FORM ===== */
         .form-group {
             margin-bottom: 14px;
         }
@@ -205,12 +206,14 @@
             gap: 14px;
         }
 
+        /* ===== QUESTION CARD (Định dạng chuẩn Word) ===== */
         .question-card {
-            background: #f8faff;
+            background: white;
             border: 2px solid #e8edf5;
             border-radius: 10px;
-            padding: 16px 18px;
-            margin-bottom: 12px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
 
         .question-card .q-header {
@@ -223,14 +226,18 @@
         .question-card .q-header .q-number {
             font-weight: 700;
             color: #2c3e50;
-            font-size: 14px;
+            font-size: 15px;
+            background: #e8f4fd;
+            padding: 2px 14px;
+            border-radius: 12px;
+            color: #2980b9;
         }
 
         .question-card .q-header .btn-remove {
             background: #fee2e2;
             border: none;
             color: #dc2626;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
@@ -241,57 +248,87 @@
             background: #fecaca;
         }
 
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 8px;
+        .question-card .q-content {
+            margin-bottom: 10px;
         }
 
-        .options-grid input {
-            padding: 8px 10px;
+        .question-card .q-content textarea {
+            width: 100%;
+            padding: 10px 14px;
             border: 2px solid #e0e6ed;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 60px;
+            transition: border-color 0.3s;
         }
 
-        .options-grid input:focus {
+        .question-card .q-content textarea:focus {
             outline: none;
             border-color: #3498db;
         }
 
-        .question-card select {
+        .question-card .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .question-card .options-grid .option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .question-card .options-grid .option-item .option-label {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 14px;
+            min-width: 28px;
+        }
+
+        .question-card .options-grid .option-item input {
+            flex: 1;
             padding: 8px 12px;
             border: 2px solid #e0e6ed;
             border-radius: 6px;
             font-size: 13px;
-            margin-top: 8px;
-            background: white;
-            width: 140px;
+            transition: border-color 0.3s;
         }
 
-        .flex {
+        .question-card .options-grid .option-item input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .question-card .q-correct {
+            margin-top: 10px;
             display: flex;
-        }
-        .gap-10 {
-            gap: 10px;
-        }
-        .flex-wrap {
-            flex-wrap: wrap;
-        }
-        .mt-16 {
-            margin-top: 16px;
+            align-items: center;
+            gap: 12px;
         }
 
-        .loading-text {
-            display: none;
-            color: #3498db;
-            margin-top: 8px;
-        }
-        .loading-text.show {
-            display: block;
+        .question-card .q-correct label {
+            font-weight: 600;
+            color: #34495e;
+            font-size: 13px;
         }
 
+        .question-card .q-correct select {
+            padding: 6px 12px;
+            border: 2px solid #e0e6ed;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .question-card .q-correct select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        /* ===== TEMPLATE ===== */
         .template-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -326,11 +363,68 @@
             font-size: 11px;
         }
 
+        .flex {
+            display: flex;
+        }
+        .gap-10 {
+            gap: 10px;
+        }
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+
+        .loading-text {
+            display: none;
+            color: #3498db;
+            margin-top: 8px;
+        }
+        .loading-text.show {
+            display: block;
+        }
+
+        /* ===== PREVIEW ===== */
+        .preview-section {
+            background: #f8faff;
+            border: 2px solid #e8edf5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .preview-section h4 {
+            color: #2c3e50;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .preview-section .preview-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+
+        .preview-section .preview-content .p-question {
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .preview-section .preview-content .p-option {
+            padding-left: 24px;
+        }
+
+        .preview-section .preview-content .p-correct {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
-            .options-grid {
+            .question-card .options-grid {
                 grid-template-columns: 1fr;
             }
             .top-header {
@@ -405,14 +499,23 @@
                 </div>
             </div>
 
+            <!-- Danh sách câu hỏi -->
             <div id="questionsContainer"></div>
 
+            <!-- Nút thao tác -->
             <div class="flex gap-10 flex-wrap mt-16">
                 <button class="btn btn-primary" onclick="addQuestion()">➕ Thêm câu hỏi</button>
                 <button class="btn btn-success" onclick="saveExam()">💾 Lưu đề thi</button>
                 <button class="btn btn-secondary" onclick="clearForm()">🔄 Xóa form</button>
+                <button class="btn btn-secondary" onclick="togglePreview()">👁 Xem trước</button>
             </div>
             <div id="saveLoading" class="loading-text">⏳ Đang lưu...</div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div id="previewSection" class="preview-section" style="display:none;">
+            <h4>📄 Xem trước đề thi</h4>
+            <div id="previewContent" class="preview-content"></div>
         </div>
 
     </div>
@@ -550,7 +653,7 @@
         }
 
         // ============================================================
-        // TEMPLATES
+        // TEMPLATES (Định dạng chuẩn Word)
         // ============================================================
 
         const TEMPLATES = {
@@ -558,9 +661,9 @@
                 title: 'Đề Toán cơ bản',
                 duration: 15,
                 questions: [
-                    { content: '1 + 1 = ?', options: ['1', '2', '3', '4'], correct: 1 },
-                    { content: '2 × 3 = ?', options: ['4', '5', '6', '7'], correct: 2 },
-                    { content: '10 : 2 = ?', options: ['3', '4', '5', '6'], correct: 2 },
+                    { content: '1 + 1 bằng bao nhiêu?', options: ['1', '2', '3', '4'], correct: 1 },
+                    { content: '2 × 3 bằng bao nhiêu?', options: ['4', '5', '6', '7'], correct: 2 },
+                    { content: '10 : 2 bằng bao nhiêu?', options: ['3', '4', '5', '6'], correct: 2 },
                     { content: 'Căn bậc hai của 16 là?', options: ['2', '4', '6', '8'], correct: 1 },
                     { content: 'Số nguyên tố nhỏ nhất là?', options: ['0', '1', '2', '3'], correct: 2 }
                 ]
@@ -620,7 +723,7 @@
         }
 
         // ============================================================
-        // QUESTION MANAGEMENT
+        // QUESTION MANAGEMENT (Định dạng chuẩn Word)
         // ============================================================
 
         function addQuestion() {
@@ -638,23 +741,28 @@
             let optionsHTML = '';
             for (let i = 0; i < 4; i++) {
                 optionsHTML += `
-                    <input type="text" placeholder="Đáp án ${optionLetters[i]}" 
-                           value="${options[i] || ''}" 
-                           data-opt="${i}">
+                    <div class="option-item">
+                        <span class="option-label">${optionLetters[i]}.</span>
+                        <input type="text" placeholder="Đáp án ${optionLetters[i]}" 
+                               value="${options[i] || ''}" 
+                               data-opt="${i}">
+                    </div>
                 `;
             }
 
             div.innerHTML = `
                 <div class="q-header">
-                    <span class="q-number">Câu hỏi ${container.children.length + 1}</span>
+                    <span class="q-number">Câu ${container.children.length + 1}</span>
                     <button class="btn-remove" onclick="removeQuestion(this)">✕ Xóa</button>
                 </div>
-                <textarea rows="2" placeholder="Nội dung câu hỏi..." style="width:100%; padding:8px 12px; border:2px solid #e0e6ed; border-radius:6px; font-size:14px;">${content}</textarea>
+                <div class="q-content">
+                    <textarea rows="2" placeholder="Nội dung câu hỏi...">${content}</textarea>
+                </div>
                 <div class="options-grid">
                     ${optionsHTML}
                 </div>
-                <div>
-                    <label style="font-size:13px; font-weight:600; color:#34495e; margin-right:10px;">Đáp án đúng:</label>
+                <div class="q-correct">
+                    <label>✅ Đáp án đúng:</label>
                     <select>
                         ${optionLetters.map((l, i) => `<option value="${i}" ${i === correct ? 'selected' : ''}>${l}</option>`).join('')}
                     </select>
@@ -672,7 +780,7 @@
             }
             card.remove();
             document.querySelectorAll('.question-card .q-number').forEach((el, idx) => {
-                el.textContent = `Câu hỏi ${idx + 1}`;
+                el.textContent = `Câu ${idx + 1}`;
             });
         }
 
@@ -686,6 +794,52 @@
             const oldBtn = document.querySelector('.btn-update-exam');
             if (oldBtn) oldBtn.remove();
             currentEditingExamId = null;
+            document.getElementById('previewSection').style.display = 'none';
+        }
+
+        // ============================================================
+        // PREVIEW
+        // ============================================================
+
+        function togglePreview() {
+            const section = document.getElementById('previewSection');
+            if (section.style.display === 'none') {
+                generatePreview();
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        function generatePreview() {
+            const container = document.getElementById('previewContent');
+            const title = document.getElementById('examTitle').value || '[Chưa có tiêu đề]';
+            const duration = document.getElementById('examDuration').value || 15;
+            const questionCards = document.querySelectorAll('.question-card');
+
+            let html = `<div style="font-weight:700; font-size:18px; color:#2c3e50;">📄 ${title}</div>`;
+            html += `<div style="color:#7f8c8d; font-size:14px; margin-bottom:12px;">⏱ ${duration} phút</div>`;
+            html += `<hr style="border-color:#e8edf5; margin:12px 0;">`;
+
+            const optionLetters = ['A', 'B', 'C', 'D'];
+
+            questionCards.forEach((card, idx) => {
+                const content = card.querySelector('.q-content textarea').value || '[Nội dung câu hỏi]';
+                const optInputs = card.querySelectorAll('.options-grid .option-item input');
+                const selected = parseInt(card.querySelector('select').value);
+
+                html += `<div class="p-question">Câu ${idx + 1}: ${content}</div>`;
+                optInputs.forEach((inp, i) => {
+                    const optText = inp.value || `[Đáp án ${optionLetters[i]}]`;
+                    const isCorrect = (i === selected);
+                    html += `<div class="p-option" style="${isCorrect ? 'color:#27ae60; font-weight:600;' : ''}">
+                        ${optionLetters[i]}. ${optText} ${isCorrect ? '✅' : ''}
+                    </div>`;
+                });
+                html += `<div style="margin-bottom:8px;"></div>`;
+            });
+
+            container.innerHTML = html;
         }
 
         // ============================================================
@@ -708,10 +862,10 @@
             let valid = true;
 
             questionCards.forEach((card) => {
-                const content = card.querySelector('textarea').value.trim();
+                const content = card.querySelector('.q-content textarea').value.trim();
                 if (!content) { valid = false; return; }
 
-                const optInputs = card.querySelectorAll('[data-opt]');
+                const optInputs = card.querySelectorAll('.options-grid .option-item input');
                 const options = [];
                 optInputs.forEach(inp => {
                     if (!inp.value.trim()) { valid = false; }
@@ -773,6 +927,17 @@
                 loadingEl.classList.remove('show');
             }
         }
+
+        // ============================================================
+        // AUTO GENERATE PREVIEW KHI THAY ĐỔI
+        // ============================================================
+
+        document.addEventListener('input', function() {
+            const section = document.getElementById('previewSection');
+            if (section.style.display !== 'none') {
+                generatePreview();
+            }
+        });
 
         // ============================================================
         // INIT
