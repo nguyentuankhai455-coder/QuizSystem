@@ -9,27 +9,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* (Giữ nguyên style như file trước) */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f0f4f8; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
 
-        body {
-            background: #f0f4f8;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
+        /* HEADER */
         .header {
             background: white;
             padding: 18px 25px;
@@ -42,22 +32,9 @@
             flex-wrap: wrap;
             gap: 12px;
         }
-
-        .header h1 {
-            color: #2c3e50;
-            font-size: 22px;
-        }
-        .header h1 span {
-            color: #3498db;
-        }
-
-        .header .user-info {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-
+        .header h1 { color: #2c3e50; font-size: 22px; }
+        .header h1 span { color: #3498db; }
+        .header .user-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
         .header .user-info .badge {
             background: #e8f4fd;
             color: #2980b9;
@@ -67,6 +44,7 @@
             font-weight: 600;
         }
 
+        /* BUTTONS */
         .btn {
             padding: 8px 20px;
             border: none;
@@ -75,60 +53,26 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #229954; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-warning:hover { background: #d68910; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        .btn-secondary:hover { background: #7f8c8d; }
+        .btn-sm { padding: 6px 14px; font-size: 13px; }
 
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c0392b;
-        }
+        /* TABS */
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #229954;
-        }
-
-        .btn-warning {
-            background: #f39c12;
-            color: white;
-        }
-        .btn-warning:hover {
-            background: #d68910;
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background: #7f8c8d;
-        }
-
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 13px;
-        }
-
-        .tab-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
+        /* PANELS */
         .panel {
             background: white;
             border-radius: 12px;
@@ -137,38 +81,14 @@
             margin-bottom: 20px;
             display: none;
         }
+        .panel.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .panel h2 { color: #2c3e50; margin-bottom: 20px; font-size: 20px; }
 
-        .panel.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .panel h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #34495e;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        /* FORM */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; color: #34495e; margin-bottom: 5px; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 10px 14px;
             border: 2px solid #e0e6ed;
@@ -176,20 +96,13 @@
             font-size: 14px;
             transition: border-color 0.3s;
         }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #3498db;
         }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
+        /* QUESTION CARD */
         .question-card {
             background: #f8faff;
             border: 2px solid #e8edf5;
@@ -197,20 +110,8 @@
             padding: 18px 20px;
             margin-bottom: 15px;
         }
-
-        .question-card .q-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .question-card .q-header .q-number {
-            font-weight: 700;
-            color: #2c3e50;
-            font-size: 15px;
-        }
-
+        .question-card .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .question-card .q-header .q-number { font-weight: 700; color: #2c3e50; font-size: 15px; }
         .question-card .q-header .btn-remove {
             background: #fee2e2;
             border: none;
@@ -221,30 +122,10 @@
             font-weight: 600;
             font-size: 13px;
         }
-
-        .question-card .q-header .btn-remove:hover {
-            background: #fecaca;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .options-grid input {
-            padding: 8px 12px;
-            border: 2px solid #e0e6ed;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
-        .options-grid input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
+        .question-card .q-header .btn-remove:hover { background: #fecaca; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .options-grid input { padding: 8px 12px; border: 2px solid #e0e6ed; border-radius: 6px; font-size: 13px; }
+        .options-grid input:focus { outline: none; border-color: #3498db; }
         .question-card select {
             padding: 8px 12px;
             border: 2px solid #e0e6ed;
@@ -255,13 +136,13 @@
             width: 150px;
         }
 
+        /* TEMPLATE */
         .template-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 12px;
             margin-bottom: 20px;
         }
-
         .template-btn {
             padding: 14px;
             border: 2px dashed #d0d7e6;
@@ -271,29 +152,107 @@
             transition: all 0.3s;
             text-align: center;
         }
+        .template-btn:hover { border-color: #3498db; background: #f0f7ff; transform: translateY(-2px); }
+        .template-btn strong { display: block; color: #2c3e50; font-size: 15px; }
+        .template-btn small { color: #7f8c8d; font-size: 12px; }
 
-        .template-btn:hover {
-            border-color: #3498db;
-            background: #f0f7ff;
-            transform: translateY(-2px);
+        /* UPLOAD SECTION - GIỐNG AZOTA */
+        .upload-section {
+            background: #f8faff;
+            border: 2px dashed #d0d7e6;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 20px;
+            position: relative;
         }
-
-        .template-btn strong {
-            display: block;
-            color: #2c3e50;
-            font-size: 15px;
-        }
-
-        .template-btn small {
-            color: #7f8c8d;
+        .upload-section:hover { border-color: #3498db; background: #f0f7ff; }
+        .upload-section.dragover { border-color: #27ae60; background: #e8f5ed; transform: scale(1.01); }
+        .upload-section .upload-icon { font-size: 48px; color: #3498db; margin-bottom: 12px; }
+        .upload-section h3 { color: #2c3e50; font-size: 18px; margin-bottom: 8px; }
+        .upload-section .sub-text { color: #7f8c8d; font-size: 14px; margin-bottom: 12px; }
+        .upload-section .sub-text .highlight { color: #3498db; font-weight: 600; }
+        .upload-section .file-types { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+        .upload-section .file-types .tag {
+            background: #e8edf5;
+            padding: 4px 14px;
+            border-radius: 20px;
             font-size: 12px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .upload-section .file-types .tag i { margin-right: 4px; }
+        .upload-section input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
 
-        .exam-list {
+        /* UPLOAD OPTIONS */
+        .upload-options {
             display: grid;
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
         }
+        .upload-option-card {
+            background: #f8faff;
+            border: 2px solid #e8edf5;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .upload-option-card:hover { border-color: #3498db; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(52,152,219,0.1); }
+        .upload-option-card .icon { font-size: 28px; color: #3498db; margin-bottom: 10px; }
+        .upload-option-card h4 { color: #2c3e50; font-size: 16px; margin-bottom: 4px; }
+        .upload-option-card p { color: #7f8c8d; font-size: 13px; line-height: 1.5; }
+        .upload-option-card .badge-new {
+            background: #27ae60;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            margin-left: 6px;
+        }
+        .upload-option-card .learn-more { color: #3498db; font-size: 13px; font-weight: 600; margin-top: 8px; display: inline-block; }
 
+        /* UPLOAD STATUS */
+        .upload-status { display: none; padding: 16px 20px; border-radius: 10px; margin-top: 16px; }
+        .upload-status.show { display: block; }
+        .upload-status.success { background: #d4edda; border: 2px solid #27ae60; color: #155724; }
+        .upload-status.error { background: #f8d7da; border: 2px solid #e74c3c; color: #721c24; }
+        .upload-status .progress-bar { width: 100%; height: 8px; background: #e0e6ed; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        .upload-status .progress-bar .fill { height: 100%; background: #27ae60; border-radius: 4px; transition: width 0.3s; width: 0%; }
+
+        /* FILE LIST */
+        .file-list { margin-top: 12px; }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #f8faff;
+            border-radius: 8px;
+            border: 2px solid #e8edf5;
+            margin-bottom: 8px;
+        }
+        .file-item .file-info { display: flex; align-items: center; gap: 12px; }
+        .file-item .file-info i { font-size: 24px; color: #3498db; }
+        .file-item .file-info .file-name { font-weight: 600; color: #2c3e50; }
+        .file-item .file-info .file-size { color: #7f8c8d; font-size: 13px; }
+        .file-item .file-actions .btn { padding: 4px 12px; font-size: 12px; }
+
+        /* EXAM LIST */
+        .exam-list { display: grid; gap: 12px; }
         .exam-item {
             display: flex;
             justify-content: space-between;
@@ -304,28 +263,12 @@
             border: 2px solid #e8edf5;
             transition: all 0.3s;
         }
+        .exam-item:hover { border-color: #3498db; }
+        .exam-item .exam-info h4 { color: #2c3e50; font-size: 16px; }
+        .exam-item .exam-info p { color: #7f8c8d; font-size: 13px; margin-top: 3px; }
+        .exam-item .exam-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        .exam-item:hover {
-            border-color: #3498db;
-        }
-
-        .exam-item .exam-info h4 {
-            color: #2c3e50;
-            font-size: 16px;
-        }
-
-        .exam-item .exam-info p {
-            color: #7f8c8d;
-            font-size: 13px;
-            margin-top: 3px;
-        }
-
-        .exam-item .exam-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
+        /* TEST */
         .test-question {
             background: #f8faff;
             border: 2px solid #e8edf5;
@@ -333,14 +276,7 @@
             padding: 18px 20px;
             margin-bottom: 14px;
         }
-
-        .test-question .q-text {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
+        .test-question .q-text { font-weight: 600; color: #2c3e50; font-size: 16px; margin-bottom: 10px; }
         .test-option {
             display: flex;
             align-items: center;
@@ -350,23 +286,11 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+        .test-option:hover { background: #edf2f7; }
+        .test-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
+        .test-option label { cursor: pointer; font-size: 15px; color: #34495e; }
 
-        .test-option:hover {
-            background: #edf2f7;
-        }
-
-        .test-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .test-option label {
-            cursor: pointer;
-            font-size: 15px;
-            color: #34495e;
-        }
-
+        /* RESULT */
         .result-box {
             text-align: center;
             padding: 40px 20px;
@@ -374,38 +298,17 @@
             border-radius: 12px;
             border: 3px solid #27ae60;
         }
+        .result-box .score { font-size: 56px; font-weight: 800; color: #27ae60; }
+        .result-box .score-detail { font-size: 18px; color: #34495e; margin-top: 10px; }
 
-        .result-box .score {
-            font-size: 56px;
-            font-weight: 800;
-            color: #27ae60;
-        }
-
-        .result-box .score-detail {
-            font-size: 18px;
-            color: #34495e;
-            margin-top: 10px;
-        }
-
+        /* UTILITY */
         .mt-16 { margin-top: 16px; }
         .mb-16 { margin-bottom: 16px; }
         .flex { display: flex; }
         .gap-10 { gap: 10px; }
         .flex-wrap { flex-wrap: wrap; }
         .hidden { display: none !important; }
-
-        .no-exams {
-            color: #95a5a6;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .loading-spinner {
-            text-align: center;
-            padding: 40px;
-            color: #3498db;
-            font-weight: 600;
-        }
+        .no-exams { color: #95a5a6; padding: 20px; text-align: center; }
 
         @media (max-width: 768px) {
             .form-row { grid-template-columns: 1fr; }
@@ -413,6 +316,8 @@
             .header { flex-direction: column; align-items: stretch; }
             .exam-item { flex-direction: column; gap: 10px; align-items: stretch; }
             .panel { padding: 18px 16px; }
+            .upload-options { grid-template-columns: 1fr; }
+            .upload-section { padding: 24px 16px; }
         }
     </style>
 </head>
@@ -432,37 +337,104 @@
 
     <!-- TAB BAR -->
     <div class="tab-bar">
-        <button class="btn btn-primary" onclick="showPanel('teacher')" id="tabTeacher">👨‍🏫 Quản lý đề thi</button>
-        <button class="btn btn-success" onclick="showPanel('student')" id="tabStudent">👨‍🎓 Làm bài test</button>
+        <button class="btn btn-primary" onclick="showPanel('upload')" id="tabUpload">📤 Tải đề lên</button>
+        <button class="btn btn-primary" onclick="showPanel('teacher')" id="tabTeacher">📝 Quản lý đề</button>
+        <button class="btn btn-success" onclick="showPanel('student')" id="tabStudent">🧪 Làm bài test</button>
     </div>
 
-    <!-- PANEL GIÁO VIÊN -->
-    <div id="panel-teacher" class="panel active">
-        <h2>📚 Quản lý đề thi</h2>
+    <!-- ========================================== -->
+    <!-- PANEL UPLOAD - GIỐNG AZOTA -->
+    <!-- ========================================== -->
+    <div id="panel-upload" class="panel active">
+        <h2>📤 Tải đề thi lên</h2>
 
-        <div style="margin-bottom:20px;">
-            <label style="font-weight:600; color:#34495e; display:block; margin-bottom:8px;">📌 Chọn mẫu đề có sẵn:</label>
-            <div class="template-grid">
-                <div class="template-btn" onclick="loadTemplate('toan')">
-                    <strong>🧮 Toán</strong>
-                    <small>5 câu</small>
+        <!-- Upload Section -->
+        <div class="upload-section" id="dropZone">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h3>Chọn File hoặc kéo thả File vào đây</h3>
+            <p class="sub-text">
+                Hỗ trợ các định dạng 
+                <span class="highlight">.pdf</span>, 
+                <span class="highlight">.docx</span>, 
+                <span class="highlight">.xlsx</span>, 
+                <span class="highlight">.azt</span>, 
+                <span class="highlight">.tex</span>, 
+                <span class="highlight">.zip</span>, 
+                <span class="highlight">Ảnh</span>
+            </p>
+            <p style="font-size:13px; color:#95a5a6;">
+                <i class="fas fa-info-circle"></i> File ảnh chỉ hỗ trợ số hoá
+            </p>
+            <div class="file-types">
+                <span class="tag"><i class="fas fa-file-pdf"></i> PDF</span>
+                <span class="tag"><i class="fas fa-file-word"></i> DOCX</span>
+                <span class="tag"><i class="fas fa-file-excel"></i> XLSX</span>
+                <span class="tag"><i class="fas fa-file-code"></i> TEX</span>
+                <span class="tag"><i class="fas fa-file-archive"></i> ZIP</span>
+                <span class="tag"><i class="fas fa-image"></i> Ảnh</span>
+            </div>
+            <input type="file" id="fileInput" multiple accept=".pdf,.docx,.xlsx,.azt,.tex,.zip,.png,.jpg,.jpeg,.gif">
+        </div>
+
+        <!-- Upload Status -->
+        <div id="uploadStatus" class="upload-status">
+            <div id="uploadMessage"></div>
+            <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+        </div>
+
+        <!-- File List -->
+        <div id="fileListContainer" class="file-list"></div>
+
+        <!-- Upload Options -->
+        <div style="margin-top:24px; border-top:2px solid #e8edf5; padding-top:20px;">
+            <h3 style="color:#2c3e50; margin-bottom:16px; font-size:17px;">✨ Các cách tạo đề khác</h3>
+            <div class="upload-options">
+                <div class="upload-option-card" onclick="switchToManual()">
+                    <div class="icon"><i class="fas fa-edit"></i></div>
+                    <h4>Tự soạn Đề thi / Bài tập</h4>
+                    <p>Sử dụng trình soạn thảo để tạo Bài tập/Đề thi. Chỉnh sửa từ các mẫu có sẵn hoặc Copy & Paste.</p>
+                    <span class="learn-more">Tìm hiểu thêm →</span>
                 </div>
-                <div class="template-btn" onclick="loadTemplate('van')">
-                    <strong>📖 Văn</strong>
-                    <small>5 câu</small>
+                <div class="upload-option-card">
+                    <div class="icon"><i class="fas fa-gamepad"></i></div>
+                    <h4>Tạo đề thi tương tác <span class="badge-new">Mới</span></h4>
+                    <p>Tạo đề thi, trò chơi học tập cho học sinh làm trực tiếp trên màn hình với các hoạt động sinh động.</p>
                 </div>
-                <div class="template-btn" onclick="loadTemplate('anh')">
-                    <strong>🇬🇧 Anh</strong>
-                    <small>5 câu</small>
+                <div class="upload-option-card">
+                    <div class="icon"><i class="fas fa-chart-bar"></i></div>
+                    <h4>Tạo đề thi đánh giá năng lực</h4>
+                    <p>Tạo ra nhiều bộ đề đánh giá năng lực từ bản thiết kế mẫu có sẵn của Azota.</p>
+                    <span class="learn-more">Tìm hiểu thêm →</span>
                 </div>
-                <div class="template-btn" onclick="loadTemplate('tin')">
-                    <strong>💻 Tin</strong>
-                    <small>5 câu</small>
+                <div class="upload-option-card">
+                    <div class="icon"><i class="fas fa-random"></i></div>
+                    <h4>Tạo đề từ Ma trận đề</h4>
+                    <p>Azota sẽ sinh ngẫu nhiên đề mới từ các chuyên đề, số lượng câu trong mỗi chuyên đề.</p>
+                    <span class="learn-more">Tìm hiểu thêm →</span>
+                </div>
+                <div class="upload-option-card" onclick="switchToExcel()">
+                    <div class="icon"><i class="fas fa-file-excel"></i></div>
+                    <h4>Tạo đề thi từ file Excel</h4>
+                    <p>Import câu hỏi từ file Excel để tạo đề thi nhanh chóng và thuận tiện.</p>
+                    <span class="learn-more">Tìm hiểu thêm →</span>
                 </div>
             </div>
         </div>
 
-        <div style="border-top:2px solid #e8edf5; padding-top:20px;">
+        <!-- Template mẫu -->
+        <div style="margin-top:20px; border-top:2px solid #e8edf5; padding-top:20px;">
+            <h3 style="color:#2c3e50; margin-bottom:12px; font-size:15px;">📌 Đề mẫu có sẵn</h3>
+            <div class="template-grid">
+                <div class="template-btn" onclick="loadTemplate('toan')"><strong>🧮 Toán</strong><small>5 câu</small></div>
+                <div class="template-btn" onclick="loadTemplate('van')"><strong>📖 Văn</strong><small>5 câu</small></div>
+                <div class="template-btn" onclick="loadTemplate('anh')"><strong>🇬🇧 Anh</strong><small>5 câu</small></div>
+                <div class="template-btn" onclick="loadTemplate('tin')"><strong>💻 Tin</strong><small>5 câu</small></div>
+            </div>
+        </div>
+
+        <!-- Form soạn đề thủ công -->
+        <div id="manualForm" style="display:none; border-top:2px solid #e8edf5; padding-top:20px; margin-top:20px;">
+            <h3 style="color:#2c3e50; margin-bottom:16px;">✏️ Soạn đề thủ công</h3>
             <div class="form-row">
                 <div class="form-group">
                     <label>Tiêu đề đề thi *</label>
@@ -473,28 +445,31 @@
                     <input type="number" id="examDuration" value="15" min="1">
                 </div>
             </div>
-
             <div id="questionsContainer"></div>
-
             <div class="flex gap-10 flex-wrap mt-16">
                 <button class="btn btn-primary" onclick="addQuestion()">➕ Thêm câu hỏi</button>
                 <button class="btn btn-success" onclick="saveExam()">💾 Lưu đề thi</button>
                 <button class="btn btn-secondary" onclick="clearForm()">🔄 Xóa form</button>
+                <button class="btn btn-secondary" onclick="hideManualForm()">✖ Đóng</button>
             </div>
             <div id="saveLoading" style="display:none; color:#3498db; margin-top:10px;">⏳ Đang lưu...</div>
         </div>
-
-        <div style="margin-top:30px; border-top:2px solid #e8edf5; padding-top:20px;">
-            <h3 style="color:#2c3e50; margin-bottom:16px;">📋 Danh sách đề thi đã tạo</h3>
-            <div id="examList" class="exam-list"></div>
-            <div id="examLoading" style="display:none; text-align:center; padding:20px; color:#3498db;">⏳ Đang tải...</div>
-        </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- PANEL GIÁO VIÊN -->
+    <!-- ========================================== -->
+    <div id="panel-teacher" class="panel">
+        <h2>📚 Danh sách đề thi</h2>
+        <div id="examList" class="exam-list"></div>
+        <div id="examLoading" style="display:none; text-align:center; padding:20px; color:#3498db;">⏳ Đang tải...</div>
+    </div>
+
+    <!-- ========================================== -->
     <!-- PANEL HỌC SINH -->
+    <!-- ========================================== -->
     <div id="panel-student" class="panel">
         <h2>🧪 Làm bài test</h2>
-
         <div id="studentExamSelector">
             <div class="form-group">
                 <label>Chọn đề thi để làm</label>
@@ -504,7 +479,6 @@
             </div>
             <button class="btn btn-primary" onclick="startTest()">🚀 Bắt đầu làm bài</button>
         </div>
-
         <div id="studentTestArea" style="display:none; margin-top:20px;">
             <div style="background:#f8faff; padding:16px 20px; border-radius:10px; margin-bottom:20px;">
                 <h3 id="testTitle" style="color:#2c3e50;"></h3>
@@ -517,7 +491,6 @@
             <button class="btn btn-success" onclick="submitTest()" style="margin-top:16px;">📤 Nộp bài</button>
             <button class="btn btn-secondary" onclick="cancelTest()" style="margin-top:16px; margin-left:10px;">❌ Hủy</button>
         </div>
-
         <div id="testResult" style="display:none;"></div>
     </div>
 
@@ -525,7 +498,7 @@
 
 <script>
     // ============================================================
-    // CẤU HÌNH FIREBASE
+    // FIREBASE CONFIG
     // ============================================================
     
     const firebaseConfig = {
@@ -541,6 +514,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
     // ============================================================
     // BIẾN TOÀN CỤ
@@ -550,8 +524,8 @@
     let currentEditingExamId = null;
     let questionCounter = 0;
     let currentTestExam = null;
-    let currentTestAnswers = {};
     let allExams = [];
+    let uploadedFiles = [];
 
     // ============================================================
     // KIỂM TRA ĐĂNG NHẬP
@@ -572,20 +546,20 @@
             return;
         }
 
-        // Cập nhật UI
         document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
         const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
         document.getElementById('userRoleBadge').textContent = roleLabel;
 
         if (currentUser.role === 'student') {
             document.getElementById('tabTeacher').style.display = 'none';
+            document.getElementById('tabUpload').style.display = 'none';
             showPanel('student');
         } else {
             document.getElementById('tabTeacher').style.display = 'inline-block';
-            showPanel('teacher');
+            document.getElementById('tabUpload').style.display = 'inline-block';
+            showPanel('upload');
         }
 
-        // Load dữ liệu từ Firestore
         loadExamsFromFirestore();
     }
 
@@ -601,7 +575,151 @@
     }
 
     // ============================================================
-    // CRUD ĐỀ THI VỚI FIRESTORE
+    // UPLOAD FILE - GIỐNG AZOTA
+    // ============================================================
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+        fileInput.value = '';
+    });
+
+    function handleFiles(files) {
+        for (let file of files) {
+            uploadedFiles.push(file);
+            uploadFileToStorage(file);
+        }
+        renderFileList();
+    }
+
+    async function uploadFileToStorage(file) {
+        const statusEl = document.getElementById('uploadStatus');
+        const messageEl = document.getElementById('uploadMessage');
+        const progressFill = document.getElementById('progressFill');
+
+        statusEl.className = 'upload-status show';
+        messageEl.textContent = `⏳ Đang tải lên: ${file.name}`;
+        progressFill.style.width = '0%';
+
+        try {
+            const storageRef = storage.ref(`exams/${currentUser.uid}/${Date.now()}_${file.name}`);
+            const uploadTask = storageRef.put(file);
+
+            uploadTask.on('state_changed', (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressFill.style.width = progress + '%';
+            });
+
+            await uploadTask;
+            const downloadURL = await storageRef.getDownloadURL();
+
+            await db.collection('uploadedFiles').add({
+                fileName: file.name,
+                fileSize: file.size,
+                fileType: file.type,
+                downloadURL: downloadURL,
+                uploadedBy: currentUser.uid,
+                uploadedByEmail: currentUser.email,
+                uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            statusEl.className = 'upload-status show success';
+            messageEl.textContent = `✅ Tải lên thành công: ${file.name}`;
+
+            setTimeout(() => {
+                statusEl.className = 'upload-status';
+                progressFill.style.width = '0%';
+                document.getElementById('manualForm').style.display = 'block';
+                document.getElementById('manualForm').scrollIntoView({ behavior: 'smooth' });
+                alert(`✅ File "${file.name}" đã được tải lên thành công!\nBạn có thể soạn đề từ file này hoặc tạo đề mới.`);
+            }, 1500);
+
+        } catch (error) {
+            console.error('Lỗi upload:', error);
+            statusEl.className = 'upload-status show error';
+            messageEl.textContent = `❌ Lỗi tải lên: ${file.name}. Vui lòng thử lại!`;
+        }
+    }
+
+    function renderFileList() {
+        const container = document.getElementById('fileListContainer');
+        if (uploadedFiles.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = uploadedFiles.map((file, idx) => `
+            <div class="file-item">
+                <div class="file-info">
+                    <i class="${getFileIcon(file.type)}"></i>
+                    <div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <button class="btn btn-danger btn-sm" onclick="removeFile(${idx})"><i class="fas fa-trash"></i> Xóa</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function getFileIcon(type) {
+        if (type.includes('pdf')) return 'fas fa-file-pdf';
+        if (type.includes('word') || type.includes('doc')) return 'fas fa-file-word';
+        if (type.includes('excel') || type.includes('sheet')) return 'fas fa-file-excel';
+        if (type.includes('image')) return 'fas fa-file-image';
+        if (type.includes('zip') || type.includes('archive')) return 'fas fa-file-archive';
+        return 'fas fa-file';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function removeFile(idx) {
+        uploadedFiles.splice(idx, 1);
+        renderFileList();
+    }
+
+    function switchToManual() {
+        document.getElementById('manualForm').style.display = 'block';
+        document.getElementById('manualForm').scrollIntoView({ behavior: 'smooth' });
+        if (document.querySelectorAll('#questionsContainer .question-card').length === 0) {
+            addQuestion();
+        }
+    }
+
+    function switchToExcel() {
+        alert('📊 Tính năng Import Excel đang được phát triển!\nVui lòng sử dụng form soạn đề thủ công.');
+    }
+
+    function hideManualForm() {
+        document.getElementById('manualForm').style.display = 'none';
+    }
+
+    // ============================================================
+    // CRUD ĐỀ THI
     // ============================================================
 
     async function loadExamsFromFirestore() {
@@ -623,13 +741,8 @@
 
             renderExamList();
             updateStudentSelect();
-            
-            if (currentUser.role === 'teacher' && allExams.length === 0) {
-                loadTemplate('toan');
-            }
         } catch (error) {
             console.error('Lỗi tải đề thi:', error);
-            alert('Không thể tải danh sách đề thi! Vui lòng kiểm tra kết nối.');
         } finally {
             loadingEl.style.display = 'none';
         }
@@ -647,7 +760,6 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // Thêm vào danh sách local
             allExams.push({
                 id: docRef.id,
                 ...examData,
@@ -676,7 +788,6 @@
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // Cập nhật local
             const index = allExams.findIndex(e => e.id === examId);
             if (index !== -1) {
                 allExams[index] = { ...allExams[index], ...examData };
@@ -687,7 +798,7 @@
             return true;
         } catch (error) {
             console.error('Lỗi cập nhật đề thi:', error);
-            alert('Không thể cập nhật đề thi! Vui lòng kiểm tra kết nối.');
+            alert('Không thể cập nhật đề thi!');
             return false;
         } finally {
             loadingEl.style.display = 'none';
@@ -777,6 +888,9 @@
         tpl.questions.forEach((q, idx) => {
             addQuestionWithData(idx, q.content, q.options, q.correct);
         });
+
+        document.getElementById('manualForm').style.display = 'block';
+        document.getElementById('manualForm').scrollIntoView({ behavior: 'smooth' });
 
         const updateBtn = document.querySelector('.btn-update-exam');
         if (updateBtn) updateBtn.remove();
@@ -902,7 +1016,6 @@
         if (!examData) return;
 
         if (currentEditingExamId) {
-            // Cập nhật
             const success = await updateExamInFirestore(currentEditingExamId, examData);
             if (success) {
                 alert('✅ Đã cập nhật đề thi!');
@@ -914,7 +1027,6 @@
                 addQuestion();
             }
         } else {
-            // Tạo mới
             const docId = await saveExamToFirestore(examData);
             if (docId) {
                 alert('✅ Đã lưu đề thi thành công!');
@@ -961,7 +1073,8 @@
         const exam = allExams.find(e => e.id === examId);
         if (!exam) return;
 
-        showPanel('teacher');
+        showPanel('upload');
+        document.getElementById('manualForm').style.display = 'block';
 
         document.getElementById('examTitle').value = exam.title;
         document.getElementById('examDuration').value = exam.duration;
@@ -1011,7 +1124,6 @@
         }
 
         currentTestExam = allExams[idx];
-        currentTestAnswers = {};
 
         document.getElementById('studentTestArea').style.display = 'block';
         document.getElementById('studentExamSelector').style.display = 'none';
@@ -1046,7 +1158,6 @@
         document.getElementById('studentExamSelector').style.display = 'block';
         document.getElementById('testResult').style.display = 'none';
         currentTestExam = null;
-        currentTestAnswers = {};
     }
 
     function submitTest() {
@@ -1116,7 +1227,6 @@
     // KHỞI TẠO
     // ============================================================
 
-    // Lắng nghe thay đổi trạng thái đăng nhập
     auth.onAuthStateChanged((user) => {
         if (!user) {
             localStorage.removeItem('quizCurrentUser');
@@ -1124,8 +1234,19 @@
         }
     });
 
-    // Khởi tạo
     checkAuth();
+
+    // Khởi tạo câu hỏi mặc định
+    setTimeout(() => {
+        const container = document.getElementById('questionsContainer');
+        if (container.children.length === 0) {
+            addQuestion();
+        }
+    }, 500);
+
+    console.log('✅ QuizSystem Dashboard đã sẵn sàng!');
+    console.log('📌 Tài khoản demo: teacher@demo.com / 123456');
+    console.log('📤 Tính năng tải file lên giống Azota đã được thêm!');
 </script>
 
 </body>
