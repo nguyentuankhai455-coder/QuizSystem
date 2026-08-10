@@ -261,14 +261,14 @@
 
         .no-exams {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             color: #95a5a6;
             background: white;
             border-radius: 12px;
         }
 
         .no-exams .icon {
-            font-size: 48px;
+            font-size: 56px;
             margin-bottom: 12px;
             color: #d0d7e6;
         }
@@ -382,7 +382,7 @@
 
     <script>
         // ============================================================
-        // FIREBASE
+        // FIREBASE CONFIG
         // ============================================================
 
         const firebaseConfig = {
@@ -428,6 +428,7 @@
             const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
             document.getElementById('userRoleBadge').textContent = roleLabel;
 
+            // Load đề thi ngay khi vào trang
             loadExams();
         }
 
@@ -451,7 +452,7 @@
             loadingEl.style.display = 'block';
 
             try {
-                // Lấy tất cả đề thi từ Firestore, sắp xếp theo thời gian tạo mới nhất
+                // Lấy tất cả đề thi từ Firestore
                 const snapshot = await db.collection('exams')
                     .orderBy('createdAt', 'desc')
                     .get();
@@ -464,17 +465,33 @@
                     });
                 });
 
+                console.log('✅ Đã tải ' + allExams.length + ' đề thi từ Firebase');
+
                 renderExams();
 
             } catch (error) {
-                console.error('Lỗi tải đề thi:', error);
-                // Nếu lỗi, thử load từ localStorage (dữ liệu cache)
+                console.error('❌ Lỗi tải đề thi:', error);
+
+                // Thử load từ cache nếu có
                 const cached = localStorage.getItem('cachedExams');
                 if (cached) {
                     try {
                         allExams = JSON.parse(cached);
                         renderExams();
+                        console.log('📁 Đã tải từ cache');
                     } catch (e) {}
+                } else {
+                    // Hiển thị thông báo lỗi
+                    document.getElementById('allExams').innerHTML = `
+                        <div class="no-exams">
+                            <div class="icon">⚠️</div>
+                            <h4>Không thể tải dữ liệu</h4>
+                            <p>Vui lòng kiểm tra kết nối Internet và thử lại.</p>
+                            <button class="btn btn-primary" onclick="loadExams()" style="margin-top:12px;">
+                                <i class="fas fa-sync"></i> Thử lại
+                            </button>
+                        </div>
+                    `;
                 }
             } finally {
                 loadingEl.style.display = 'none';
@@ -576,22 +593,21 @@
                 }
             });
 
-            // Nếu không tìm thấy gì
+            // Xóa thông báo no-result cũ
             const container = document.getElementById('allExams');
             const noResult = container.querySelector('.no-result');
+            if (noResult) noResult.remove();
+
+            // Nếu không tìm thấy gì
             if (!found && items.length > 0) {
-                if (!noResult) {
-                    const div = document.createElement('div');
-                    div.className = 'no-exams no-result';
-                    div.innerHTML = `
-                        <div class="icon">🔍</div>
-                        <h4>Không tìm thấy đề thi</h4>
-                        <p>Thử tìm kiếm với từ khóa khác</p>
-                    `;
-                    container.appendChild(div);
-                }
-            } else {
-                if (noResult) noResult.remove();
+                const div = document.createElement('div');
+                div.className = 'no-exams no-result';
+                div.innerHTML = `
+                    <div class="icon">🔍</div>
+                    <h4>Không tìm thấy đề thi</h4>
+                    <p>Thử tìm kiếm với từ khóa khác</p>
+                `;
+                container.appendChild(div);
             }
         }
 
@@ -647,6 +663,7 @@
             }
         });
 
+        // Khởi chạy
         checkAuth();
     </script>
 
