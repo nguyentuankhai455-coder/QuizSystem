@@ -261,16 +261,47 @@
 
         .no-exams {
             text-align: center;
-            padding: 30px;
+            padding: 40px 20px;
             color: #95a5a6;
             background: white;
             border-radius: 12px;
         }
 
+        .no-exams .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            color: #d0d7e6;
+        }
+
+        .no-exams h4 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .no-exams p {
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
         .loading-spinner {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             color: #3498db;
+        }
+
+        .loading-spinner i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 768px) {
@@ -333,14 +364,19 @@
             </button>
         </div>
 
-        <!-- SUGGESTED -->
+        <!-- ĐỀ XUẤT -->
         <h3 style="color:#2c3e50; margin-bottom:10px; font-size:15px;">🌟 Được đề xuất</h3>
         <div id="suggestedExams" class="exam-grid"></div>
 
-        <!-- ALL -->
+        <!-- TẤT CẢ -->
         <h3 style="color:#2c3e50; margin:20px 0 10px; font-size:15px;">📚 Tất cả đề thi</h3>
         <div id="allExams" class="exam-grid"></div>
-        <div id="examLoading" class="loading-spinner" style="display:none;">⏳ Đang tải...</div>
+
+        <!-- LOADING -->
+        <div id="examLoading" class="loading-spinner" style="display:none;">
+            <i class="fas fa-spinner"></i>
+            <p style="margin-top:8px;">Đang tải đề thi...</p>
+        </div>
 
     </div>
 
@@ -407,7 +443,7 @@
         }
 
         // ============================================================
-        // LOAD EXAMS
+        // LOAD EXAMS FROM FIRESTORE
         // ============================================================
 
         async function loadExams() {
@@ -415,6 +451,7 @@
             loadingEl.style.display = 'block';
 
             try {
+                // Lấy tất cả đề thi từ Firestore, sắp xếp theo thời gian tạo mới nhất
                 const snapshot = await db.collection('exams')
                     .orderBy('createdAt', 'desc')
                     .get();
@@ -428,49 +465,93 @@
                 });
 
                 renderExams();
+
             } catch (error) {
-                console.error('Lỗi tải đề:', error);
+                console.error('Lỗi tải đề thi:', error);
+                // Nếu lỗi, thử load từ localStorage (dữ liệu cache)
+                const cached = localStorage.getItem('cachedExams');
+                if (cached) {
+                    try {
+                        allExams = JSON.parse(cached);
+                        renderExams();
+                    } catch (e) {}
+                }
             } finally {
                 loadingEl.style.display = 'none';
             }
         }
 
+        // ============================================================
+        // RENDER EXAMS
+        // ============================================================
+
         function renderExams() {
-            // Suggested
+            // Lưu cache
+            localStorage.setItem('cachedExams', JSON.stringify(allExams));
+
+            // Suggested (3 đề đầu tiên)
             const suggested = allExams.slice(0, 3);
             const container1 = document.getElementById('suggestedExams');
+
             if (suggested.length === 0) {
-                container1.innerHTML = `<div class="no-exams">📭 Chưa có đề thi nào</div>`;
+                container1.innerHTML = `
+                    <div class="no-exams">
+                        <div class="icon">📭</div>
+                        <h4>Chưa có đề thi nào</h4>
+                        <p>Hãy tạo đề thi đầu tiên của bạn!</p>
+                    </div>
+                `;
             } else {
-                container1.innerHTML = suggested.map(e => examHTML(e)).join('');
+                container1.innerHTML = suggested.map(exam => examHTML(exam)).join('');
             }
 
-            // All
+            // All exams
             const container2 = document.getElementById('allExams');
+
             if (allExams.length === 0) {
-                container2.innerHTML = `<div class="no-exams">📭 Chưa có đề thi nào. Hãy tạo đề thi mới!</div>`;
+                container2.innerHTML = `
+                    <div class="no-exams">
+                        <div class="icon">📭</div>
+                        <h4>Chưa có đề thi nào</h4>
+                        <p>Nhấn nút <strong>"Tạo đề thi"</strong> để bắt đầu!</p>
+                    </div>
+                `;
             } else {
-                container2.innerHTML = allExams.map(e => examHTML(e)).join('');
+                container2.innerHTML = allExams.map(exam => examHTML(exam)).join('');
             }
         }
 
+        // ============================================================
+        // EXAM HTML
+        // ============================================================
+
         function examHTML(exam) {
             const isTeacher = currentUser && currentUser.role === 'teacher';
+            const questionCount = exam.questions ? exam.questions.length : 0;
+            const createdDate = exam.createdAt || 'Mới tạo';
+
             return `
-                <div class="exam-item" data-title="${exam.title.toLowerCase()}">
+                <div class="exam-item" data-title="${(exam.title || '').toLowerCase()}">
                     <div class="exam-info">
-                        <h4>📄 ${exam.title}</h4>
-                        <p>⏱ ${exam.duration} phút · ${exam.questions ? exam.questions.length : 0} câu hỏi</p>
+                        <h4>📄 ${exam.title || 'Đề thi không tên'}</h4>
+                        <p>⏱ ${exam.duration || 0} phút · ${questionCount} câu hỏi</p>
                         <div class="tags">
-                            <span class="tag">📅 ${exam.createdAt || 'Mới tạo'}</span>
+                            <span class="tag">📅 ${createdDate}</span>
+                            ${exam.status ? `<span class="tag">${exam.status}</span>` : ''}
                         </div>
                     </div>
                     <div class="exam-actions">
                         ${isTeacher ? `
-                            <button class="btn btn-primary btn-sm" onclick="editExam('${exam.id}')">✏️ Sửa</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteExam('${exam.id}')">🗑 Xóa</button>
+                            <button class="btn btn-primary btn-sm" onclick="editExam('${exam.id}')">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteExam('${exam.id}')">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
                         ` : ''}
-                        <button class="btn btn-success btn-sm" onclick="viewExam('${exam.id}')">👁 Xem</button>
+                        <button class="btn btn-success btn-sm" onclick="viewExam('${exam.id}')">
+                            <i class="fas fa-eye"></i> Xem
+                        </button>
                     </div>
                 </div>
             `;
@@ -482,34 +563,77 @@
 
         function filterExams() {
             const keyword = document.getElementById('searchExam').value.toLowerCase();
-            document.querySelectorAll('#allExams .exam-item').forEach(item => {
+            const items = document.querySelectorAll('#allExams .exam-item');
+            let found = false;
+
+            items.forEach(item => {
                 const title = item.dataset.title || '';
-                item.style.display = title.includes(keyword) ? 'flex' : 'none';
+                if (title.includes(keyword)) {
+                    item.style.display = 'flex';
+                    found = true;
+                } else {
+                    item.style.display = 'none';
+                }
             });
+
+            // Nếu không tìm thấy gì
+            const container = document.getElementById('allExams');
+            const noResult = container.querySelector('.no-result');
+            if (!found && items.length > 0) {
+                if (!noResult) {
+                    const div = document.createElement('div');
+                    div.className = 'no-exams no-result';
+                    div.innerHTML = `
+                        <div class="icon">🔍</div>
+                        <h4>Không tìm thấy đề thi</h4>
+                        <p>Thử tìm kiếm với từ khóa khác</p>
+                    `;
+                    container.appendChild(div);
+                }
+            } else {
+                if (noResult) noResult.remove();
+            }
         }
 
         async function deleteExam(examId) {
-            if (!confirm('Xóa đề thi này?')) return;
+            if (!confirm('Bạn có chắc chắn muốn xóa đề thi này?')) return;
+
             try {
                 await db.collection('exams').doc(examId).delete();
+
+                // Xóa khỏi danh sách local
                 allExams = allExams.filter(e => e.id !== examId);
                 renderExams();
-                alert('✅ Đã xóa đề thi!');
+
+                alert('✅ Đã xóa đề thi thành công!');
+
             } catch (error) {
-                alert('Không thể xóa đề thi!');
+                console.error('Lỗi xóa đề thi:', error);
+                alert('❌ Không thể xóa đề thi. Vui lòng thử lại!');
             }
         }
 
         function viewExam(examId) {
             const exam = allExams.find(e => e.id === examId);
-            if (!exam) return;
-            alert(`📄 ${exam.title}\n⏱ ${exam.duration} phút\n📝 ${exam.questions ? exam.questions.length : 0} câu hỏi`);
+            if (!exam) {
+                alert('Không tìm thấy đề thi!');
+                return;
+            }
+
+            const questionList = exam.questions ? exam.questions.map((q, i) => {
+                const options = q.options ? q.options.map((opt, oi) =>
+                    `    ${['A','B','C','D'][oi]}. ${opt}`
+                ).join('\n') : '';
+                return `Câu ${i+1}: ${q.content}\n${options}\nĐáp án: ${['A','B','C','D'][q.correct]}`;
+            }).join('\n\n') : 'Không có câu hỏi';
+
+            alert(`📄 ${exam.title}\n⏱ ${exam.duration} phút\n📝 ${exam.questions ? exam.questions.length : 0} câu hỏi\n\n${questionList}`);
         }
 
         function editExam(examId) {
-            // Lưu examId vào localStorage để create-exam.html biết
+            // Lưu ID vào localStorage để create-manual.html biết
             localStorage.setItem('editingExamId', examId);
-            window.location.href = 'create-exam.html';
+            window.location.href = 'create-manual.html';
         }
 
         // ============================================================
