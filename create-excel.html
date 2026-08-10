@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Excel - QuizSystem</title>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f0f4f8; min-height: 100vh; }
+
+        .top-header {
+            background: white; padding: 12px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .top-header .logo { font-size: 22px; font-weight: 800; color: #2c3e50; cursor: pointer; }
+        .top-header .logo span { color: #3498db; }
+        .top-header .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .top-header .header-right .user-name { font-weight: 600; color: #2c3e50; font-size: 14px; }
+        .top-header .header-right .badge-role { background: #e8f4fd; color: #2980b9; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+        .btn { padding: 8px 18px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        .btn-secondary:hover { background: #7f8c8d; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #229954; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 16px 24px; }
+
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px; font-size: 14px; color: #7f8c8d;
+            margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .breadcrumb span { cursor: pointer; transition: color 0.3s; }
+        .breadcrumb span:hover { color: #3498db; }
+        .breadcrumb .current { color: #2c3e50; font-weight: 600; cursor: default; }
+        .breadcrumb .sep { color: #b0b8c4; }
+
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            gap: 10px; margin-bottom: 16px;
+        }
+        .page-header h2 { color: #2c3e50; font-size: 20px; }
+
+        .upload-section {
+            background: #f8faff; border: 2px dashed #d0d7e6; border-radius: 16px;
+            padding: 40px 30px; text-align: center; transition: all 0.3s; cursor: pointer;
+            position: relative;
+        }
+        .upload-section:hover { border-color: #3498db; background: #f0f7ff; }
+        .upload-section .upload-icon { font-size: 48px; color: #27ae60; margin-bottom: 12px; }
+        .upload-section h3 { color: #2c3e50; font-size: 18px; margin-bottom: 6px; }
+        .upload-section p { color: #7f8c8d; font-size: 14px; }
+        .upload-section input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+        .format-info {
+            background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px;
+            padding: 16px 20px; margin-top: 16px;
+        }
+        .format-info h4 { color: #856404; font-size: 15px; }
+        .format-info p { color: #856404; font-size: 13px; margin-top: 4px; }
+        .format-info code {
+            background: #f8f9fa; padding: 2px 8px; border-radius: 4px;
+            font-size: 12px; color: #2c3e50;
+        }
+
+        @media (max-width: 768px) {
+            .top-header { padding: 10px 16px; }
+            .container { padding: 10px 16px; }
+            .upload-section { padding: 24px 16px; }
+            .upload-section .upload-icon { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
+        <div class="header-right">
+            <span class="user-name" id="userDisplayName">👋 User</span>
+            <span class="badge-role" id="userRoleBadge">Giáo viên</span>
+            <button class="btn btn-danger" onclick="handleLogout()">🚪 Đăng xuất</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="breadcrumb">
+            <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
+            <span class="sep">›</span>
+            <span onclick="window.location.href='exams.html'">Đề thi</span>
+            <span class="sep">›</span>
+            <span onclick="window.location.href='create-exam.html'">Tạo đề mới</span>
+            <span class="sep">›</span>
+            <span class="current">📊 Import Excel</span>
+        </div>
+
+        <div class="page-header">
+            <h2>📊 Tạo đề thi từ file Excel</h2>
+            <button class="btn btn-secondary" onclick="window.location.href='create-exam.html'">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </button>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-icon"><i class="fas fa-file-excel"></i></div>
+            <h3>Chọn file Excel (.xlsx, .xls)</h3>
+            <p>Import câu hỏi từ file Excel để tạo đề thi nhanh chóng và thuận tiện</p>
+            <input type="file" accept=".xlsx,.xls" onchange="handleExcelFile(this)">
+        </div>
+
+        <div class="format-info">
+            <h4>📋 Định dạng file Excel yêu cầu</h4>
+            <p>
+                <code>Câu hỏi</code> | <code>Đáp án A</code> | <code>Đáp án B</code> | <code>Đáp án C</code> | <code>Đáp án D</code> | <code>Đáp án đúng</code>
+                <br>
+                <span style="color:#856404; font-size:12px;">Dòng đầu tiên là tiêu đề. Đáp án đúng: A, B, C hoặc D</span>
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
+            authDomain: "quizsystem-1d1c2.firebaseapp.com",
+            projectId: "quizsystem-1d1c2",
+            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
+            messagingSenderId: "435483557148",
+            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
+            measurementId: "G-FS5YZWPDD9"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        let currentUser = null;
+
+        function checkAuth() {
+            const saved = localStorage.getItem('quizCurrentUser');
+            if (!saved) { window.location.href = 'index.html'; return; }
+            try { currentUser = JSON.parse(saved); } catch (e) { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; return; }
+            document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
+            const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
+            document.getElementById('userRoleBadge').textContent = roleLabel;
+        }
+
+        function handleLogout() {
+            if (!confirm('Bạn muốn đăng xuất?')) return;
+            auth.signOut().then(() => { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; }).catch(() => { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; });
+        }
+
+        function handleExcelFile(input) {
+            if (input.files.length > 0) {
+                alert(`📊 Đã chọn file: ${input.files[0].name}\n\n📌 Tính năng đang được phát triển! File sẽ được xử lý và import câu hỏi.`);
+                input.value = '';
+            }
+        }
+
+        auth.onAuthStateChanged((user) => { if (!user) { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; } });
+        checkAuth();
+    </script>
+
+</body>
+</html>
