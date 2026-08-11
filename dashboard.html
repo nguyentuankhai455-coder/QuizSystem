@@ -248,7 +248,6 @@
             margin-top: 6px;
         }
 
-        /* Học sinh cards có màu khác */
         .dash-card.student-card {
             border-left-color: #f39c12;
         }
@@ -340,10 +339,8 @@
             <p>Quản lý hệ thống giáo dục của bạn một cách hiệu quả</p>
         </div>
 
-        <!-- DASHBOARD GRID -->
-        <div id="dashboardContainer">
-            <!-- Sẽ được render bằng JS theo role -->
-        </div>
+        <!-- DASHBOARD -->
+        <div id="dashboardContainer"></div>
 
     </div>
 
@@ -422,7 +419,7 @@
                 const examSnapshot = await db.collection('exams').get();
                 examCount = examSnapshot.size;
 
-                // Đếm số lớp (nếu có collection classes)
+                // Đếm số lớp
                 try {
                     const classSnapshot = await db.collection('classes').get();
                     classCount = classSnapshot.size;
@@ -447,18 +444,17 @@
             if (currentUser.role === 'student') {
                 // ===== HỌC SINH =====
                 container.innerHTML = `
-                    <!-- Học sinh: Chỉ thấy các chức năng học tập -->
                     <div class="section-divider">📚 Học tập</div>
                     <div class="dashboard-grid">
 
-                        <a href="student.html" class="dash-card student-card">
+                        <a href="student-classes.html" class="dash-card student-card">
                             <div class="icon"><i class="fas fa-users"></i></div>
                             <h4>Lớp học của tôi</h4>
                             <p>Xem danh sách lớp</p>
                             <div class="count">${classCount || 0}</div>
                         </a>
 
-                        <a href="student.html" class="dash-card student-card">
+                        <a href="student-exams.html" class="dash-card student-card">
                             <div class="icon"><i class="fas fa-file-alt"></i></div>
                             <h4>Bài tập / Đề thi</h4>
                             <p>Bài tập được giao</p>
@@ -498,7 +494,6 @@
             } else {
                 // ===== GIÁO VIÊN =====
                 container.innerHTML = `
-                    <!-- Giáo viên: Thấy tất cả chức năng quản lý -->
                     <div class="section-divider">📊 Quản lý</div>
                     <div class="dashboard-grid">
 
