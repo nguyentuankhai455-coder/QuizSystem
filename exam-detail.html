@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* (Giữ nguyên style từ file trước) */
         * {
             margin: 0;
             padding: 0;
@@ -114,6 +113,16 @@
         }
         .btn-secondary:hover {
             background: #7f8c8d;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+        .btn-outline:hover {
+            background: #3498db;
+            color: white;
         }
 
         .btn-lg {
@@ -305,6 +314,23 @@
             font-weight: 700;
         }
 
+        /* Loading state */
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #3498db;
+        }
+
+        .loading-spinner i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .top-header {
                 padding: 10px 16px;
@@ -349,70 +375,81 @@
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
-            <span onclick="window.location.href='student.html'">Lớp học</span>
+            <span onclick="window.location.href='student-exams.html'">Bài tập</span>
             <span class="sep">›</span>
             <span class="current" id="breadcrumbTitle">Chi tiết đề thi</span>
         </div>
 
-        <div class="exam-warning">
-            <div class="icon"><i class="fas fa-info-circle"></i></div>
-            <div class="text">
-                <strong>Lưu ý:</strong> Bạn chỉ có <strong>1 lần</strong> làm bài duy nhất. 
-                Hãy đảm bảo kết nối mạng ổn định trước khi bắt đầu.
-            </div>
+        <!-- Loading -->
+        <div id="loadingState" class="loading-spinner">
+            <i class="fas fa-spinner"></i>
+            <p style="margin-top:8px;">Đang tải đề thi...</p>
         </div>
 
-        <div class="exam-card">
-            <div class="exam-header">
-                <div class="exam-title" id="examTitle">ĐỀ TỔNG</div>
-                <div class="exam-code">
-                    Mã đề thi: <span id="examCode">ghviv3</span>
+        <!-- Nội dung chính (ẩn khi loading) -->
+        <div id="mainContent" style="display:none;">
+
+            <div class="exam-warning">
+                <div class="icon"><i class="fas fa-info-circle"></i></div>
+                <div class="text">
+                    <strong>Lưu ý:</strong> Bạn chỉ có <strong>1 lần</strong> làm bài duy nhất. 
+                    Hãy đảm bảo kết nối mạng ổn định trước khi bắt đầu.
                 </div>
             </div>
 
-            <div class="exam-body">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="label">⏱️ Thời gian làm bài</div>
-                        <div class="value" id="examDuration">
-                            <span class="badge-unlimited"><i class="fas fa-infinity"></i> Không giới hạn</span>
+            <div class="exam-card">
+                <div class="exam-header">
+                    <div class="exam-title" id="examTitle">ĐỀ TỔNG</div>
+                    <div class="exam-code">
+                        Mã đề thi: <span id="examCode">ghviv3</span>
+                    </div>
+                </div>
+
+                <div class="exam-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="label">⏱️ Thời gian làm bài</div>
+                            <div class="value" id="examDuration">
+                                <span class="badge-unlimited"><i class="fas fa-infinity"></i> Không giới hạn</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">📅 Thời gian vào thi</div>
+                            <div class="value" id="examTime">
+                                <span class="badge-time"><i class="fas fa-clock"></i> Không thời hạn</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">🔢 Số lượng câu hỏi</div>
+                            <div class="value" id="examQuestions">0</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">📋 Loại đề</div>
+                            <div class="value" id="examType">
+                                <span class="badge-exam"><i class="fas fa-list-ul"></i> Trắc nghiệm</span>
+                            </div>
+                        </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <div class="label">👥 Tổng lượt đã làm của đề</div>
+                            <div class="value" id="examAttempts">
+                                <span class="badge-count"><i class="fas fa-users"></i> 0 lượt</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="info-item">
-                        <div class="label">📅 Thời gian vào thi</div>
-                        <div class="value" id="examTime">
-                            <span class="badge-time"><i class="fas fa-clock"></i> Không thời hạn</span>
-                        </div>
+                </div>
+
+                <div class="exam-actions">
+                    <div class="history-btn" onclick="viewHistory()">
+                        <i class="fas fa-history"></i> Xem lịch sử làm bài
                     </div>
-                    <div class="info-item">
-                        <div class="label">🔢 Số lượng câu hỏi</div>
-                        <div class="value" id="examQuestions">0</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="label">📋 Loại đề</div>
-                        <div class="value" id="examType">
-                            <span class="badge-exam"><i class="fas fa-list-ul"></i> Trắc nghiệm</span>
-                        </div>
-                    </div>
-                    <div class="info-item" style="grid-column: 1 / -1;">
-                        <div class="label">👥 Tổng lượt đã làm của đề</div>
-                        <div class="value" id="examAttempts">
-                            <span class="badge-count"><i class="fas fa-users"></i> 0 lượt</span>
-                        </div>
+                    <div>
+                        <button class="btn btn-success btn-lg" onclick="startExam()">
+                            <i class="fas fa-play"></i> Bắt đầu thi
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="exam-actions">
-                <div class="history-btn" onclick="viewHistory()">
-                    <i class="fas fa-history"></i> Xem lịch sử làm bài
-                </div>
-                <div>
-                    <button class="btn btn-success btn-lg" onclick="startExam()">
-                        <i class="fas fa-play"></i> Bắt đầu thi
-                    </button>
-                </div>
-            </div>
         </div>
 
     </div>
@@ -492,18 +529,27 @@
         // ============================================================
 
         async function loadExamDetail(id) {
+            const loadingEl = document.getElementById('loadingState');
+            const mainEl = document.getElementById('mainContent');
+
             try {
                 const doc = await db.collection('exams').doc(id).get();
                 if (doc.exists) {
                     examData = { id: doc.id, ...doc.data() };
-                    renderExamDetail();
                 } else {
-                    // Nếu không tìm thấy, dùng demo
                     loadDemoData();
+                    return;
                 }
+
+                loadingEl.style.display = 'none';
+                mainEl.style.display = 'block';
+                renderExamDetail();
+
             } catch (error) {
                 console.error('Lỗi tải đề thi:', error);
                 loadDemoData();
+                loadingEl.style.display = 'none';
+                mainEl.style.display = 'block';
             }
         }
 
@@ -513,12 +559,16 @@
                 id: examId || 'demo',
                 title: 'ĐỀ TỔNG ' + (examId ? '' : '(Demo)'),
                 code: examId ? examId.substring(0, 6) : 'ghviv3',
-                duration: null,
+                duration: 30,
                 timeLimit: null,
-                questions: Array(90).fill({}),
+                questions: Array(10).fill({}),
                 type: 'Trắc nghiệm',
                 attempts: Math.floor(Math.random() * 50)
             };
+
+            // Ẩn loading, hiện nội dung
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
             renderExamDetail();
         }
 
@@ -569,7 +619,7 @@
         }
 
         // ============================================================
-        // ACTIONS
+        // ACTIONS - ĐÃ SỬA CHUYỂN SANG TAKE-EXAM
         // ============================================================
 
         function startExam() {
@@ -578,26 +628,45 @@
                 return;
             }
 
+            const questionCount = examData.questions ? examData.questions.length : 0;
+
+            if (questionCount === 0) {
+                alert('❌ Đề thi này chưa có câu hỏi!');
+                return;
+            }
+
             const confirmMsg = `🚀 Bạn sắp bắt đầu làm bài: ${examData.title}\n\n` +
-                `📝 Số câu hỏi: ${examData.questions ? examData.questions.length : 0}\n` +
+                `📝 Số câu hỏi: ${questionCount}\n` +
                 `⏱️ Thời gian: ${examData.duration ? examData.duration + ' phút' : 'Không giới hạn'}\n\n` +
                 `⚠️ Lưu ý: Bạn chỉ được làm 1 lần duy nhất!\n\n` +
                 `Bạn đã sẵn sàng chưa?`;
 
             if (confirm(confirmMsg)) {
-                // Chuyển sang trang làm bài
-                alert('🚀 Chuyển sang trang làm bài thi!\n\n' +
-                    '📌 Sẽ có ' + (examData.questions ? examData.questions.length : 0) + ' câu hỏi.\n\n' +
-                    '⏳ Chức năng làm bài đang được phát triển...');
+                // ✅ CHUYỂN SANG TRANG LÀM BÀI THI
+                window.location.href = 'take-exam.html?id=' + examData.id;
             }
         }
 
         function viewHistory() {
-            alert('📜 Lịch sử làm bài của bạn:\n\n' +
-                '📄 Đề: ' + (examData.title || 'Đề thi') + '\n' +
-                '📅 Ngày làm: Chưa có dữ liệu\n' +
-                '📊 Điểm: --\n\n' +
-                '💡 Bạn chưa làm bài thi này!');
+            // Kiểm tra lịch sử từ localStorage
+            const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+            const examHistory = history.filter(h => h.examId === examData.id);
+
+            if (examHistory.length === 0) {
+                alert('📜 Bạn chưa làm bài thi này!');
+                return;
+            }
+
+            const last = examHistory[examHistory.length - 1];
+            alert(
+                `📜 LỊCH SỬ LÀM BÀI\n\n` +
+                `📄 Đề: ${last.examTitle || examData.title}\n` +
+                `📅 Ngày làm: ${last.submittedAt || 'Chưa có'}\n` +
+                `✅ Đúng: ${last.correct || 0}/${last.total || 0}\n` +
+                `📊 Điểm: ${last.score || 0}%\n` +
+                `🏆 ${last.grade || 'Chưa đánh giá'}\n\n` +
+                `📌 Đã làm ${examHistory.length} lần`
+            );
         }
 
         // ============================================================
