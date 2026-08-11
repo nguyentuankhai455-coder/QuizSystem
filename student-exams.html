@@ -120,6 +120,16 @@
             font-size: 12px;
         }
 
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+        .btn-outline:hover {
+            background: #3498db;
+            color: white;
+        }
+
         .container {
             max-width: 1100px;
             margin: 0 auto;
@@ -199,6 +209,10 @@
             border-color: #3498db;
         }
 
+        .exam-item .exam-info {
+            flex: 1;
+        }
+
         .exam-item .exam-info h4 {
             color: #2c3e50;
             font-size: 15px;
@@ -227,15 +241,17 @@
 
         .exam-item .exam-actions {
             display: flex;
-            gap: 6px;
+            align-items: center;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .exam-item .exam-status .status-badge {
-            padding: 2px 12px;
+            padding: 4px 14px;
             border-radius: 12px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .exam-item .exam-status .status-badge.not-started {
@@ -250,6 +266,11 @@
 
         .exam-item .exam-status .status-badge.completed {
             background: #d4edda;
+            color: #27ae60;
+        }
+
+        .exam-item .exam-status .status-badge .score-text {
+            font-weight: 700;
             color: #27ae60;
         }
 
@@ -291,6 +312,23 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Nút xóa - chỉ hiển thị cho giáo viên */
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
         @media (max-width: 768px) {
             .top-header {
                 padding: 10px 16px;
@@ -301,6 +339,9 @@
             .exam-item {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            .exam-item .exam-actions {
+                justify-content: flex-start;
             }
         }
     </style>
@@ -365,6 +406,8 @@
 
         let currentUser = null;
         let allExams = [];
+        let examHistory = [];
+        let userRole = 'student';
 
         // ============================================================
         // AUTH
@@ -378,6 +421,7 @@
             }
             try {
                 currentUser = JSON.parse(saved);
+                userRole = currentUser.role || 'student';
             } catch (e) {
                 localStorage.removeItem('quizCurrentUser');
                 window.location.href = 'index.html';
@@ -385,9 +429,10 @@
             }
 
             document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
-            document.getElementById('userRoleBadge').textContent = '👨‍🎓 Học sinh';
+            document.getElementById('userRoleBadge').textContent = userRole === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
 
             loadExams();
+            loadHistory();
         }
 
         function handleLogout() {
@@ -399,6 +444,16 @@
                 localStorage.removeItem('quizCurrentUser');
                 window.location.href = 'index.html';
             });
+        }
+
+        // ============================================================
+        // LOAD HISTORY
+        // ============================================================
+
+        function loadHistory() {
+            // Lấy từ localStorage
+            const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+            examHistory = history.filter(h => h.studentId === currentUser.uid);
         }
 
         // ============================================================
@@ -433,6 +488,29 @@
         }
 
         // ============================================================
+        // CHECK EXAM STATUS
+        // ============================================================
+
+        function getExamStatus(examId) {
+            // Kiểm tra trong lịch sử
+            const history = examHistory.filter(h => h.examId === examId);
+
+            if (history.length === 0) {
+                return { status: 'not-started', label: '📝 Chưa làm', score: null };
+            }
+
+            // Lấy lần làm gần nhất
+            const last = history[history.length - 1];
+            return {
+                status: 'completed',
+                label: `✅ Đã hoàn thành (${last.score || 0}%)`,
+                score: last.score || 0,
+                correct: last.correct || 0,
+                total: last.total || 0
+            };
+        }
+
+        // ============================================================
         // RENDER EXAMS
         // ============================================================
 
@@ -454,8 +532,15 @@
                 const questionCount = exam.questions ? exam.questions.length : 0;
                 const createdDate = exam.createdAt || 'Mới tạo';
 
+                // Kiểm tra trạng thái
+                const statusInfo = getExamStatus(exam.id);
+                const isCompleted = statusInfo.status === 'completed';
+
+                // Chỉ hiển thị nút xóa nếu là giáo viên
+                const isTeacher = userRole === 'teacher';
+
                 return `
-                    <div class="exam-item" onclick="startExam('${exam.id}', '${exam.title || 'Đề thi'}')" data-examname="${(exam.title || '').toLowerCase()}">
+                    <div class="exam-item" onclick="viewExamDetail('${exam.id}')" data-examname="${(exam.title || '').toLowerCase()}">
                         <div class="exam-info">
                             <h4>📄 ${exam.title || 'Đề thi không tên'}</h4>
                             <p>⏱ ${exam.duration || 0} phút · ${questionCount} câu hỏi</p>
@@ -463,14 +548,27 @@
                                 <span class="tag">📅 ${createdDate}</span>
                                 <span class="tag">👥 ${exam.attempts || 0} lượt làm</span>
                                 ${exam.status ? `<span class="tag">${exam.status}</span>` : ''}
+                                ${isCompleted ? `<span class="tag" style="background:#d4edda;color:#27ae60;">✅ Đã làm</span>` : ''}
                             </div>
                         </div>
                         <div class="exam-actions">
                             <div class="exam-status">
-                                <span class="status-badge not-started">📝 Chưa làm</span>
+                                <span class="status-badge ${isCompleted ? 'completed' : 'not-started'}">
+                                    ${isCompleted ? 
+                                        `✅ Đã hoàn thành (${statusInfo.score}%)` : 
+                                        '📝 Chưa làm'}
+                                </span>
                             </div>
-                            <button class="btn btn-success btn-sm">
-                                <i class="fas fa-play"></i> Làm bài
+                            ${isTeacher ? `
+                                <button class="btn-delete" onclick="event.stopPropagation(); deleteExam('${exam.id}')">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            ` : ''}
+                            <button class="btn ${isCompleted ? 'btn-outline' : 'btn-success'} btn-sm" 
+                                    onclick="event.stopPropagation(); startExam('${exam.id}')">
+                                ${isCompleted ? 
+                                    '<i class="fas fa-redo"></i> Làm lại' : 
+                                    '<i class="fas fa-play"></i> Làm bài'}
                             </button>
                         </div>
                     </div>
@@ -493,14 +591,38 @@
         }
 
         // ============================================================
-        // START EXAM
+        // ACTIONS
         // ============================================================
 
-        function startExam(examId, examName) {
-            if (!examId) {
-                examId = 'demo_' + Date.now();
-            }
+        function viewExamDetail(examId) {
             window.location.href = 'exam-detail.html?id=' + examId;
+        }
+
+        function startExam(examId) {
+            window.location.href = 'take-exam.html?id=' + examId;
+        }
+
+        // ============================================================
+        // DELETE EXAM (Chỉ giáo viên)
+        // ============================================================
+
+        async function deleteExam(examId) {
+            if (userRole !== 'teacher') {
+                alert('Bạn không có quyền xóa đề thi!');
+                return;
+            }
+
+            if (!confirm('Bạn có chắc chắn muốn xóa đề thi này?')) return;
+
+            try {
+                await db.collection('exams').doc(examId).delete();
+                allExams = allExams.filter(e => e.id !== examId);
+                renderExams();
+                alert('✅ Đã xóa đề thi thành công!');
+            } catch (error) {
+                console.error('Lỗi xóa đề thi:', error);
+                alert('❌ Không thể xóa đề thi. Vui lòng thử lại!');
+            }
         }
 
         // ============================================================
@@ -535,6 +657,14 @@
         });
 
         checkAuth();
+
+        // Lắng nghe sự kiện storage để cập nhật khi có thay đổi từ tab khác
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'examHistory') {
+                loadHistory();
+                renderExams();
+            }
+        });
     </script>
 
 </body>
