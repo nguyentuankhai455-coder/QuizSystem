@@ -196,6 +196,8 @@
             text-decoration: none;
             color: inherit;
             display: block;
+            position: relative;
+            overflow: hidden;
         }
 
         .dash-card:hover {
@@ -224,6 +226,21 @@
             font-weight: 800;
             color: #3498db;
             margin-top: 6px;
+        }
+
+        /* ===== COMING SOON BADGE ===== */
+        .coming-soon-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f39c12;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .badge-new {
@@ -415,11 +432,9 @@
 
         async function loadCounts() {
             try {
-                // Đếm số đề thi
                 const examSnapshot = await db.collection('exams').get();
                 examCount = examSnapshot.size;
 
-                // Đếm số lớp
                 try {
                     const classSnapshot = await db.collection('classes').get();
                     classCount = classSnapshot.size;
@@ -435,7 +450,7 @@
         }
 
         // ============================================================
-        // RENDER DASHBOARD THEO ROLE
+        // RENDER DASHBOARD THEO ROLE (Đã thêm "Coming soon")
         // ============================================================
 
         function renderDashboard() {
@@ -461,31 +476,37 @@
                             <div class="count">${examCount || 0}</div>
                         </a>
 
-                        <a href="#" class="dash-card student-card">
+                        <a href="#" class="dash-card student-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-chart-line"></i></div>
                             <h4>Kết quả học tập</h4>
                             <p>Xem điểm số của bạn</p>
-                            <span class="badge-student">Điểm TB: --</span>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
-                        <a href="#" class="dash-card student-card">
+                        <a href="#" class="dash-card student-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-calendar-check"></i></div>
                             <h4>Lịch thi</h4>
                             <p>Các kỳ thi sắp tới</p>
-                            <span class="badge-student">0 sắp tới</span>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
-                        <a href="#" class="dash-card student-card">
+                    </div>
+
+                    <div class="section-divider">🚀 Đang phát triển</div>
+                    <div class="dashboard-grid">
+
+                        <a href="#" class="dash-card student-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-robot"></i></div>
                             <h4>Hỏi đáp bằng AI</h4>
                             <p>Hỏi đáp với trí tuệ nhân tạo</p>
-                            <span class="badge-new">Mới</span>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
-                        <a href="#" class="dash-card student-card">
+                        <a href="#" class="dash-card student-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-user-circle"></i></div>
                             <h4>Hồ sơ cá nhân</h4>
                             <p>Thông tin tài khoản</p>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
                     </div>
@@ -518,11 +539,12 @@
                             <div class="count">${classCount || 0}</div>
                         </a>
 
-                        <a href="#" class="dash-card teacher-card">
+                        <a href="#" class="dash-card teacher-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-chalkboard-teacher"></i></div>
                             <h4>Quản lý giáo viên</h4>
                             <p>Quản lý giáo viên</p>
                             <div class="count">0</div>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
                     </div>
@@ -530,10 +552,11 @@
                     <div class="section-divider">📁 Nội dung & Công cụ</div>
                     <div class="dashboard-grid">
 
-                        <a href="#" class="dash-card teacher-card">
+                        <a href="#" class="dash-card teacher-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-box"></i></div>
                             <h4>Kho nội dung</h4>
                             <p>Kho tài nguyên</p>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
                         <a href="questions.html" class="dash-card teacher-card">
@@ -542,22 +565,31 @@
                             <p>Quản lý câu hỏi</p>
                         </a>
 
-                        <a href="#" class="dash-card teacher-card">
+                        <a href="#" class="dash-card teacher-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-graduation-cap"></i></div>
                             <h4>Khóa học</h4>
                             <p>Quản lý khóa học</p>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
-                        <a href="#" class="dash-card teacher-card">
+                        <a href="#" class="dash-card teacher-card" onclick="comingSoon()">
                             <div class="icon"><i class="fas fa-robot"></i></div>
                             <h4>Hỏi đáp bằng AI</h4>
                             <p>Hỏi đáp với trí tuệ nhân tạo</p>
-                            <span class="badge-new">Mới</span>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
                         </a>
 
                     </div>
                 `;
             }
+        }
+
+        // ============================================================
+        // COMING SOON FUNCTION
+        // ============================================================
+
+        function comingSoon() {
+            alert('🚀 Tính năng này đang được phát triển!\n\n📌 "Coming soon" - Hãy quay lại sau nhé!');
         }
 
         // ============================================================
