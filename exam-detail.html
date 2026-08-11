@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* (Giữ nguyên style từ file trước) */
         * {
             margin: 0;
             padding: 0;
@@ -115,16 +116,6 @@
             background: #7f8c8d;
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #3498db;
-            color: #3498db;
-        }
-        .btn-outline:hover {
-            background: #3498db;
-            color: white;
-        }
-
         .btn-lg {
             padding: 14px 32px;
             font-size: 16px;
@@ -163,7 +154,6 @@
             color: #b0b8c4;
         }
 
-        /* ===== EXAM DETAIL CARD ===== */
         .exam-card {
             background: white;
             border-radius: 16px;
@@ -228,11 +218,6 @@
             color: #2c3e50;
         }
 
-        .exam-card .exam-body .info-item .value .icon {
-            margin-right: 6px;
-            color: #3498db;
-        }
-
         .exam-card .exam-body .info-item .value .badge-unlimited {
             background: #d4edda;
             color: #27ae60;
@@ -280,12 +265,6 @@
             gap: 12px;
         }
 
-        .exam-card .exam-actions .start-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .exam-card .exam-actions .history-btn {
             font-size: 14px;
             color: #3498db;
@@ -301,7 +280,6 @@
             text-decoration: underline;
         }
 
-        /* ===== WARNING ===== */
         .exam-warning {
             background: #fff3cd;
             border: 2px solid #ffc107;
@@ -352,18 +330,11 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            .exam-card .exam-actions .start-btn {
-                justify-content: center;
-            }
-            .exam-card .exam-actions .history-btn {
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="top-header">
         <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
         <div class="header-right">
@@ -375,7 +346,6 @@
 
     <div class="container">
 
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
@@ -384,7 +354,6 @@
             <span class="current" id="breadcrumbTitle">Chi tiết đề thi</span>
         </div>
 
-        <!-- WARNING -->
         <div class="exam-warning">
             <div class="icon"><i class="fas fa-info-circle"></i></div>
             <div class="text">
@@ -393,9 +362,7 @@
             </div>
         </div>
 
-        <!-- EXAM CARD -->
         <div class="exam-card">
-            <!-- Header -->
             <div class="exam-header">
                 <div class="exam-title" id="examTitle">ĐỀ TỔNG</div>
                 <div class="exam-code">
@@ -403,7 +370,6 @@
                 </div>
             </div>
 
-            <!-- Body -->
             <div class="exam-body">
                 <div class="info-grid">
                     <div class="info-item">
@@ -420,7 +386,7 @@
                     </div>
                     <div class="info-item">
                         <div class="label">🔢 Số lượng câu hỏi</div>
-                        <div class="value" id="examQuestions">90</div>
+                        <div class="value" id="examQuestions">0</div>
                     </div>
                     <div class="info-item">
                         <div class="label">📋 Loại đề</div>
@@ -437,12 +403,11 @@
                 </div>
             </div>
 
-            <!-- Actions -->
             <div class="exam-actions">
                 <div class="history-btn" onclick="viewHistory()">
                     <i class="fas fa-history"></i> Xem lịch sử làm bài
                 </div>
-                <div class="start-btn">
+                <div>
                     <button class="btn btn-success btn-lg" onclick="startExam()">
                         <i class="fas fa-play"></i> Bắt đầu thi
                     </button>
@@ -507,7 +472,6 @@
             if (examId) {
                 loadExamDetail(examId);
             } else {
-                // Demo data nếu không có ID
                 loadDemoData();
             }
         }
@@ -534,6 +498,7 @@
                     examData = { id: doc.id, ...doc.data() };
                     renderExamDetail();
                 } else {
+                    // Nếu không tìm thấy, dùng demo
                     loadDemoData();
                 }
             } catch (error) {
@@ -543,15 +508,16 @@
         }
 
         function loadDemoData() {
+            // Tạo dữ liệu mẫu dựa trên ID
             examData = {
-                id: 'demo',
-                title: 'ĐỀ TỔNG',
-                code: 'ghviv3',
-                duration: null, // null = không giới hạn
-                timeLimit: null, // null = không thời hạn
-                questions: Array(90).fill({}), // 90 câu
+                id: examId || 'demo',
+                title: 'ĐỀ TỔNG ' + (examId ? '' : '(Demo)'),
+                code: examId ? examId.substring(0, 6) : 'ghviv3',
+                duration: null,
+                timeLimit: null,
+                questions: Array(90).fill({}),
                 type: 'Trắc nghiệm',
-                attempts: 0
+                attempts: Math.floor(Math.random() * 50)
             };
             renderExamDetail();
         }
@@ -567,7 +533,6 @@
             document.getElementById('examCode').textContent = examData.code || generateExamCode();
             document.getElementById('breadcrumbTitle').textContent = examData.title || 'Chi tiết đề thi';
 
-            // Thời gian làm bài
             const durationEl = document.getElementById('examDuration');
             if (examData.duration) {
                 durationEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> ${examData.duration} phút</span>`;
@@ -575,7 +540,6 @@
                 durationEl.innerHTML = `<span class="badge-unlimited"><i class="fas fa-infinity"></i> Không giới hạn</span>`;
             }
 
-            // Thời gian vào thi
             const timeEl = document.getElementById('examTime');
             if (examData.timeLimit) {
                 timeEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> ${examData.timeLimit}</span>`;
@@ -583,16 +547,13 @@
                 timeEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> Không thời hạn</span>`;
             }
 
-            // Số lượng câu hỏi
             const questionCount = examData.questions ? examData.questions.length : 0;
             document.getElementById('examQuestions').textContent = questionCount || 0;
 
-            // Loại đề
             document.getElementById('examType').innerHTML = `
                 <span class="badge-exam"><i class="fas fa-list-ul"></i> ${examData.type || 'Trắc nghiệm'}</span>
             `;
 
-            // Lượt làm
             document.getElementById('examAttempts').innerHTML = `
                 <span class="badge-count"><i class="fas fa-users"></i> ${examData.attempts || 0} lượt</span>
             `;
@@ -617,7 +578,6 @@
                 return;
             }
 
-            // Kiểm tra xem đã làm bài chưa (có thể check trong Firestore)
             const confirmMsg = `🚀 Bạn sắp bắt đầu làm bài: ${examData.title}\n\n` +
                 `📝 Số câu hỏi: ${examData.questions ? examData.questions.length : 0}\n` +
                 `⏱️ Thời gian: ${examData.duration ? examData.duration + ' phút' : 'Không giới hạn'}\n\n` +
@@ -626,10 +586,9 @@
 
             if (confirm(confirmMsg)) {
                 // Chuyển sang trang làm bài
-                // window.location.href = 'take-exam.html?id=' + examData.id;
-                alert('🚀 Chức năng làm bài đang được phát triển!\n\n' +
-                    '📌 Sẽ chuyển đến trang làm bài thi với ' +
-                    (examData.questions ? examData.questions.length : 0) + ' câu hỏi.');
+                alert('🚀 Chuyển sang trang làm bài thi!\n\n' +
+                    '📌 Sẽ có ' + (examData.questions ? examData.questions.length : 0) + ' câu hỏi.\n\n' +
+                    '⏳ Chức năng làm bài đang được phát triển...');
             }
         }
 
