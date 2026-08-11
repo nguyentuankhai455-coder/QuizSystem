@@ -115,6 +115,21 @@
             background: #7f8c8d;
         }
 
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+        .btn-outline:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
         .container {
             max-width: 1100px;
             margin: 0 auto;
@@ -194,6 +209,45 @@
             font-weight: 400;
         }
 
+        /* ===== SETTINGS ===== */
+        .editor-settings {
+            padding: 16px 20px;
+            border-bottom: 2px solid #e8edf5;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .editor-settings .form-group {
+            margin-bottom: 0;
+        }
+
+        .editor-settings .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .editor-settings .form-group input,
+        .editor-settings .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+
+        .editor-settings .form-group input:focus,
+        .editor-settings .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        /* ===== TEMPLATE SAMPLES ===== */
         .template-samples {
             display: flex;
             gap: 6px;
@@ -225,6 +279,7 @@
             background: #f0f7ff;
         }
 
+        /* ===== INPUT AREA ===== */
         .editor-input-area {
             padding: 16px 20px;
             border-bottom: 2px solid #e8edf5;
@@ -282,6 +337,7 @@
             flex-wrap: wrap;
         }
 
+        /* ===== PREVIEW ===== */
         .editor-preview {
             padding: 16px 20px;
             background: #f8faff;
@@ -347,6 +403,7 @@
             font-size: 14px;
         }
 
+        /* ===== FOOTER ===== */
         .editor-footer {
             padding: 12px 20px;
             display: flex;
@@ -369,6 +426,7 @@
             flex-wrap: wrap;
         }
 
+        /* ===== STATUS ===== */
         .status-message {
             padding: 12px 18px;
             margin: 0 20px 12px 20px;
@@ -400,12 +458,17 @@
             color: #856404;
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .top-header {
                 padding: 10px 16px;
             }
             .container {
                 padding: 10px 16px;
+            }
+            .editor-settings {
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
             .editor-input-area textarea {
                 min-height: 100px;
@@ -461,6 +524,33 @@
                 <input type="text" id="examTitle" placeholder="Nhập tên đề thi..." value="">
             </div>
 
+            <!-- SETTINGS -->
+            <div class="editor-settings">
+                <div class="form-group">
+                    <label>⏱️ Thời gian làm bài</label>
+                    <input type="number" id="examDuration" value="30" min="1" placeholder="Phút">
+                </div>
+                <div class="form-group">
+                    <label>📝 Số lần được làm</label>
+                    <select id="examMaxAttempts">
+                        <option value="">Không giới hạn</option>
+                        <option value="1">1 lần</option>
+                        <option value="2">2 lần</option>
+                        <option value="3">3 lần</option>
+                        <option value="5">5 lần</option>
+                        <option value="10">10 lần</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📋 Loại đề</label>
+                    <select id="examType">
+                        <option value="Trắc nghiệm">Trắc nghiệm</option>
+                        <option value="Tự luận">Tự luận</option>
+                        <option value="Hỗn hợp">Hỗn hợp</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- TEMPLATES -->
             <div class="template-samples">
                 <span class="template-label">📋 Nội dung mẫu:</span>
@@ -468,7 +558,7 @@
                 <button class="template-btn" onclick="loadTemplate('mau2')">Mẫu 2</button>
                 <button class="template-btn" onclick="loadTemplate('mau3')">Mẫu 3 (Có điền từ)</button>
                 <button class="template-btn" onclick="loadTemplate('mau4')">Mẫu 4</button>
-                <button class="template-btn" onclick="loadTemplate('mau5')">Mẫu 5 (Có câu Đúng-Sai)</button>
+                <button class="template-btn" onclick="loadTemplate('mau5')">Mẫu 5 (Đúng-Sai)</button>
             </div>
 
             <!-- INPUT -->
@@ -571,9 +661,9 @@
             }
 
             document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
-            const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
-            document.getElementById('userRoleBadge').textContent = roleLabel;
+            document.getElementById('userRoleBadge').textContent = '👨‍🏫 Giáo viên';
 
+            // Kiểm tra sửa đề
             const editingId = localStorage.getItem('editingExamId');
             if (editingId) {
                 loadExamForEdit(editingId);
@@ -601,12 +691,29 @@
                 if (doc.exists) {
                     const exam = { id: doc.id, ...doc.data() };
                     currentEditingExamId = examId;
+
                     document.getElementById('examTitle').value = exam.title || '';
+                    document.getElementById('examDuration').value = exam.duration || 30;
+                    document.getElementById('examMaxAttempts').value = exam.maxAttempts || '';
+                    document.getElementById('examType').value = exam.type || 'Trắc nghiệm';
+
                     if (exam.questions && exam.questions.length > 0) {
                         parsedQuestions = exam.questions;
                         renderPreview();
                     }
+
+                    // Thêm nút cập nhật
+                    const oldBtn = document.querySelector('.btn-update-exam');
+                    if (oldBtn) oldBtn.remove();
+
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-warning btn-update-exam';
+                    btn.textContent = '🔄 Cập nhật đề thi';
+                    btn.onclick = saveExam;
+                    document.querySelector('.right-actions').appendChild(btn);
+
                     localStorage.removeItem('editingExamId');
+                    showStatus('info', '📝 Đang chỉnh sửa đề thi: ' + exam.title);
                 }
             } catch (error) {
                 console.error('Lỗi tải đề để sửa:', error);
@@ -870,98 +977,77 @@
         }
 
         // ============================================================
-        // SAVE EXAM - ĐÃ SỬA LỖI
+        // SAVE EXAM
         // ============================================================
 
-        async function saveExam() {
+        function getExamDataFromForm() {
             const title = document.getElementById('examTitle').value.trim();
             if (!title) {
                 showStatus('error', '⚠️ Vui lòng nhập tên đề thi!');
-                return;
+                return null;
             }
+
+            const duration = parseInt(document.getElementById('examDuration').value) || 30;
+            const maxAttempts = document.getElementById('examMaxAttempts').value;
+            const type = document.getElementById('examType').value || 'Trắc nghiệm';
 
             if (parsedQuestions.length === 0) {
                 showStatus('error', '⚠️ Chưa có câu hỏi nào! Hãy nhập nội dung và nhấn "Xem trước".');
-                return;
+                return null;
             }
 
-            // === KIỂM TRA DỮ LIỆU TRƯỚC KHI LƯU ===
-            let valid = true;
-            let errorMsg = '';
-
+            // Kiểm tra dữ liệu
             for (let i = 0; i < parsedQuestions.length; i++) {
                 const q = parsedQuestions[i];
-
-                // Kiểm tra nội dung câu hỏi
-                if (!q.content || typeof q.content !== 'string' || q.content.trim() === '') {
-                    valid = false;
-                    errorMsg = `Câu ${i + 1}: Thiếu nội dung câu hỏi!`;
-                    break;
+                if (!q.content || q.content.trim() === '') {
+                    showStatus('error', `⚠️ Câu ${i + 1}: Thiếu nội dung câu hỏi!`);
+                    return null;
                 }
-
-                // Kiểm tra options
-                if (!q.options || !Array.isArray(q.options) || q.options.length < 2) {
-                    valid = false;
-                    errorMsg = `Câu ${i + 1}: Cần ít nhất 2 đáp án!`;
-                    break;
+                if (!q.options || q.options.length < 2) {
+                    showStatus('error', `⚠️ Câu ${i + 1}: Cần ít nhất 2 đáp án!`);
+                    return null;
                 }
-
-                // Kiểm tra các option không rỗng
-                const hasEmptyOption = q.options.some(opt => !opt || opt.trim() === '');
-                if (hasEmptyOption) {
-                    valid = false;
-                    errorMsg = `Câu ${i + 1}: Có đáp án bị trống!`;
-                    break;
+                if (q.options.some(o => !o || o.trim() === '')) {
+                    showStatus('error', `⚠️ Câu ${i + 1}: Có đáp án bị trống!`);
+                    return null;
                 }
-
-                // Kiểm tra correct
                 if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= q.options.length) {
-                    valid = false;
-                    errorMsg = `Câu ${i + 1}: Chưa chọn đáp án đúng!`;
-                    break;
+                    showStatus('error', `⚠️ Câu ${i + 1}: Chưa chọn đáp án đúng!`);
+                    return null;
                 }
             }
 
-            if (!valid) {
-                showStatus('error', '⚠️ ' + errorMsg);
-                return;
-            }
-
-            // === TẠO DỮ LIỆU SẠCH ĐỂ LƯU ===
-            const cleanQuestions = parsedQuestions.map(q => ({
-                content: q.content.trim(),
-                options: q.options.map(o => o.trim()),
-                correct: q.correct
-            }));
-
-            const examData = {
-                title: title.trim(),
-                duration: 30,
-                questions: cleanQuestions,
+            return {
+                title: title,
+                duration: duration,
+                maxAttempts: maxAttempts ? parseInt(maxAttempts) : null,
+                type: type,
+                questions: parsedQuestions,
                 status: 'Đã xuất bản'
             };
+        }
 
-            // === HIỂN THỊ TRẠNG THÁI LOADING ===
+        async function saveExam() {
+            const examData = getExamDataFromForm();
+            if (!examData) return;
+
             showStatus('loading', '⏳ Đang lưu đề thi...');
 
             try {
-                // KIỂM TRA ĐĂNG NHẬP
                 if (!currentUser || !currentUser.uid) {
-                    throw new Error('Bạn chưa đăng nhập! Vui lòng đăng nhập lại.');
+                    throw new Error('Bạn chưa đăng nhập!');
                 }
 
-                let result;
-
                 if (currentEditingExamId) {
-                    // Cập nhật đề thi
-                    result = await db.collection('exams').doc(currentEditingExamId).update({
+                    // Cập nhật
+                    await db.collection('exams').doc(currentEditingExamId).update({
                         ...examData,
                         updatedAt: new Date().toLocaleString()
                     });
                     showStatus('success', '✅ Đã cập nhật đề thi thành công!');
                 } else {
-                    // Tạo đề thi mới
-                    result = await db.collection('exams').add({
+                    // Tạo mới
+                    await db.collection('exams').add({
                         ...examData,
                         createdBy: currentUser.uid,
                         createdByEmail: currentUser.email,
@@ -970,61 +1056,32 @@
                     showStatus('success', '✅ Đã lưu đề thi thành công!');
                 }
 
-                // Lưu thành công, chuyển trang sau 2 giây
+                // Xóa nút cập nhật nếu có
+                const oldBtn = document.querySelector('.btn-update-exam');
+                if (oldBtn) oldBtn.remove();
+                currentEditingExamId = null;
+
+                // Reset form
+                document.getElementById('examTitle').value = '';
+                document.getElementById('examInput').value = '';
+                parsedQuestions = [];
+                renderPreview();
+
                 setTimeout(() => {
                     window.location.href = 'exams.html';
                 }, 2000);
 
             } catch (error) {
-                console.error('❌ Lỗi chi tiết:', error);
-
+                console.error('Lỗi lưu đề:', error);
                 let errorMessage = 'Không thể lưu đề thi. Vui lòng thử lại!';
 
-                // Phân tích lỗi cụ thể
-                if (error.message) {
-                    errorMessage = error.message;
-                }
-
-                if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
+                if (error.code === 'permission-denied') {
                     errorMessage = '❌ Bạn không có quyền ghi dữ liệu. Vui lòng kiểm tra Firestore Rules!';
-                } else if (error.code === 'unauthenticated' || error.code === 'UNAUTHENTICATED') {
+                } else if (error.code === 'unauthenticated') {
                     errorMessage = '❌ Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!';
-                } else if (error.message && error.message.includes('Firestore')) {
-                    errorMessage = '❌ Lỗi kết nối Firestore. Vui lòng kiểm tra mạng!';
                 }
 
                 showStatus('error', '⚠️ ' + errorMessage);
-
-                // Nếu lỗi permission, hiển thị hướng dẫn
-                if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
-                    setTimeout(() => {
-                        const helpMsg = document.createElement('div');
-                        helpMsg.className = 'status-message info';
-                        helpMsg.style.marginTop = '8px';
-                        helpMsg.innerHTML = `
-                            💡 <strong>Hướng dẫn sửa Firestore Rules:</strong><br>
-                            1. Vào Firebase Console → Firestore Database → Rules<br>
-                            2. Thay rule thành:<br>
-                            <code style="background:#e8edf5; padding:4px 8px; border-radius:4px; display:inline-block; margin-top:4px;">
-                            rules_version = '2';<br>
-                            service cloud.firestore {<br>
-                            &nbsp;&nbsp;match /databases/{database}/documents {<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;match /{document=**} {<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if request.auth != null;<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                            &nbsp;&nbsp;}<br>
-                            }
-                            </code>
-                        `;
-                        const container = document.querySelector('.editor-container');
-                        const existing = container.querySelector('.status-message');
-                        if (existing) {
-                            container.insertBefore(helpMsg, existing.nextSibling);
-                        } else {
-                            container.insertBefore(helpMsg, container.querySelector('.editor-input-area'));
-                        }
-                    }, 500);
-                }
             }
         }
 
@@ -1033,7 +1090,6 @@
         // ============================================================
 
         function showStatus(type, message) {
-            // Xóa status cũ
             const existing = document.querySelectorAll('.status-message');
             existing.forEach(el => el.remove());
 
@@ -1045,11 +1101,10 @@
             const inputArea = container.querySelector('.editor-input-area');
             container.insertBefore(div, inputArea);
 
-            // Tự động ẩn sau 10 giây (trừ loading và error)
             if (type !== 'loading' && type !== 'error') {
                 setTimeout(() => {
                     if (div.parentNode) div.remove();
-                }, 8000);
+                }, 6000);
             }
         }
 
@@ -1065,13 +1120,6 @@
         });
 
         checkAuth();
-
-        // Tự động parse khi dán
-        document.getElementById('examInput').addEventListener('paste', function() {
-            setTimeout(() => {
-                // Không tự động parse
-            }, 100);
-        });
 
         // Ctrl+Enter để lưu
         document.addEventListener('keydown', function(e) {
