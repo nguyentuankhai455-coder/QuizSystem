@@ -130,6 +130,22 @@
             font-size: 12px;
         }
 
+        .btn-edit {
+            background: transparent;
+            color: #3498db;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit:hover {
+            background: #e8f4fd;
+            text-decoration: underline;
+        }
+
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -609,7 +625,7 @@
 
     <script>
         // ============================================================
-        // CLOUDINARY CONFIG - ĐÃ CẬP NHẬT
+        // CLOUDINARY CONFIG
         // ============================================================
 
         // Cloud Name của bạn (từ Cloudinary Dashboard)
@@ -751,32 +767,41 @@
         }
 
         // ============================================================
-        // UPLOAD AVATAR - LÊN CLOUDINARY (AN TOÀN, KHÔNG CẦN API SECRET)
+        // UPLOAD AVATAR - LÊN CLOUDINARY
         // ============================================================
 
         function uploadAvatar() {
+            // Tạo input file ẩn
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
+            input.style.display = 'none';
+            document.body.appendChild(input);
+
             input.onchange = function(e) {
                 const file = e.target.files[0];
-                if (!file) return;
+                if (!file) {
+                    document.body.removeChild(input);
+                    return;
+                }
 
+                // Kiểm tra kích thước file
                 if (file.size > 5 * 1024 * 1024) {
                     alert('⚠️ File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
+                    document.body.removeChild(input);
                     return;
                 }
 
                 // Hiển thị loading
                 document.getElementById('loadingOverlay').classList.add('show');
 
-                // Tạo FormData để gửi lên Cloudinary
+                // Tạo FormData gửi lên Cloudinary
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLOAD_PRESET);
                 formData.append('folder', `avatars/${currentUser.uid}`);
 
-                // Gửi lên Cloudinary (không cần API Key/Secret vì dùng unsigned preset)
+                // Gửi lên Cloudinary
                 fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
                     method: 'POST',
                     body: formData
@@ -791,9 +816,9 @@
                 })
                 .then(data => {
                     console.log('✅ Cloudinary upload thành công:', data);
-
                     const avatarUrl = data.secure_url;
 
+                    // Lưu URL vào Firestore
                     return db.collection('users').doc(currentUser.uid).update({
                         avatar: avatarUrl
                     }).then(() => {
@@ -807,7 +832,7 @@
                     console.error('❌ Lỗi upload Cloudinary:', error);
                     document.getElementById('loadingOverlay').classList.remove('show');
 
-                    // Kiểm tra nếu lỗi do upload preset
+                    // Kiểm tra lỗi upload preset
                     if (error.message.includes('upload preset')) {
                         alert('⚠️ Lỗi: Upload Preset chưa được tạo!\n\n' +
                               'Vui lòng tạo Upload Preset trong Cloudinary:\n' +
@@ -818,8 +843,14 @@
                     } else {
                         alert('⚠️ Không thể tải ảnh lên Cloudinary. Vui lòng thử lại!\n\nLỗi: ' + error.message);
                     }
+                })
+                .finally(() => {
+                    // Xóa input sau khi hoàn thành
+                    document.body.removeChild(input);
                 });
             };
+
+            // Mở dialog chọn file
             input.click();
         }
 
