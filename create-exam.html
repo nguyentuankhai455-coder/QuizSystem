@@ -9,14 +9,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <!-- Thư viện đọc file DOCX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <!-- Thư viện đọc file PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* ... CSS giữ nguyên như file trước ... */
         * {
             margin: 0;
             padding: 0;
@@ -188,7 +187,6 @@
             overflow: hidden;
         }
 
-        /* ===== UPLOAD SECTION ===== */
         .upload-section {
             padding: 16px 20px;
             border-bottom: 2px solid #e8edf5;
@@ -305,7 +303,6 @@
             width: 0%;
         }
 
-        /* ===== EDITOR TITLE ===== */
         .editor-title {
             padding: 16px 20px;
             border-bottom: 2px solid #e8edf5;
@@ -332,7 +329,6 @@
             font-weight: 400;
         }
 
-        /* ===== SETTINGS ===== */
         .editor-settings {
             padding: 16px 20px;
             border-bottom: 2px solid #e8edf5;
@@ -370,7 +366,6 @@
             border-color: #3498db;
         }
 
-        /* ===== TEMPLATE SAMPLES ===== */
         .template-samples {
             display: flex;
             gap: 6px;
@@ -402,7 +397,6 @@
             background: #f0f7ff;
         }
 
-        /* ===== INPUT AREA ===== */
         .editor-input-area {
             padding: 16px 20px;
             border-bottom: 2px solid #e8edf5;
@@ -460,7 +454,6 @@
             flex-wrap: wrap;
         }
 
-        /* ===== PREVIEW ===== */
         .editor-preview {
             padding: 16px 20px;
             background: #f8faff;
@@ -526,7 +519,6 @@
             font-size: 14px;
         }
 
-        /* ===== FOOTER ===== */
         .editor-footer {
             padding: 12px 20px;
             display: flex;
@@ -549,7 +541,6 @@
             flex-wrap: wrap;
         }
 
-        /* ===== STATUS ===== */
         .status-message {
             padding: 12px 18px;
             margin: 0 20px 12px 20px;
@@ -581,7 +572,6 @@
             color: #856404;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .top-header {
                 padding: 10px 16px;
@@ -642,7 +632,7 @@
 
         <div class="editor-container">
 
-            <!-- ===== UPLOAD SECTION ===== -->
+            <!-- UPLOAD -->
             <div class="upload-section">
                 <div class="upload-area" id="dropZone">
                     <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
@@ -661,12 +651,12 @@
                 </div>
             </div>
 
-            <!-- ===== TITLE ===== -->
+            <!-- TITLE -->
             <div class="editor-title">
                 <input type="text" id="examTitle" placeholder="Nhập tên đề thi..." value="">
             </div>
 
-            <!-- ===== SETTINGS ===== -->
+            <!-- SETTINGS -->
             <div class="editor-settings">
                 <div class="form-group">
                     <label>⏱️ Thời gian làm bài</label>
@@ -693,7 +683,7 @@
                 </div>
             </div>
 
-            <!-- ===== TEMPLATES ===== -->
+            <!-- TEMPLATES -->
             <div class="template-samples">
                 <span class="template-label">📋 Nội dung mẫu:</span>
                 <button class="template-btn" onclick="loadTemplate('mau1')">Mẫu 1</button>
@@ -703,7 +693,7 @@
                 <button class="template-btn" onclick="loadTemplate('mau5')">Mẫu 5 (Đúng-Sai)</button>
             </div>
 
-            <!-- ===== INPUT ===== -->
+            <!-- INPUT -->
             <div class="editor-input-area">
                 <div class="input-header">
                     <label>📝 Nhập nội dung đề thi</label>
@@ -722,7 +712,7 @@
                 </div>
             </div>
 
-            <!-- ===== PREVIEW ===== -->
+            <!-- PREVIEW -->
             <div class="editor-preview" id="previewSection">
                 <div class="preview-header">
                     <h4>🔍 Xem trước</h4>
@@ -736,7 +726,7 @@
                 </div>
             </div>
 
-            <!-- ===== FOOTER ===== -->
+            <!-- FOOTER -->
             <div class="editor-footer">
                 <div class="left-actions">
                     <button class="btn btn-primary" onclick="addQuestionManual()">
@@ -861,13 +851,12 @@
         }
 
         // ============================================================
-        // FILE UPLOAD - ĐỌC FILE VÀ TỰ ĐỘNG PHÁT HIỆN
+        // FILE UPLOAD
         // ============================================================
 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
 
-        // Drag & Drop events
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('dragover');
@@ -905,7 +894,6 @@
             try {
                 let text = '';
 
-                // Đọc file theo định dạng
                 if (file.name.endsWith('.txt')) {
                     text = await readTxtFile(file);
                 } else if (file.name.endsWith('.docx')) {
@@ -922,22 +910,18 @@
                     throw new Error('File không có nội dung!');
                 }
 
-                // Tự động phát hiện và parse
                 const result = autoDetectAndParse(text);
 
                 if (result.questions.length === 0) {
                     throw new Error('Không tìm thấy câu hỏi trong file!');
                 }
 
-                // Điền tên đề thi (lấy dòng đầu tiên)
                 if (result.title && !document.getElementById('examTitle').value) {
                     document.getElementById('examTitle').value = result.title;
                 }
 
-                // Điền nội dung vào textarea
                 document.getElementById('examInput').value = text;
 
-                // Parse câu hỏi
                 parsedQuestions = result.questions;
                 renderPreview();
 
@@ -960,7 +944,6 @@
             }
         }
 
-        // ===== ĐỌC FILE TXT =====
         function readTxtFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -970,7 +953,6 @@
             });
         }
 
-        // ===== ĐỌC FILE DOCX =====
         function readDocxFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -988,7 +970,6 @@
             });
         }
 
-        // ===== ĐỌC FILE PDF =====
         function readPdfFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -1014,7 +995,7 @@
         }
 
         // ============================================================
-        // AUTO DETECT & PARSE - TỰ ĐỘNG PHÁT HIỆN CÂU HỎI + ĐÁP ÁN
+        // AUTO DETECT & PARSE - HỖ TRỢ ĐÁP ÁN TRÊN 1 DÒNG
         // ============================================================
 
         function autoDetectAndParse(text) {
@@ -1023,7 +1004,7 @@
             let questions = [];
             let currentQuestion = null;
 
-            // Lấy dòng đầu tiên làm tên đề (nếu không bắt đầu bằng số hoặc A/B/C/D)
+            // Lấy dòng đầu tiên làm tên đề
             if (lines.length > 0) {
                 const firstLine = lines[0];
                 const isOption = /^[A-Da-d]\./.test(firstLine) || /^\*[A-Da-d]\./.test(firstLine);
@@ -1031,14 +1012,12 @@
 
                 if (!isOption && !isQuestion) {
                     title = firstLine;
-                    // Xóa dòng tiêu đề khỏi danh sách
                     lines.splice(0, 1);
                 }
             }
 
-            // Xóa các dòng không cần thiết (số thứ tự, ...)
+            // Xóa các dòng không cần thiết
             const cleanedLines = lines.filter(line => {
-                // Bỏ qua các dòng chỉ toàn số hoặc ký tự đặc biệt
                 if (/^[\d\s\-_=+*#]+$/.test(line)) return false;
                 if (line.length < 2) return false;
                 return true;
@@ -1055,7 +1034,6 @@
                     // Lưu câu hỏi trước đó
                     if (currentQuestion) {
                         if (currentQuestion.options.length > 0) {
-                            // Xác định đáp án đúng
                             let correctIndex = currentQuestion.options.findIndex(o => o.correct);
                             if (correctIndex === -1 && currentQuestion.options.length > 0) {
                                 correctIndex = 0;
@@ -1074,8 +1052,20 @@
                         content: cleanContent || line,
                         options: []
                     };
+
+                    // 🔥 KIỂM TRA ĐÁP ÁN TRÊN CÙNG DÒNG VỚI CÂU HỎI
+                    const optionsInLine = extractOptionsFromLine(line);
+                    if (optionsInLine.length > 0) {
+                        optionsInLine.forEach(opt => {
+                            currentQuestion.options.push({
+                                text: opt.text,
+                                correct: opt.isCorrect
+                            });
+                        });
+                    }
+
                 } else if (isOption && currentQuestion) {
-                    // Thêm đáp án
+                    // Đáp án trên 1 dòng riêng
                     const isCorrect = line.startsWith('*');
                     const cleanLine = line.replace(/^\*/, '').trim();
                     const optionText = cleanLine.replace(/^[A-Da-d]\.\s*/, '').trim();
@@ -1083,9 +1073,19 @@
                         text: optionText || cleanLine,
                         correct: isCorrect
                     });
+
                 } else if (currentQuestion && !isOption && !isQuestionLine) {
-                    // Nếu là dòng bình thường và đang có câu hỏi, có thể là nội dung câu hỏi kéo dài
-                    if (currentQuestion.options.length === 0) {
+                    // Nếu là dòng bình thường, có thể chứa đáp án
+                    const optionsInLine = extractOptionsFromLine(line);
+                    if (optionsInLine.length > 0) {
+                        optionsInLine.forEach(opt => {
+                            currentQuestion.options.push({
+                                text: opt.text,
+                                correct: opt.isCorrect
+                            });
+                        });
+                    } else if (currentQuestion.options.length === 0) {
+                        // Nếu chưa có đáp án, coi là nội dung câu hỏi kéo dài
                         currentQuestion.content += ' ' + line;
                     }
                 }
@@ -1106,9 +1106,8 @@
                 }
             }
 
-            // Nếu không tìm thấy câu hỏi nào, thử parse theo cách khác
+            // Nếu không tìm thấy câu hỏi, thử parse cách khác
             if (questions.length === 0) {
-                // Thử parse toàn bộ text
                 const result = parseExamContent(text);
                 if (result.length > 0) {
                     questions = result;
@@ -1119,6 +1118,35 @@
                 title: title || 'Đề thi từ file',
                 questions: questions
             };
+        }
+
+        // ============================================================
+        // EXTRACT OPTIONS FROM LINE - LẤY ĐÁP ÁN TỪ 1 DÒNG
+        // ============================================================
+
+        function extractOptionsFromLine(line) {
+            const options = [];
+            // Tìm tất cả các đáp án trong dòng: A. xxx B. xxx C. xxx D. xxx
+            const pattern = /([A-Da-d])\.\s*([^A-Da-d]*?)(?=\s*[A-Da-d]\.\s*|$)/g;
+            let match;
+
+            while ((match = pattern.exec(line)) !== null) {
+                const letter = match[1].toUpperCase();
+                let text = match[2].trim();
+                // Kiểm tra nếu có dấu * ở trước
+                const isCorrect = text.startsWith('*') || text.includes('*');
+                if (isCorrect) {
+                    text = text.replace(/\*/g, '').trim();
+                }
+                if (text) {
+                    options.push({
+                        text: text,
+                        isCorrect: isCorrect
+                    });
+                }
+            }
+
+            return options;
         }
 
         // ============================================================
@@ -1151,9 +1179,13 @@
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
+
+                // Kiểm tra nếu có đáp án trên cùng dòng
+                const optionsInLine = extractOptionsFromLine(line);
+                const isQuestionLine = /^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/.test(line);
                 const isOption = /^[A-Da-d]\./.test(line) || /^\*[A-Da-d]\./.test(line);
 
-                if (!isOption) {
+                if (isQuestionLine && !isOption) {
                     if (currentQuestion) {
                         let hasCorrect = currentQuestion.options.some(opt => opt.correct);
                         if (!hasCorrect && currentQuestion.options.length > 0) {
@@ -1165,19 +1197,40 @@
                             correct: currentQuestion.options.findIndex(o => o.correct)
                         });
                     }
+                    const cleanContent = line.replace(/^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/, '').trim();
                     currentQuestion = {
-                        content: line,
+                        content: cleanContent || line,
                         options: []
                     };
-                } else {
-                    if (currentQuestion) {
-                        const isCorrect = line.startsWith('*');
-                        const cleanLine = line.replace(/^\*/, '').trim();
-                        const optionText = cleanLine.replace(/^[A-Da-d]\.\s*/, '').trim();
-                        currentQuestion.options.push({
-                            text: optionText || cleanLine,
-                            correct: isCorrect
+
+                    // Nếu có đáp án trên cùng dòng với câu hỏi
+                    if (optionsInLine.length > 0) {
+                        optionsInLine.forEach(opt => {
+                            currentQuestion.options.push({
+                                text: opt.text,
+                                correct: opt.isCorrect
+                            });
                         });
+                    }
+                } else if (optionsInLine.length > 0 && !isOption && currentQuestion) {
+                    // Đáp án trên cùng dòng nhưng không phải định dạng chuẩn
+                    optionsInLine.forEach(opt => {
+                        currentQuestion.options.push({
+                            text: opt.text,
+                            correct: opt.isCorrect
+                        });
+                    });
+                } else if (isOption && currentQuestion) {
+                    const isCorrect = line.startsWith('*');
+                    const cleanLine = line.replace(/^\*/, '').trim();
+                    const optionText = cleanLine.replace(/^[A-Da-d]\.\s*/, '').trim();
+                    currentQuestion.options.push({
+                        text: optionText || cleanLine,
+                        correct: isCorrect
+                    });
+                } else if (currentQuestion && !isOption && !isQuestionLine) {
+                    if (currentQuestion.options.length === 0) {
+                        currentQuestion.content += ' ' + line;
                     }
                 }
             }
@@ -1256,65 +1309,27 @@
         A. 4
         B. 5
         C. 6
-        D. 7
-
-        Câu 3: 10 : 2 bằng bao nhiêu?
-        A. 3
-        B. 4
-        C. 5
-        D. 6`,
+        D. 7`,
 
             mau2: `Câu 1: Tác giả của "Truyện Kiều" là ai?
         A. Nguyễn Du
         B. Hồ Xuân Hương
         C. Nguyễn Đình Chiểu
-        D. Tố Hữu
-
-        Câu 2: Thể thơ "Lục bát" có số chữ mỗi câu là?
-        A. 6-8
-        B. 7-7
-        C. 5-7
-        D. 8-6`,
+        D. Tố Hữu`,
 
             mau3: `Câu 1: Hà Nội là thủ đô của ______
         A. Việt Nam
         B. Lào
         C. Campuchia
-        D. Thái Lan
-
-        Câu 2: Sông ______ chảy qua thành phố Huế
-        A. Hồng
-        B. Hương
-        C. Mê Kông
-        D. Đà`,
+        D. Thái Lan`,
 
             mau4: `Câu 1: "Hello" có nghĩa là gì?
         A. Chào
         B. Tạm biệt
         C. Cảm ơn
-        D. Xin lỗi
-
-        Câu 2: Số "twenty" là số mấy?
-        A. 12
-        B. 20
-        C. 22
-        D. 2
-
-        Câu 3: Màu "blue" là màu gì?
-        A. Đỏ
-        B. Vàng
-        C. Xanh dương
-        D. Trắng`,
+        D. Xin lỗi`,
 
             mau5: `Câu 1: Mặt trời mọc ở hướng Đông
-        A. Đúng
-        B. Sai
-
-        Câu 2: Trái đất là trung tâm của vũ trụ
-        A. Đúng
-        B. Sai
-
-        Câu 3: Nước sôi ở 100 độ C
         A. Đúng
         B. Sai`
         };
@@ -1325,7 +1340,6 @@
             if (!confirm('Tải mẫu này? Nội dung hiện tại sẽ bị thay thế.')) return;
             document.getElementById('examInput').value = text;
             parseAndPreview();
-            // Lấy dòng đầu làm tên
             const lines = text.split('\n');
             if (lines.length > 0) {
                 const firstLine = lines[0].trim();
