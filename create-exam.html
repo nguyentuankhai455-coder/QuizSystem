@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ... CSS giữ nguyên như file trước ... */
+        /* Giữ nguyên CSS từ file trước */
         * {
             margin: 0;
             padding: 0;
@@ -632,7 +632,6 @@
 
         <div class="editor-container">
 
-            <!-- UPLOAD -->
             <div class="upload-section">
                 <div class="upload-area" id="dropZone">
                     <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
@@ -651,12 +650,10 @@
                 </div>
             </div>
 
-            <!-- TITLE -->
             <div class="editor-title">
                 <input type="text" id="examTitle" placeholder="Nhập tên đề thi..." value="">
             </div>
 
-            <!-- SETTINGS -->
             <div class="editor-settings">
                 <div class="form-group">
                     <label>⏱️ Thời gian làm bài</label>
@@ -683,7 +680,6 @@
                 </div>
             </div>
 
-            <!-- TEMPLATES -->
             <div class="template-samples">
                 <span class="template-label">📋 Nội dung mẫu:</span>
                 <button class="template-btn" onclick="loadTemplate('mau1')">Mẫu 1</button>
@@ -693,7 +689,6 @@
                 <button class="template-btn" onclick="loadTemplate('mau5')">Mẫu 5 (Đúng-Sai)</button>
             </div>
 
-            <!-- INPUT -->
             <div class="editor-input-area">
                 <div class="input-header">
                     <label>📝 Nhập nội dung đề thi</label>
@@ -712,7 +707,6 @@
                 </div>
             </div>
 
-            <!-- PREVIEW -->
             <div class="editor-preview" id="previewSection">
                 <div class="preview-header">
                     <h4>🔍 Xem trước</h4>
@@ -726,7 +720,6 @@
                 </div>
             </div>
 
-            <!-- FOOTER -->
             <div class="editor-footer">
                 <div class="left-actions">
                     <button class="btn btn-primary" onclick="addQuestionManual()">
@@ -995,7 +988,85 @@
         }
 
         // ============================================================
-        // AUTO DETECT & PARSE - HỖ TRỢ ĐÁP ÁN TRÊN 1 DÒNG
+        // NHẬN DIỆN ĐÁP ÁN ĐÚNG - HỖ TRỢ ĐA DẠNG CÁCH ĐÁNH DẤU
+        // ============================================================
+
+        /**
+         * Hàm kiểm tra một dòng có phải là đáp án đúng không
+         * Hỗ trợ các cách đánh dấu:
+         * 1. Dấu * ở đầu: *A. Đáp án
+         * 2. Dấu * trước chữ cái: A.* Đáp án
+         * 3. Chữ in đậm (Word): <b>A. Đáp án</b>
+         * 4. Gạch chân (Word): <u>A. Đáp án</u>
+         * 5. Màu đỏ (Word): <span style="color:red">A. Đáp án</span>
+         * 6. Chữ hoa khác biệt: a. Đáp án (chữ thường)
+         * 7. Dấu ngoặc: (A) Đáp án
+         * 8. Dấu ngoặc vuông: [A] Đáp án
+         * 9. Dấu ngoặc nhọn: {A} Đáp án
+         * 10. Có dấu gạch dưới trong text: A._Đáp án
+         */
+        function detectCorrectOption(line) {
+            // Nếu có dấu * ở đầu
+            if (/^\*/.test(line)) return true;
+
+            // Nếu có dấu * trước chữ cái
+            if (/\*[A-Da-d]\./.test(line)) return true;
+
+            // Nếu có chữ in đậm (Word)
+            if (/<b>/i.test(line) && /<\/b>/i.test(line)) return true;
+            if (/\*\*.*?\*\*/.test(line)) return true;
+
+            // Nếu có gạch chân (Word)
+            if (/<u>/i.test(line) && /<\/u>/i.test(line)) return true;
+            if (/_{2}.*?_{2}/.test(line)) return true;
+
+            // Nếu có màu đỏ (Word)
+            if (/color:red/i.test(line) || /color:#ff/i.test(line) || /color:rgb\(255,0,0\)/i.test(line)) return true;
+
+            // Nếu có dấu ngoặc đơn
+            if (/\([A-Da-d]\)/.test(line)) return true;
+
+            // Nếu có dấu ngoặc vuông
+            if (/\[[A-Da-d]\]/.test(line)) return true;
+
+            // Nếu có dấu ngoặc nhọn
+            if (/\{[A-Da-d]\}/.test(line)) return true;
+
+            // Nếu có dấu gạch dưới _ (thường dùng trong text)
+            if (/[A-Da-d]\._/.test(line)) return true;
+
+            // Nếu chữ cái viết thường (ví dụ: a. thay vì A.)
+            if (/^[a-d]\./.test(line)) return true;
+
+            // Nếu có dấu ✅ hoặc ✔
+            if (/[✅✔]/.test(line)) return true;
+
+            // Nếu có từ "đúng" hoặc "correct" trong dòng
+            if (/đúng|đúng|correct|true/i.test(line)) return true;
+
+            return false;
+        }
+
+        /**
+         * Hàm kiểm tra một đáp án có phải là đáp án đúng không
+         * Dựa trên nội dung của đáp án
+         */
+        function isCorrectOption(text) {
+            // Kiểm tra các từ khóa
+            const correctKeywords = ['đúng', 'đúng', 'true', 'correct', '✔', '✅'];
+            const textLower = text.toLowerCase();
+            for (let keyword of correctKeywords) {
+                if (textLower.includes(keyword)) return true;
+            }
+
+            // Kiểm tra nếu đáp án có dấu * ở đầu
+            if (text.startsWith('*')) return true;
+
+            return false;
+        }
+
+        // ============================================================
+        // AUTO DETECT & PARSE - HỖ TRỢ NHIỀU CÁCH ĐÁNH DẤU
         // ============================================================
 
         function autoDetectAndParse(text) {
@@ -1053,8 +1124,8 @@
                         options: []
                     };
 
-                    // 🔥 KIỂM TRA ĐÁP ÁN TRÊN CÙNG DÒNG VỚI CÂU HỎI
-                    const optionsInLine = extractOptionsFromLine(line);
+                    // Kiểm tra đáp án trên cùng dòng
+                    const optionsInLine = extractOptionsFromLineWithDetection(line);
                     if (optionsInLine.length > 0) {
                         optionsInLine.forEach(opt => {
                             currentQuestion.options.push({
@@ -1066,7 +1137,7 @@
 
                 } else if (isOption && currentQuestion) {
                     // Đáp án trên 1 dòng riêng
-                    const isCorrect = line.startsWith('*');
+                    const isCorrect = detectCorrectOption(line);
                     const cleanLine = line.replace(/^\*/, '').trim();
                     const optionText = cleanLine.replace(/^[A-Da-d]\.\s*/, '').trim();
                     currentQuestion.options.push({
@@ -1075,8 +1146,8 @@
                     });
 
                 } else if (currentQuestion && !isOption && !isQuestionLine) {
-                    // Nếu là dòng bình thường, có thể chứa đáp án
-                    const optionsInLine = extractOptionsFromLine(line);
+                    // Kiểm tra nếu dòng này có đáp án
+                    const optionsInLine = extractOptionsFromLineWithDetection(line);
                     if (optionsInLine.length > 0) {
                         optionsInLine.forEach(opt => {
                             currentQuestion.options.push({
@@ -1108,7 +1179,7 @@
 
             // Nếu không tìm thấy câu hỏi, thử parse cách khác
             if (questions.length === 0) {
-                const result = parseExamContent(text);
+                const result = parseExamContentWithDetection(text);
                 if (result.length > 0) {
                     questions = result;
                 }
@@ -1121,10 +1192,10 @@
         }
 
         // ============================================================
-        // EXTRACT OPTIONS FROM LINE - LẤY ĐÁP ÁN TỪ 1 DÒNG
+        // EXTRACT OPTIONS WITH DETECTION
         // ============================================================
 
-        function extractOptionsFromLine(line) {
+        function extractOptionsFromLineWithDetection(line) {
             const options = [];
             // Tìm tất cả các đáp án trong dòng: A. xxx B. xxx C. xxx D. xxx
             const pattern = /([A-Da-d])\.\s*([^A-Da-d]*?)(?=\s*[A-Da-d]\.\s*|$)/g;
@@ -1133,11 +1204,51 @@
             while ((match = pattern.exec(line)) !== null) {
                 const letter = match[1].toUpperCase();
                 let text = match[2].trim();
-                // Kiểm tra nếu có dấu * ở trước
-                const isCorrect = text.startsWith('*') || text.includes('*');
-                if (isCorrect) {
+
+                // Kiểm tra đáp án đúng bằng nhiều cách
+                let isCorrect = false;
+
+                // 1. Dấu * trong text
+                if (text.includes('*')) {
+                    isCorrect = true;
                     text = text.replace(/\*/g, '').trim();
                 }
+
+                // 2. Chữ in đậm
+                if (/<b>/i.test(text) && /<\/b>/i.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/<[^>]+>/g, '').trim();
+                }
+
+                // 3. Gạch chân
+                if (/<u>/i.test(text) && /<\/u>/i.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/<[^>]+>/g, '').trim();
+                }
+
+                // 4. Màu đỏ
+                if (/color:red/i.test(text) || /color:#ff/i.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/<[^>]+>/g, '').trim();
+                }
+
+                // 5. Từ khóa đúng
+                if (/đúng|đúng|✔|✅|true|correct/i.test(text)) {
+                    isCorrect = true;
+                }
+
+                // 6. Dấu ngoặc
+                if (/\([A-Da-d]\)/.test(text) || /\[[A-Da-d]\]/.test(text) || /\{[A-Da-d]\}/.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/[\(\[\{][A-Da-d][\)\]\}]/, '').trim();
+                }
+
+                // 7. Chữ thường (a. thay vì A.)
+                if (/^[a-d]\./.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/^[a-d]\.\s*/, '').trim();
+                }
+
                 if (text) {
                     options.push({
                         text: text,
@@ -1150,29 +1261,10 @@
         }
 
         // ============================================================
-        // PARSE EXAM CONTENT
+        // PARSE EXAM CONTENT WITH DETECTION
         // ============================================================
 
-        function parseAndPreview() {
-            const input = document.getElementById('examInput').value;
-            if (!input.trim()) {
-                showStatus('error', '⚠️ Vui lòng nhập nội dung đề thi!');
-                return;
-            }
-
-            const questions = parseExamContent(input);
-
-            if (questions.length === 0) {
-                showStatus('error', '⚠️ Không tìm thấy câu hỏi nào. Kiểm tra lại định dạng!');
-                return;
-            }
-
-            parsedQuestions = questions;
-            renderPreview();
-            showStatus('success', '✅ Đã parse thành công ' + questions.length + ' câu hỏi!');
-        }
-
-        function parseExamContent(text) {
+        function parseExamContentWithDetection(text) {
             const lines = text.split('\n').map(line => line.trim()).filter(line => line);
             const questions = [];
             let currentQuestion = null;
@@ -1180,8 +1272,7 @@
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
 
-                // Kiểm tra nếu có đáp án trên cùng dòng
-                const optionsInLine = extractOptionsFromLine(line);
+                const optionsInLine = extractOptionsFromLineWithDetection(line);
                 const isQuestionLine = /^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/.test(line);
                 const isOption = /^[A-Da-d]\./.test(line) || /^\*[A-Da-d]\./.test(line);
 
@@ -1203,7 +1294,6 @@
                         options: []
                     };
 
-                    // Nếu có đáp án trên cùng dòng với câu hỏi
                     if (optionsInLine.length > 0) {
                         optionsInLine.forEach(opt => {
                             currentQuestion.options.push({
@@ -1213,7 +1303,6 @@
                         });
                     }
                 } else if (optionsInLine.length > 0 && !isOption && currentQuestion) {
-                    // Đáp án trên cùng dòng nhưng không phải định dạng chuẩn
                     optionsInLine.forEach(opt => {
                         currentQuestion.options.push({
                             text: opt.text,
@@ -1221,7 +1310,7 @@
                         });
                     });
                 } else if (isOption && currentQuestion) {
-                    const isCorrect = line.startsWith('*');
+                    const isCorrect = detectCorrectOption(line);
                     const cleanLine = line.replace(/^\*/, '').trim();
                     const optionText = cleanLine.replace(/^[A-Da-d]\.\s*/, '').trim();
                     currentQuestion.options.push({
@@ -1248,6 +1337,29 @@
             }
 
             return questions;
+        }
+
+        // ============================================================
+        // PARSE AND PREVIEW
+        // ============================================================
+
+        function parseAndPreview() {
+            const input = document.getElementById('examInput').value;
+            if (!input.trim()) {
+                showStatus('error', '⚠️ Vui lòng nhập nội dung đề thi!');
+                return;
+            }
+
+            const questions = parseExamContentWithDetection(input);
+
+            if (questions.length === 0) {
+                showStatus('error', '⚠️ Không tìm thấy câu hỏi nào. Kiểm tra lại định dạng!');
+                return;
+            }
+
+            parsedQuestions = questions;
+            renderPreview();
+            showStatus('success', '✅ Đã parse thành công ' + questions.length + ' câu hỏi!');
         }
 
         // ============================================================
@@ -1301,36 +1413,36 @@
         const TEMPLATE_TEXTS = {
             mau1: `Câu 1: 1 + 1 bằng bao nhiêu?
         A. 1
-        B. 2
+        *B. 2
         C. 3
         D. 4
 
         Câu 2: 2 × 3 bằng bao nhiêu?
         A. 4
         B. 5
-        C. 6
+        *C. 6
         D. 7`,
 
             mau2: `Câu 1: Tác giả của "Truyện Kiều" là ai?
-        A. Nguyễn Du
+        *A. Nguyễn Du
         B. Hồ Xuân Hương
         C. Nguyễn Đình Chiểu
         D. Tố Hữu`,
 
             mau3: `Câu 1: Hà Nội là thủ đô của ______
-        A. Việt Nam
+        *A. Việt Nam
         B. Lào
         C. Campuchia
         D. Thái Lan`,
 
             mau4: `Câu 1: "Hello" có nghĩa là gì?
-        A. Chào
+        *A. Chào
         B. Tạm biệt
         C. Cảm ơn
         D. Xin lỗi`,
 
             mau5: `Câu 1: Mặt trời mọc ở hướng Đông
-        A. Đúng
+        *A. Đúng
         B. Sai`
         };
 
