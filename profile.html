@@ -130,6 +130,22 @@
             font-size: 12px;
         }
 
+        .btn-danger-sm {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-danger-sm:hover {
+            background: #fecaca;
+        }
+
         .btn-edit {
             background: transparent;
             color: #3498db;
@@ -259,13 +275,22 @@
 
         .profile-avatar .avatar-upload {
             margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .profile-avatar .avatar-upload .upload-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
         }
 
         .profile-avatar .avatar-upload .hint {
             font-size: 11px;
             color: #95a5a6;
             display: block;
-            margin-top: 2px;
         }
 
         /* INFO */
@@ -456,7 +481,8 @@
             .info-grid { grid-template-columns: 1fr; }
             .info-item.full-width { grid-column: 1; }
             .profile-avatar { flex-wrap: wrap; }
-            .profile-avatar .avatar-upload { margin-left: 0; width: 100%; }
+            .profile-avatar .avatar-upload { margin-left: 0; width: 100%; align-items: flex-start; }
+            .profile-avatar .avatar-upload .upload-row { flex-wrap: wrap; }
             .profile-card .card-body { padding: 16px 18px; }
             .profile-card .card-header { padding: 16px 18px; }
             .vip-section { flex-direction: column; align-items: stretch; text-align: center; }
@@ -530,9 +556,14 @@
                         <p id="profileRole">Giáo viên</p>
                     </div>
                     <div class="avatar-upload">
-                        <button class="btn btn-outline btn-sm" onclick="uploadAvatar()">
-                            <i class="fas fa-camera"></i> Tải lên
-                        </button>
+                        <div class="upload-row">
+                            <button class="btn btn-outline btn-sm" onclick="uploadAvatar()">
+                                <i class="fas fa-camera"></i> Tải lên
+                            </button>
+                            <button class="btn-danger-sm" onclick="deleteAvatar()" id="deleteAvatarBtn">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </div>
                         <span class="hint">File ảnh, tối đa 5MB</span>
                     </div>
                 </div>
@@ -753,6 +784,14 @@
                 avatarEl.textContent = initials || '??';
             }
 
+            // Ẩn/hiện nút xóa avatar
+            const deleteBtn = document.getElementById('deleteAvatarBtn');
+            if (userData.avatar) {
+                deleteBtn.style.display = 'inline-flex';
+            } else {
+                deleteBtn.style.display = 'none';
+            }
+
             document.getElementById('profileFullname').textContent = userData.fullname || 'Chưa có tên';
             document.getElementById('profileRole').textContent = userData.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
 
@@ -771,7 +810,6 @@
         // ============================================================
 
         function uploadAvatar() {
-            // Tạo input file ẩn
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
@@ -785,23 +823,19 @@
                     return;
                 }
 
-                // Kiểm tra kích thước file
                 if (file.size > 5 * 1024 * 1024) {
                     alert('⚠️ File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
                     document.body.removeChild(input);
                     return;
                 }
 
-                // Hiển thị loading
                 document.getElementById('loadingOverlay').classList.add('show');
 
-                // Tạo FormData gửi lên Cloudinary
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLOAD_PRESET);
                 formData.append('folder', `avatars/${currentUser.uid}`);
 
-                // Gửi lên Cloudinary
                 fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
                     method: 'POST',
                     body: formData
@@ -818,7 +852,6 @@
                     console.log('✅ Cloudinary upload thành công:', data);
                     const avatarUrl = data.secure_url;
 
-                    // Lưu URL vào Firestore
                     return db.collection('users').doc(currentUser.uid).update({
                         avatar: avatarUrl
                     }).then(() => {
@@ -832,7 +865,6 @@
                     console.error('❌ Lỗi upload Cloudinary:', error);
                     document.getElementById('loadingOverlay').classList.remove('show');
 
-                    // Kiểm tra lỗi upload preset
                     if (error.message.includes('upload preset')) {
                         alert('⚠️ Lỗi: Upload Preset chưa được tạo!\n\n' +
                               'Vui lòng tạo Upload Preset trong Cloudinary:\n' +
@@ -845,13 +877,40 @@
                     }
                 })
                 .finally(() => {
-                    // Xóa input sau khi hoàn thành
                     document.body.removeChild(input);
                 });
             };
 
-            // Mở dialog chọn file
             input.click();
+        }
+
+        // ============================================================
+        // DELETE AVATAR - XÓA ẢNH ĐẠI DIỆN
+        // ============================================================
+
+        function deleteAvatar() {
+            if (!userData.avatar) {
+                alert('Bạn chưa có ảnh đại diện để xóa!');
+                return;
+            }
+
+            if (!confirm('Bạn có chắc chắn muốn xóa ảnh đại diện này?')) {
+                return;
+            }
+
+            // Xóa avatar trong Firestore
+            db.collection('users').doc(currentUser.uid).update({
+                avatar: ''
+            })
+            .then(() => {
+                userData.avatar = '';
+                renderProfile();
+                alert('✅ Đã xóa ảnh đại diện thành công!');
+            })
+            .catch(error => {
+                console.error('❌ Lỗi xóa avatar:', error);
+                alert('⚠️ Không thể xóa ảnh đại diện. Vui lòng thử lại!');
+            });
         }
 
         // ============================================================
