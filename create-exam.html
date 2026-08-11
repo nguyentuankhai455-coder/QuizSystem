@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Giữ nguyên CSS từ file trước */
+        /* ... CSS giữ nguyên ... */
         * {
             margin: 0;
             padding: 0;
@@ -512,6 +512,11 @@
             content: '✅ ';
         }
 
+        .preview-question .q-option.missing {
+            color: #e74c3c;
+            font-style: italic;
+        }
+
         .preview-empty {
             text-align: center;
             padding: 20px;
@@ -988,23 +993,9 @@
         }
 
         // ============================================================
-        // NHẬN DIỆN ĐÁP ÁN ĐÚNG - HỖ TRỢ ĐA DẠNG CÁCH ĐÁNH DẤU
+        // NHẬN DIỆN ĐÁP ÁN ĐÚNG - KHÔNG MẶC ĐỊNH A
         // ============================================================
 
-        /**
-         * Hàm kiểm tra một dòng có phải là đáp án đúng không
-         * Hỗ trợ các cách đánh dấu:
-         * 1. Dấu * ở đầu: *A. Đáp án
-         * 2. Dấu * trước chữ cái: A.* Đáp án
-         * 3. Chữ in đậm (Word): <b>A. Đáp án</b>
-         * 4. Gạch chân (Word): <u>A. Đáp án</u>
-         * 5. Màu đỏ (Word): <span style="color:red">A. Đáp án</span>
-         * 6. Chữ hoa khác biệt: a. Đáp án (chữ thường)
-         * 7. Dấu ngoặc: (A) Đáp án
-         * 8. Dấu ngoặc vuông: [A] Đáp án
-         * 9. Dấu ngoặc nhọn: {A} Đáp án
-         * 10. Có dấu gạch dưới trong text: A._Đáp án
-         */
         function detectCorrectOption(line) {
             // Nếu có dấu * ở đầu
             if (/^\*/.test(line)) return true;
@@ -1047,26 +1038,81 @@
             return false;
         }
 
-        /**
-         * Hàm kiểm tra một đáp án có phải là đáp án đúng không
-         * Dựa trên nội dung của đáp án
-         */
-        function isCorrectOption(text) {
-            // Kiểm tra các từ khóa
-            const correctKeywords = ['đúng', 'đúng', 'true', 'correct', '✔', '✅'];
-            const textLower = text.toLowerCase();
-            for (let keyword of correctKeywords) {
-                if (textLower.includes(keyword)) return true;
+        // ============================================================
+        // EXTRACT OPTIONS - PHÂN BIỆT RÕ CÁC CÂU
+        // ============================================================
+
+        function extractOptionsFromLineWithDetection(line) {
+            const options = [];
+            // Tìm tất cả các đáp án trong dòng: A. xxx B. xxx C. xxx D. xxx
+            const pattern = /([A-Da-d])\.\s*([^A-Da-d]*?)(?=\s*[A-Da-d]\.\s*|$)/g;
+            let match;
+
+            while ((match = pattern.exec(line)) !== null) {
+                const letter = match[1].toUpperCase();
+                let text = match[2].trim();
+
+                let isCorrect = false;
+
+                // 1. Dấu * trong text
+                if (text.includes('*')) {
+                    isCorrect = true;
+                    text = text.replace(/\*/g, '').trim();
+                }
+
+                // 2. Chữ in đậm
+                if (/<b>/i.test(text) && /<\/b>/i.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/<[^>]+>/g, '').trim();
+                }
+
+                // 3. Gạch chân
+                if (/<u>/i.test(text) && /<\/u>/i.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/<[^>]+>/g, '').trim();
+                }
+
+                // 4. Màu đỏ
+                if (/color:red/i.test(text) || /color:#ff/i.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/<[^>]+>/g, '').trim();
+                }
+
+                // 5. Từ khóa đúng
+                if (/đúng|đúng|✔|✅|true|correct/i.test(text)) {
+                    isCorrect = true;
+                }
+
+                // 6. Dấu ngoặc
+                if (/\([A-Da-d]\)/.test(text) || /\[[A-Da-d]\]/.test(text) || /\{[A-Da-d]\}/.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/[\(\[\{][A-Da-d][\)\]\}]/, '').trim();
+                }
+
+                // 7. Chữ thường (a. thay vì A.)
+                if (/^[a-d]\./.test(text)) {
+                    isCorrect = true;
+                    text = text.replace(/^[a-d]\.\s*/, '').trim();
+                }
+
+                // 8. Kiểm tra thêm nếu có dấu * trong chính dòng đó
+                if (detectCorrectOption(match[0])) {
+                    isCorrect = true;
+                }
+
+                if (text) {
+                    options.push({
+                        text: text,
+                        isCorrect: isCorrect
+                    });
+                }
             }
 
-            // Kiểm tra nếu đáp án có dấu * ở đầu
-            if (text.startsWith('*')) return true;
-
-            return false;
+            return options;
         }
 
         // ============================================================
-        // AUTO DETECT & PARSE - HỖ TRỢ NHIỀU CÁCH ĐÁNH DẤU
+        // AUTO DETECT & PARSE - KHÔNG MẶC ĐỊNH A
         // ============================================================
 
         function autoDetectAndParse(text) {
@@ -1105,14 +1151,13 @@
                     // Lưu câu hỏi trước đó
                     if (currentQuestion) {
                         if (currentQuestion.options.length > 0) {
+                            // KHÔNG MẶC ĐỊNH A - chỉ lưu nếu có đáp án đúng được đánh dấu
                             let correctIndex = currentQuestion.options.findIndex(o => o.correct);
-                            if (correctIndex === -1 && currentQuestion.options.length > 0) {
-                                correctIndex = 0;
-                            }
+                            // Nếu không tìm thấy đáp án đúng, để là -1 (chưa chọn)
                             questions.push({
                                 content: currentQuestion.content,
                                 options: currentQuestion.options.map(o => o.text),
-                                correct: correctIndex
+                                correct: correctIndex // có thể là -1 nếu chưa có đáp án đúng
                             });
                         }
                     }
@@ -1165,14 +1210,12 @@
             // Lưu câu hỏi cuối cùng
             if (currentQuestion) {
                 if (currentQuestion.options.length > 0) {
+                    // KHÔNG MẶC ĐỊNH A - chỉ lưu nếu có đáp án đúng được đánh dấu
                     let correctIndex = currentQuestion.options.findIndex(o => o.correct);
-                    if (correctIndex === -1 && currentQuestion.options.length > 0) {
-                        correctIndex = 0;
-                    }
                     questions.push({
                         content: currentQuestion.content,
                         options: currentQuestion.options.map(o => o.text),
-                        correct: correctIndex
+                        correct: correctIndex // có thể là -1 nếu chưa có đáp án đúng
                     });
                 }
             }
@@ -1189,75 +1232,6 @@
                 title: title || 'Đề thi từ file',
                 questions: questions
             };
-        }
-
-        // ============================================================
-        // EXTRACT OPTIONS WITH DETECTION
-        // ============================================================
-
-        function extractOptionsFromLineWithDetection(line) {
-            const options = [];
-            // Tìm tất cả các đáp án trong dòng: A. xxx B. xxx C. xxx D. xxx
-            const pattern = /([A-Da-d])\.\s*([^A-Da-d]*?)(?=\s*[A-Da-d]\.\s*|$)/g;
-            let match;
-
-            while ((match = pattern.exec(line)) !== null) {
-                const letter = match[1].toUpperCase();
-                let text = match[2].trim();
-
-                // Kiểm tra đáp án đúng bằng nhiều cách
-                let isCorrect = false;
-
-                // 1. Dấu * trong text
-                if (text.includes('*')) {
-                    isCorrect = true;
-                    text = text.replace(/\*/g, '').trim();
-                }
-
-                // 2. Chữ in đậm
-                if (/<b>/i.test(text) && /<\/b>/i.test(text)) {
-                    isCorrect = true;
-                    text = text.replace(/<[^>]+>/g, '').trim();
-                }
-
-                // 3. Gạch chân
-                if (/<u>/i.test(text) && /<\/u>/i.test(text)) {
-                    isCorrect = true;
-                    text = text.replace(/<[^>]+>/g, '').trim();
-                }
-
-                // 4. Màu đỏ
-                if (/color:red/i.test(text) || /color:#ff/i.test(text)) {
-                    isCorrect = true;
-                    text = text.replace(/<[^>]+>/g, '').trim();
-                }
-
-                // 5. Từ khóa đúng
-                if (/đúng|đúng|✔|✅|true|correct/i.test(text)) {
-                    isCorrect = true;
-                }
-
-                // 6. Dấu ngoặc
-                if (/\([A-Da-d]\)/.test(text) || /\[[A-Da-d]\]/.test(text) || /\{[A-Da-d]\}/.test(text)) {
-                    isCorrect = true;
-                    text = text.replace(/[\(\[\{][A-Da-d][\)\]\}]/, '').trim();
-                }
-
-                // 7. Chữ thường (a. thay vì A.)
-                if (/^[a-d]\./.test(text)) {
-                    isCorrect = true;
-                    text = text.replace(/^[a-d]\.\s*/, '').trim();
-                }
-
-                if (text) {
-                    options.push({
-                        text: text,
-                        isCorrect: isCorrect
-                    });
-                }
-            }
-
-            return options;
         }
 
         // ============================================================
@@ -1278,15 +1252,14 @@
 
                 if (isQuestionLine && !isOption) {
                     if (currentQuestion) {
-                        let hasCorrect = currentQuestion.options.some(opt => opt.correct);
-                        if (!hasCorrect && currentQuestion.options.length > 0) {
-                            currentQuestion.options[0].correct = true;
+                        if (currentQuestion.options.length > 0) {
+                            let correctIndex = currentQuestion.options.findIndex(o => o.correct);
+                            questions.push({
+                                content: currentQuestion.content,
+                                options: currentQuestion.options.map(o => o.text),
+                                correct: correctIndex
+                            });
                         }
-                        questions.push({
-                            content: currentQuestion.content,
-                            options: currentQuestion.options.map(o => o.text),
-                            correct: currentQuestion.options.findIndex(o => o.correct)
-                        });
                     }
                     const cleanContent = line.replace(/^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/, '').trim();
                     currentQuestion = {
@@ -1325,15 +1298,14 @@
             }
 
             if (currentQuestion) {
-                let hasCorrect = currentQuestion.options.some(opt => opt.correct);
-                if (!hasCorrect && currentQuestion.options.length > 0) {
-                    currentQuestion.options[0].correct = true;
+                if (currentQuestion.options.length > 0) {
+                    let correctIndex = currentQuestion.options.findIndex(o => o.correct);
+                    questions.push({
+                        content: currentQuestion.content,
+                        options: currentQuestion.options.map(o => o.text),
+                        correct: correctIndex
+                    });
                 }
-                questions.push({
-                    content: currentQuestion.content,
-                    options: currentQuestion.options.map(o => o.text),
-                    correct: currentQuestion.options.findIndex(o => o.correct)
-                });
             }
 
             return questions;
@@ -1359,11 +1331,18 @@
 
             parsedQuestions = questions;
             renderPreview();
-            showStatus('success', '✅ Đã parse thành công ' + questions.length + ' câu hỏi!');
+
+            // Kiểm tra xem có câu nào chưa có đáp án đúng không
+            const missingCorrect = parsedQuestions.filter(q => q.correct === -1 || q.correct === undefined);
+            if (missingCorrect.length > 0) {
+                showStatus('warning', `⚠️ Có ${missingCorrect.length} câu chưa được đánh dấu đáp án đúng. Vui lòng kiểm tra!`);
+            } else {
+                showStatus('success', `✅ Đã parse thành công ${questions.length} câu hỏi!`);
+            }
         }
 
         // ============================================================
-        // RENDER PREVIEW
+        // RENDER PREVIEW - HIỂN THỊ CẢNH BÁO NẾU CHƯA CHỌN ĐÁP ÁN
         // ============================================================
 
         function renderPreview() {
@@ -1386,20 +1365,28 @@
             const letters = ['A', 'B', 'C', 'D'];
             container.innerHTML = parsedQuestions.map((q, idx) => {
                 let optionsHTML = '';
+                const hasCorrect = q.correct !== undefined && q.correct !== null && q.correct >= 0;
+
                 if (q.options && q.options.length > 0) {
                     optionsHTML = q.options.map((opt, oi) => {
-                        const isCorrect = oi === q.correct;
-                        return `<div class="q-option ${isCorrect ? 'correct' : ''}">
+                        const isCorrect = (hasCorrect && oi === q.correct);
+                        let className = 'q-option';
+                        if (isCorrect) className += ' correct';
+                        if (!hasCorrect) className += ' missing';
+                        return `<div class="${className}">
                             ${letters[oi] || (oi + 1)}. ${opt || '(Trống)'}
+                            ${!hasCorrect ? ' ⚠️' : ''}
                         </div>`;
                     }).join('');
                 } else {
-                    optionsHTML = `<div class="q-option" style="color:#95a5a6;">Chưa có đáp án</div>`;
+                    optionsHTML = `<div class="q-option" style="color:#e74c3c;">⚠️ Chưa có đáp án</div>`;
                 }
+
+                const warningBadge = !hasCorrect ? `<span style="color:#e74c3c; font-size:12px; margin-left:8px;">⚠️ Chưa chọn đáp án đúng</span>` : '';
 
                 return `
                     <div class="preview-question">
-                        <div class="q-text">Câu ${idx + 1}: ${q.content || '(Trống)'}</div>
+                        <div class="q-text">Câu ${idx + 1}: ${q.content || '(Trống)'} ${warningBadge}</div>
                         ${optionsHTML}
                     </div>
                 `;
@@ -1545,9 +1532,10 @@
                     showStatus('error', `⚠️ Câu ${i + 1}: Có đáp án bị trống!`);
                     return null;
                 }
+                // KHÔNG BẮT BUỘC PHẢI CÓ ĐÁP ÁN ĐÚNG - cho phép giáo viên sửa sau
                 if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= q.options.length) {
-                    showStatus('error', `⚠️ Câu ${i + 1}: Chưa chọn đáp án đúng!`);
-                    return null;
+                    // Không báo lỗi, chỉ cảnh báo
+                    console.warn(`Câu ${i + 1} chưa chọn đáp án đúng`);
                 }
             }
 
@@ -1564,6 +1552,14 @@
         async function saveExam() {
             const examData = getExamDataFromForm();
             if (!examData) return;
+
+            // Kiểm tra xem có câu nào chưa có đáp án đúng không
+            const missingCorrect = parsedQuestions.filter(q => q.correct === -1 || q.correct === undefined || q.correct === null);
+            if (missingCorrect.length > 0) {
+                if (!confirm(`⚠️ Có ${missingCorrect.length} câu chưa được chọn đáp án đúng.\n\nBạn có chắc chắn muốn lưu đề thi này?`)) {
+                    return;
+                }
+            }
 
             showStatus('loading', '⏳ Đang lưu đề thi...');
 
