@@ -24,7 +24,6 @@
             min-height: 100vh;
         }
 
-        /* HEADER */
         .top-header {
             background: white;
             padding: 12px 24px;
@@ -163,7 +162,6 @@
             color: #b0b8c4;
         }
 
-        /* SEARCH */
         .search-box {
             display: flex;
             gap: 10px;
@@ -186,7 +184,6 @@
             border-color: #3498db;
         }
 
-        /* CLASS LIST */
         .class-grid {
             display: grid;
             gap: 16px;
@@ -265,7 +262,6 @@
             font-size: 13px;
         }
 
-        /* EXAM ITEM */
         .exam-item {
             display: flex;
             justify-content: space-between;
@@ -276,6 +272,7 @@
             border: 2px solid #e8edf5;
             margin-bottom: 8px;
             transition: all 0.3s;
+            cursor: pointer;
         }
 
         .exam-item:hover {
@@ -344,7 +341,6 @@
             color: #27ae60;
         }
 
-        /* EMPTY STATE */
         .empty-state {
             text-align: center;
             padding: 20px;
@@ -412,7 +408,6 @@
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="top-header">
         <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
         <div class="header-right">
@@ -424,14 +419,12 @@
 
     <div class="container">
 
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
             <span class="current">Danh sách lớp</span>
         </div>
 
-        <!-- SEARCH -->
         <div class="search-box">
             <input type="text" id="searchClass" placeholder="🔍 Tìm kiếm theo tên lớp..." oninput="filterClasses()">
             <button class="btn btn-secondary" onclick="document.getElementById('searchClass').value=''; filterClasses();">
@@ -439,12 +432,8 @@
             </button>
         </div>
 
-        <!-- CLASS LIST -->
-        <div id="classList" class="class-grid">
-            <!-- Sẽ được render bằng JS -->
-        </div>
+        <div id="classList" class="class-grid"></div>
 
-        <!-- LOADING -->
         <div id="loading" class="loading-spinner" style="display:none;">
             <i class="fas fa-spinner"></i>
             <p style="margin-top:8px;">Đang tải danh sách lớp...</p>
@@ -522,7 +511,6 @@
             loadingEl.style.display = 'block';
 
             try {
-                // Lấy danh sách lớp từ Firestore
                 const snapshot = await db.collection('classes')
                     .orderBy('className', 'asc')
                     .get();
@@ -535,7 +523,6 @@
                     });
                 });
 
-                // Nếu chưa có dữ liệu, tạo dữ liệu mẫu
                 if (classesData.length === 0) {
                     classesData = getSampleClasses();
                 }
@@ -544,7 +531,6 @@
 
             } catch (error) {
                 console.error('Lỗi tải lớp:', error);
-                // Fallback: hiển thị dữ liệu mẫu
                 classesData = getSampleClasses();
                 renderClasses();
             } finally {
@@ -564,6 +550,7 @@
                 studentCount: 35,
                 year: '2025 - 2026',
                 exams: [{
+                    id: 'exam1',
                     name: 'ĐỀ TỔNG',
                     attempts: 0,
                     score: 'Chưa thi',
@@ -577,12 +564,14 @@
                 studentCount: 2,
                 year: '2025 - 2026',
                 exams: [{
+                    id: 'exam2',
                     name: 'ĐỀ TỔNG',
                     attempts: 0,
                     score: 'Chưa thi',
                     timeLimit: '20/12/2024 00:00 -> 22/12/2024 00:00',
                     status: 'not-started'
                 }, {
+                    id: 'exam3',
                     name: 'VẬT LÝ GKII - LINK 3',
                     attempts: 0,
                     score: 'Chưa thi',
@@ -596,6 +585,7 @@
                 studentCount: 42,
                 year: '2024 - 2025',
                 exams: [{
+                    id: 'exam4',
                     name: 'ĐỀ TỔNG',
                     attempts: 0,
                     score: 'Chưa thi',
@@ -630,7 +620,7 @@
                 let examsHTML = '';
                 if (cls.exams && cls.exams.length > 0) {
                     examsHTML = cls.exams.map(exam => `
-                        <div class="exam-item" onclick="startExam('${cls.id}', '${exam.name}')">
+                        <div class="exam-item" onclick="startExam('${exam.id}', '${exam.name}')">
                             <div class="exam-info">
                                 <div class="exam-name">${exam.name}</div>
                                 <div class="exam-stats">
@@ -700,13 +690,17 @@
         }
 
         // ============================================================
-        // START EXAM
+        // START EXAM - CHUYỂN SANG EXAM-DETAIL.HTML
         // ============================================================
 
-        function startExam(classId, examName) {
-            alert(`🚀 Bắt đầu làm bài: ${examName}\n\n📌 Chức năng đang được phát triển!`);
-            // Có thể chuyển sang trang làm bài test
-            // window.location.href = 'take-exam.html?classId=' + classId + '&exam=' + encodeURIComponent(examName);
+        function startExam(examId, examName) {
+            // Kiểm tra nếu examId là undefined hoặc null, tạo ID giả
+            if (!examId) {
+                examId = 'demo_' + Date.now();
+            }
+
+            // Chuyển sang trang chi tiết đề thi với ID
+            window.location.href = 'exam-detail.html?id=' + examId;
         }
 
         // ============================================================
