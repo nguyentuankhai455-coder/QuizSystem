@@ -115,20 +115,15 @@
             background: #7f8c8d;
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #3498db;
-            color: #3498db;
-        }
-        .btn-outline:hover {
-            background: #3498db;
-            color: white;
-        }
-
         .btn-lg {
             padding: 14px 32px;
             font-size: 16px;
             border-radius: 12px;
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .container {
@@ -264,6 +259,15 @@
             border: 2px solid #e8edf5;
         }
 
+        .exam-card .exam-body .info-item .value .badge-attempts {
+            background: #e8f4fd;
+            color: #2980b9;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
         .exam-card .exam-actions {
             padding: 20px 28px;
             border-top: 2px solid #e8edf5;
@@ -314,7 +318,45 @@
             font-weight: 700;
         }
 
-        /* Loading state */
+        .exam-warning.info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+        }
+
+        .exam-warning.info .icon {
+            color: #0c5460;
+        }
+
+        .exam-warning.info .text {
+            color: #0c5460;
+        }
+
+        .exam-warning.success {
+            background: #d4edda;
+            border-color: #27ae60;
+        }
+
+        .exam-warning.success .icon {
+            color: #155724;
+        }
+
+        .exam-warning.success .text {
+            color: #155724;
+        }
+
+        .exam-warning.danger {
+            background: #f8d7da;
+            border-color: #e74c3c;
+        }
+
+        .exam-warning.danger .icon {
+            color: #721c24;
+        }
+
+        .exam-warning.danger .text {
+            color: #721c24;
+        }
+
         .loading-spinner {
             text-align: center;
             padding: 40px;
@@ -386,16 +428,11 @@
             <p style="margin-top:8px;">Đang tải đề thi...</p>
         </div>
 
-        <!-- Nội dung chính (ẩn khi loading) -->
+        <!-- Nội dung chính -->
         <div id="mainContent" style="display:none;">
 
-            <div class="exam-warning">
-                <div class="icon"><i class="fas fa-info-circle"></i></div>
-                <div class="text">
-                    <strong>Lưu ý:</strong> Bạn chỉ có <strong>1 lần</strong> làm bài duy nhất. 
-                    Hãy đảm bảo kết nối mạng ổn định trước khi bắt đầu.
-                </div>
-            </div>
+            <!-- Warning sẽ được render bằng JS -->
+            <div id="warningContainer"></div>
 
             <div class="exam-card">
                 <div class="exam-header">
@@ -429,10 +466,16 @@
                                 <span class="badge-exam"><i class="fas fa-list-ul"></i> Trắc nghiệm</span>
                             </div>
                         </div>
-                        <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-item">
                             <div class="label">👥 Tổng lượt đã làm của đề</div>
                             <div class="value" id="examAttempts">
                                 <span class="badge-count"><i class="fas fa-users"></i> 0 lượt</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">📝 Số lần được làm</div>
+                            <div class="value" id="examMaxAttempts">
+                                <span class="badge-attempts"><i class="fas fa-infinity"></i> Không giới hạn</span>
                             </div>
                         </div>
                     </div>
@@ -443,7 +486,7 @@
                         <i class="fas fa-history"></i> Xem lịch sử làm bài
                     </div>
                     <div>
-                        <button class="btn btn-success btn-lg" onclick="startExam()">
+                        <button class="btn btn-success btn-lg" id="startBtn" onclick="startExam()">
                             <i class="fas fa-play"></i> Bắt đầu thi
                         </button>
                     </div>
@@ -480,6 +523,7 @@
         let currentUser = null;
         let examId = null;
         let examData = null;
+        let examHistory = [];
 
         // ============================================================
         // AUTH
@@ -502,9 +546,11 @@
             document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
             document.getElementById('userRoleBadge').textContent = '👨‍🎓 Học sinh';
 
-            // Lấy examId từ URL
             const urlParams = new URLSearchParams(window.location.search);
             examId = urlParams.get('id');
+
+            // Load lịch sử trước
+            loadHistory();
 
             if (examId) {
                 loadExamDetail(examId);
@@ -522,6 +568,19 @@
                 localStorage.removeItem('quizCurrentUser');
                 window.location.href = 'index.html';
             });
+        }
+
+        // ============================================================
+        // LOAD HISTORY
+        // ============================================================
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+            examHistory = history.filter(h => h.studentId === currentUser.uid);
+        }
+
+        function getStudentAttempts(examId) {
+            return examHistory.filter(h => h.examId === examId);
         }
 
         // ============================================================
@@ -554,19 +613,18 @@
         }
 
         function loadDemoData() {
-            // Tạo dữ liệu mẫu dựa trên ID
             examData = {
                 id: examId || 'demo',
-                title: 'ĐỀ TỔNG ' + (examId ? '' : '(Demo)'),
-                code: examId ? examId.substring(0, 6) : 'ghviv3',
+                title: 'Đề mẫu',
+                code: examId ? examId.substring(0, 6) : 'k6ubl1',
                 duration: 30,
                 timeLimit: null,
                 questions: Array(10).fill({}),
                 type: 'Trắc nghiệm',
-                attempts: Math.floor(Math.random() * 50)
+                attempts: 0,
+                maxAttempts: null // null = không giới hạn
             };
 
-            // Ẩn loading, hiện nội dung
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             renderExamDetail();
@@ -583,6 +641,7 @@
             document.getElementById('examCode').textContent = examData.code || generateExamCode();
             document.getElementById('breadcrumbTitle').textContent = examData.title || 'Chi tiết đề thi';
 
+            // Thời gian làm bài
             const durationEl = document.getElementById('examDuration');
             if (examData.duration) {
                 durationEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> ${examData.duration} phút</span>`;
@@ -590,6 +649,7 @@
                 durationEl.innerHTML = `<span class="badge-unlimited"><i class="fas fa-infinity"></i> Không giới hạn</span>`;
             }
 
+            // Thời gian vào thi
             const timeEl = document.getElementById('examTime');
             if (examData.timeLimit) {
                 timeEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> ${examData.timeLimit}</span>`;
@@ -597,17 +657,125 @@
                 timeEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> Không thời hạn</span>`;
             }
 
+            // Số câu hỏi
             const questionCount = examData.questions ? examData.questions.length : 0;
             document.getElementById('examQuestions').textContent = questionCount || 0;
 
+            // Loại đề
             document.getElementById('examType').innerHTML = `
                 <span class="badge-exam"><i class="fas fa-list-ul"></i> ${examData.type || 'Trắc nghiệm'}</span>
             `;
 
+            // Tổng lượt làm
             document.getElementById('examAttempts').innerHTML = `
                 <span class="badge-count"><i class="fas fa-users"></i> ${examData.attempts || 0} lượt</span>
             `;
+
+            // ===== SỐ LẦN ĐƯỢC LÀM =====
+            const maxAttempts = examData.maxAttempts;
+            const maxAttemptsEl = document.getElementById('examMaxAttempts');
+
+            if (maxAttempts === null || maxAttempts === undefined || maxAttempts === 0) {
+                maxAttemptsEl.innerHTML = `<span class="badge-attempts"><i class="fas fa-infinity"></i> Không giới hạn</span>`;
+            } else {
+                maxAttemptsEl.innerHTML = `<span class="badge-attempts"><i class="fas fa-sync-alt"></i> ${maxAttempts} lần</span>`;
+            }
+
+            // ===== KIỂM TRA SỐ LẦN ĐÃ LÀM =====
+            const studentAttempts = getStudentAttempts(examData.id);
+            const attemptCount = studentAttempts.length;
+
+            // Render warning
+            renderWarning(attemptCount);
+
+            // Cập nhật nút bắt đầu thi
+            const startBtn = document.getElementById('startBtn');
+
+            if (maxAttempts !== null && maxAttempts > 0 && attemptCount >= maxAttempts) {
+                // Đã đạt giới hạn số lần
+                startBtn.disabled = true;
+                startBtn.className = 'btn btn-secondary btn-lg btn-disabled';
+                startBtn.innerHTML = '<i class="fas fa-ban"></i> Đã hết lượt làm';
+            } else if (attemptCount > 0) {
+                // Đã làm nhưng còn lượt
+                const remaining = maxAttempts === null ? '♾️' : (maxAttempts - attemptCount);
+                startBtn.innerHTML = `<i class="fas fa-redo"></i> Làm lại (còn ${remaining} lượt)`;
+            } else {
+                // Chưa làm
+                startBtn.innerHTML = '<i class="fas fa-play"></i> Bắt đầu thi';
+            }
         }
+
+        // ============================================================
+        // RENDER WARNING
+        // ============================================================
+
+        function renderWarning(attemptCount) {
+            const container = document.getElementById('warningContainer');
+            const maxAttempts = examData.maxAttempts;
+
+            // Xóa warning cũ
+            container.innerHTML = '';
+
+            let warningHTML = '';
+
+            // Nếu đã hết lượt
+            if (maxAttempts !== null && maxAttempts > 0 && attemptCount >= maxAttempts) {
+                warningHTML = `
+                    <div class="exam-warning danger">
+                        <div class="icon"><i class="fas fa-ban"></i></div>
+                        <div class="text">
+                            <strong>⛔ Bạn đã hết lượt làm bài!</strong>
+                            <br>Bạn đã làm <strong>${attemptCount}/${maxAttempts}</strong> lượt. Không thể làm thêm.
+                        </div>
+                    </div>
+                `;
+            } else if (maxAttempts !== null && maxAttempts > 0) {
+                // Có giới hạn, còn lượt
+                const remaining = maxAttempts - attemptCount;
+                warningHTML = `
+                    <div class="exam-warning info">
+                        <div class="icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="text">
+                            <strong>📝 Bạn được làm ${maxAttempts} lần.</strong>
+                            <br>Đã làm <strong>${attemptCount}</strong> lần, còn <strong>${remaining}</strong> lượt.
+                            ${attemptCount > 0 ? 'Hãy tận dụng cơ hội để cải thiện điểm số!' : ''}
+                        </div>
+                    </div>
+                `;
+            } else if (attemptCount > 0) {
+                // Không giới hạn, đã làm
+                warningHTML = `
+                    <div class="exam-warning success">
+                        <div class="icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="text">
+                            <strong>✅ Bạn đã làm bài này ${attemptCount} lần.</strong>
+                            <br>Bạn có thể làm lại không giới hạn số lần.
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Chưa làm
+                warningHTML = `
+                    <div class="exam-warning">
+                        <div class="icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="text">
+                            <strong>Lưu ý:</strong> 
+                            ${maxAttempts !== null && maxAttempts > 0 ? 
+                                `Bạn được làm <strong>${maxAttempts} lần</strong> duy nhất.` : 
+                                'Bạn có thể làm bài không giới hạn số lần.'}
+                            Hãy đảm bảo kết nối mạng ổn định trước khi bắt đầu.
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = warningHTML;
+        }
+
+        // ============================================================
+        // GENERATE CODE
+        // ============================================================
 
         function generateExamCode() {
             const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -619,7 +787,7 @@
         }
 
         // ============================================================
-        // ACTIONS - ĐÃ SỬA CHUYỂN SANG TAKE-EXAM
+        // START EXAM - KIỂM TRA SỐ LẦN
         // ============================================================
 
         function startExam() {
@@ -635,38 +803,68 @@
                 return;
             }
 
-            const confirmMsg = `🚀 Bạn sắp bắt đầu làm bài: ${examData.title}\n\n` +
+            // Kiểm tra số lần đã làm
+            const studentAttempts = getStudentAttempts(examData.id);
+            const attemptCount = studentAttempts.length;
+            const maxAttempts = examData.maxAttempts;
+
+            // Nếu có giới hạn và đã đạt giới hạn
+            if (maxAttempts !== null && maxAttempts > 0 && attemptCount >= maxAttempts) {
+                alert(`⛔ Bạn đã hết lượt làm bài!\n\nĐã làm ${attemptCount}/${maxAttempts} lượt. Không thể làm thêm.`);
+                return;
+            }
+
+            // Tạo thông báo
+            let confirmMsg = `🚀 Bạn sắp bắt đầu làm bài: ${examData.title}\n\n` +
                 `📝 Số câu hỏi: ${questionCount}\n` +
-                `⏱️ Thời gian: ${examData.duration ? examData.duration + ' phút' : 'Không giới hạn'}\n\n` +
-                `⚠️ Lưu ý: Bạn chỉ được làm 1 lần duy nhất!\n\n` +
-                `Bạn đã sẵn sàng chưa?`;
+                `⏱️ Thời gian: ${examData.duration ? examData.duration + ' phút' : 'Không giới hạn'}\n`;
+
+            // Thêm thông tin về số lần
+            if (maxAttempts !== null && maxAttempts > 0) {
+                const remaining = maxAttempts - attemptCount;
+                confirmMsg += `📊 Lượt làm: ${attemptCount}/${maxAttempts} (còn ${remaining} lượt)\n\n`;
+            } else {
+                confirmMsg += `📊 Lượt làm: ${attemptCount} (không giới hạn)\n\n`;
+            }
+
+            confirmMsg += `Bạn đã sẵn sàng chưa?`;
 
             if (confirm(confirmMsg)) {
-                // ✅ CHUYỂN SANG TRANG LÀM BÀI THI
                 window.location.href = 'take-exam.html?id=' + examData.id;
             }
         }
 
-        function viewHistory() {
-            // Kiểm tra lịch sử từ localStorage
-            const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
-            const examHistory = history.filter(h => h.examId === examData.id);
+        // ============================================================
+        // VIEW HISTORY
+        // ============================================================
 
-            if (examHistory.length === 0) {
+        function viewHistory() {
+            const history = getStudentAttempts(examData.id);
+
+            if (history.length === 0) {
                 alert('📜 Bạn chưa làm bài thi này!');
                 return;
             }
 
-            const last = examHistory[examHistory.length - 1];
-            alert(
-                `📜 LỊCH SỬ LÀM BÀI\n\n` +
-                `📄 Đề: ${last.examTitle || examData.title}\n` +
-                `📅 Ngày làm: ${last.submittedAt || 'Chưa có'}\n` +
-                `✅ Đúng: ${last.correct || 0}/${last.total || 0}\n` +
-                `📊 Điểm: ${last.score || 0}%\n` +
-                `🏆 ${last.grade || 'Chưa đánh giá'}\n\n` +
-                `📌 Đã làm ${examHistory.length} lần`
-            );
+            let historyText = `📜 LỊCH SỬ LÀM BÀI (${history.length} lần)\n\n`;
+            historyText += `📄 Đề: ${examData.title || 'Đề thi'}\n`;
+            historyText += `📊 Tổng lượt: ${history.length}\n\n`;
+
+            history.forEach((h, idx) => {
+                const num = idx + 1;
+                const score = h.score || 0;
+                const date = h.submittedAt || 'Chưa có';
+                const correct = h.correct || 0;
+                const total = h.total || 0;
+                const grade = h.grade || 'Chưa đánh giá';
+
+                historyText += `Lần ${num}:\n`;
+                historyText += `  📅 ${date}\n`;
+                historyText += `  ✅ ${correct}/${total} đúng (${score}%)\n`;
+                historyText += `  🏆 ${grade}\n\n`;
+            });
+
+            alert(historyText);
         }
 
         // ============================================================
