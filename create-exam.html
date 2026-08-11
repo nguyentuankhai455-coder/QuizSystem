@@ -9,6 +9,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+    <!-- Thư viện đọc file DOCX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- Thư viện đọc file PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -183,6 +188,124 @@
             overflow: hidden;
         }
 
+        /* ===== UPLOAD SECTION ===== */
+        .upload-section {
+            padding: 16px 20px;
+            border-bottom: 2px solid #e8edf5;
+            background: #f8faff;
+        }
+
+        .upload-section .upload-area {
+            border: 2px dashed #d0d7e6;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-section .upload-area:hover {
+            border-color: #3498db;
+            background: #f0f7ff;
+        }
+
+        .upload-section .upload-area.dragover {
+            border-color: #27ae60;
+            background: #e8f5ed;
+        }
+
+        .upload-section .upload-area .icon {
+            font-size: 36px;
+            color: #3498db;
+            margin-bottom: 8px;
+        }
+
+        .upload-section .upload-area h4 {
+            color: #2c3e50;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .upload-section .upload-area p {
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
+        .upload-section .upload-area .file-types {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .upload-section .upload-area .file-types .tag {
+            background: #e8edf5;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #2c3e50;
+        }
+
+        .upload-section .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-section .upload-status {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .upload-section .upload-status.show {
+            display: block;
+        }
+
+        .upload-section .upload-status.success {
+            background: #d4edda;
+            border: 1px solid #27ae60;
+            color: #155724;
+        }
+
+        .upload-section .upload-status.error {
+            background: #f8d7da;
+            border: 1px solid #e74c3c;
+            color: #721c24;
+        }
+
+        .upload-section .upload-status.info {
+            background: #d1ecf1;
+            border: 1px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .upload-section .upload-status .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e6ed;
+            border-radius: 4px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .upload-section .upload-status .progress-bar .fill {
+            height: 100%;
+            background: #27ae60;
+            border-radius: 4px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        /* ===== EDITOR TITLE ===== */
         .editor-title {
             padding: 16px 20px;
             border-bottom: 2px solid #e8edf5;
@@ -519,12 +642,31 @@
 
         <div class="editor-container">
 
-            <!-- TITLE -->
+            <!-- ===== UPLOAD SECTION ===== -->
+            <div class="upload-section">
+                <div class="upload-area" id="dropZone">
+                    <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <h4>📤 Tải file đề thi lên</h4>
+                    <p>Hỗ trợ các định dạng .docx, .txt, .pdf</p>
+                    <div class="file-types">
+                        <span class="tag"><i class="fas fa-file-word"></i> DOCX</span>
+                        <span class="tag"><i class="fas fa-file-alt"></i> TXT</span>
+                        <span class="tag"><i class="fas fa-file-pdf"></i> PDF</span>
+                    </div>
+                    <input type="file" id="fileInput" accept=".docx,.txt,.pdf">
+                </div>
+                <div id="uploadStatus" class="upload-status">
+                    <div id="uploadMessage">Đang xử lý...</div>
+                    <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+                </div>
+            </div>
+
+            <!-- ===== TITLE ===== -->
             <div class="editor-title">
                 <input type="text" id="examTitle" placeholder="Nhập tên đề thi..." value="">
             </div>
 
-            <!-- SETTINGS -->
+            <!-- ===== SETTINGS ===== -->
             <div class="editor-settings">
                 <div class="form-group">
                     <label>⏱️ Thời gian làm bài</label>
@@ -551,7 +693,7 @@
                 </div>
             </div>
 
-            <!-- TEMPLATES -->
+            <!-- ===== TEMPLATES ===== -->
             <div class="template-samples">
                 <span class="template-label">📋 Nội dung mẫu:</span>
                 <button class="template-btn" onclick="loadTemplate('mau1')">Mẫu 1</button>
@@ -561,7 +703,7 @@
                 <button class="template-btn" onclick="loadTemplate('mau5')">Mẫu 5 (Đúng-Sai)</button>
             </div>
 
-            <!-- INPUT -->
+            <!-- ===== INPUT ===== -->
             <div class="editor-input-area">
                 <div class="input-header">
                     <label>📝 Nhập nội dung đề thi</label>
@@ -580,7 +722,7 @@
                 </div>
             </div>
 
-            <!-- PREVIEW -->
+            <!-- ===== PREVIEW ===== -->
             <div class="editor-preview" id="previewSection">
                 <div class="preview-header">
                     <h4>🔍 Xem trước</h4>
@@ -594,7 +736,7 @@
                 </div>
             </div>
 
-            <!-- FOOTER -->
+            <!-- ===== FOOTER ===== -->
             <div class="editor-footer">
                 <div class="left-actions">
                     <button class="btn btn-primary" onclick="addQuestionManual()">
@@ -663,7 +805,6 @@
             document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
             document.getElementById('userRoleBadge').textContent = '👨‍🏫 Giáo viên';
 
-            // Kiểm tra sửa đề
             const editingId = localStorage.getItem('editingExamId');
             if (editingId) {
                 loadExamForEdit(editingId);
@@ -702,7 +843,6 @@
                         renderPreview();
                     }
 
-                    // Thêm nút cập nhật
                     const oldBtn = document.querySelector('.btn-update-exam');
                     if (oldBtn) oldBtn.remove();
 
@@ -721,7 +861,268 @@
         }
 
         // ============================================================
-        // PARSE LOGIC
+        // FILE UPLOAD - ĐỌC FILE VÀ TỰ ĐỘNG PHÁT HIỆN
+        // ============================================================
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        // Drag & Drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                handleFile(this.files[0]);
+                this.value = '';
+            }
+        });
+
+        async function handleFile(file) {
+            const statusEl = document.getElementById('uploadStatus');
+            const messageEl = document.getElementById('uploadMessage');
+            const progressFill = document.getElementById('progressFill');
+
+            statusEl.className = 'upload-status show info';
+            messageEl.textContent = `⏳ Đang đọc file: ${file.name}`;
+            progressFill.style.width = '30%';
+
+            try {
+                let text = '';
+
+                // Đọc file theo định dạng
+                if (file.name.endsWith('.txt')) {
+                    text = await readTxtFile(file);
+                } else if (file.name.endsWith('.docx')) {
+                    text = await readDocxFile(file);
+                } else if (file.name.endsWith('.pdf')) {
+                    text = await readPdfFile(file);
+                } else {
+                    throw new Error('Định dạng file không được hỗ trợ!');
+                }
+
+                progressFill.style.width = '70%';
+
+                if (!text || text.trim().length === 0) {
+                    throw new Error('File không có nội dung!');
+                }
+
+                // Tự động phát hiện và parse
+                const result = autoDetectAndParse(text);
+
+                if (result.questions.length === 0) {
+                    throw new Error('Không tìm thấy câu hỏi trong file!');
+                }
+
+                // Điền tên đề thi (lấy dòng đầu tiên)
+                if (result.title && !document.getElementById('examTitle').value) {
+                    document.getElementById('examTitle').value = result.title;
+                }
+
+                // Điền nội dung vào textarea
+                document.getElementById('examInput').value = text;
+
+                // Parse câu hỏi
+                parsedQuestions = result.questions;
+                renderPreview();
+
+                progressFill.style.width = '100%';
+                statusEl.className = 'upload-status show success';
+                messageEl.textContent = `✅ Đã đọc file thành công! Tìm thấy ${result.questions.length} câu hỏi.`;
+
+                showStatus('success', `✅ Đã tải file "${file.name}" thành công! Tìm thấy ${result.questions.length} câu hỏi.`);
+
+                setTimeout(() => {
+                    statusEl.className = 'upload-status';
+                    progressFill.style.width = '0%';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Lỗi đọc file:', error);
+                statusEl.className = 'upload-status show error';
+                messageEl.textContent = `❌ Lỗi: ${error.message}`;
+                showStatus('error', `❌ Không thể đọc file: ${error.message}`);
+            }
+        }
+
+        // ===== ĐỌC FILE TXT =====
+        function readTxtFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => reject(new Error('Không thể đọc file TXT'));
+                reader.readAsText(file, 'UTF-8');
+            });
+        }
+
+        // ===== ĐỌC FILE DOCX =====
+        function readDocxFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                        resolve(result.value);
+                    } catch (error) {
+                        reject(new Error('Không thể đọc file DOCX: ' + error.message));
+                    }
+                };
+                reader.onerror = () => reject(new Error('Không thể đọc file DOCX'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // ===== ĐỌC FILE PDF =====
+        function readPdfFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        let text = '';
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const content = await page.getTextContent();
+                            const pageText = content.items.map(item => item.str).join(' ');
+                            text += pageText + '\n';
+                        }
+                        resolve(text);
+                    } catch (error) {
+                        reject(new Error('Không thể đọc file PDF: ' + error.message));
+                    }
+                };
+                reader.onerror = () => reject(new Error('Không thể đọc file PDF'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // ============================================================
+        // AUTO DETECT & PARSE - TỰ ĐỘNG PHÁT HIỆN CÂU HỎI + ĐÁP ÁN
+        // ============================================================
+
+        function autoDetectAndParse(text) {
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+            let title = '';
+            let questions = [];
+            let currentQuestion = null;
+
+            // Lấy dòng đầu tiên làm tên đề (nếu không bắt đầu bằng số hoặc A/B/C/D)
+            if (lines.length > 0) {
+                const firstLine = lines[0];
+                const isOption = /^[A-Da-d]\./.test(firstLine) || /^\*[A-Da-d]\./.test(firstLine);
+                const isQuestion = /^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/.test(firstLine);
+
+                if (!isOption && !isQuestion) {
+                    title = firstLine;
+                    // Xóa dòng tiêu đề khỏi danh sách
+                    lines.splice(0, 1);
+                }
+            }
+
+            // Xóa các dòng không cần thiết (số thứ tự, ...)
+            const cleanedLines = lines.filter(line => {
+                // Bỏ qua các dòng chỉ toàn số hoặc ký tự đặc biệt
+                if (/^[\d\s\-_=+*#]+$/.test(line)) return false;
+                if (line.length < 2) return false;
+                return true;
+            });
+
+            for (let i = 0; i < cleanedLines.length; i++) {
+                const line = cleanedLines[i];
+
+                // Kiểm tra nếu là dòng câu hỏi
+                const isQuestionLine = /^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/.test(line);
+                const isOption = /^[A-Da-d]\./.test(line) || /^\*[A-Da-d]\./.test(line);
+
+                if (isQuestionLine && !isOption) {
+                    // Lưu câu hỏi trước đó
+                    if (currentQuestion) {
+                        if (currentQuestion.options.length > 0) {
+                            // Xác định đáp án đúng
+                            let correctIndex = currentQuestion.options.findIndex(o => o.correct);
+                            if (correctIndex === -1 && currentQuestion.options.length > 0) {
+                                correctIndex = 0;
+                            }
+                            questions.push({
+                                content: currentQuestion.content,
+                                options: currentQuestion.options.map(o => o.text),
+                                correct: correctIndex
+                            });
+                        }
+                    }
+
+                    // Bắt đầu câu hỏi mới
+                    const cleanContent = line.replace(/^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/, '').trim();
+                    currentQuestion = {
+                        content: cleanContent || line,
+                        options: []
+                    };
+                } else if (isOption && currentQuestion) {
+                    // Thêm đáp án
+                    const isCorrect = line.startsWith('*');
+                    const cleanLine = line.replace(/^\*/, '').trim();
+                    const optionText = cleanLine.replace(/^[A-Da-d]\.\s*/, '').trim();
+                    currentQuestion.options.push({
+                        text: optionText || cleanLine,
+                        correct: isCorrect
+                    });
+                } else if (currentQuestion && !isOption && !isQuestionLine) {
+                    // Nếu là dòng bình thường và đang có câu hỏi, có thể là nội dung câu hỏi kéo dài
+                    if (currentQuestion.options.length === 0) {
+                        currentQuestion.content += ' ' + line;
+                    }
+                }
+            }
+
+            // Lưu câu hỏi cuối cùng
+            if (currentQuestion) {
+                if (currentQuestion.options.length > 0) {
+                    let correctIndex = currentQuestion.options.findIndex(o => o.correct);
+                    if (correctIndex === -1 && currentQuestion.options.length > 0) {
+                        correctIndex = 0;
+                    }
+                    questions.push({
+                        content: currentQuestion.content,
+                        options: currentQuestion.options.map(o => o.text),
+                        correct: correctIndex
+                    });
+                }
+            }
+
+            // Nếu không tìm thấy câu hỏi nào, thử parse theo cách khác
+            if (questions.length === 0) {
+                // Thử parse toàn bộ text
+                const result = parseExamContent(text);
+                if (result.length > 0) {
+                    questions = result;
+                }
+            }
+
+            return {
+                title: title || 'Đề thi từ file',
+                questions: questions
+            };
+        }
+
+        // ============================================================
+        // PARSE EXAM CONTENT
         // ============================================================
 
         function parseAndPreview() {
@@ -924,6 +1325,14 @@
             if (!confirm('Tải mẫu này? Nội dung hiện tại sẽ bị thay thế.')) return;
             document.getElementById('examInput').value = text;
             parseAndPreview();
+            // Lấy dòng đầu làm tên
+            const lines = text.split('\n');
+            if (lines.length > 0) {
+                const firstLine = lines[0].trim();
+                if (!/^[A-Da-d]/.test(firstLine) && !/^(Câu\s*\d+)/.test(firstLine)) {
+                    document.getElementById('examTitle').value = firstLine;
+                }
+            }
         }
 
         // ============================================================
@@ -996,7 +1405,6 @@
                 return null;
             }
 
-            // Kiểm tra dữ liệu
             for (let i = 0; i < parsedQuestions.length; i++) {
                 const q = parsedQuestions[i];
                 if (!q.content || q.content.trim() === '') {
@@ -1039,14 +1447,12 @@
                 }
 
                 if (currentEditingExamId) {
-                    // Cập nhật
                     await db.collection('exams').doc(currentEditingExamId).update({
                         ...examData,
                         updatedAt: new Date().toLocaleString()
                     });
                     showStatus('success', '✅ Đã cập nhật đề thi thành công!');
                 } else {
-                    // Tạo mới
                     await db.collection('exams').add({
                         ...examData,
                         createdBy: currentUser.uid,
@@ -1056,12 +1462,10 @@
                     showStatus('success', '✅ Đã lưu đề thi thành công!');
                 }
 
-                // Xóa nút cập nhật nếu có
                 const oldBtn = document.querySelector('.btn-update-exam');
                 if (oldBtn) oldBtn.remove();
                 currentEditingExamId = null;
 
-                // Reset form
                 document.getElementById('examTitle').value = '';
                 document.getElementById('examInput').value = '';
                 parsedQuestions = [];
@@ -1121,7 +1525,6 @@
 
         checkAuth();
 
-        // Ctrl+Enter để lưu
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'Enter') {
                 saveExam();
