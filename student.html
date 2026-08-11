@@ -343,14 +343,24 @@
 
         .empty-state {
             text-align: center;
-            padding: 20px;
+            padding: 40px 20px;
             color: #95a5a6;
         }
 
         .empty-state .icon {
-            font-size: 32px;
+            font-size: 56px;
             color: #d0d7e6;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h4 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
         }
 
         .no-exams {
@@ -503,7 +513,7 @@
         }
 
         // ============================================================
-        // LOAD CLASSES
+        // LOAD CLASSES - CHỈ LẤY DỮ LIỆU TỪ FIRESTORE
         // ============================================================
 
         async function loadClasses() {
@@ -511,88 +521,31 @@
             loadingEl.style.display = 'block';
 
             try {
+                // Lấy danh sách lớp từ Firestore
                 const snapshot = await db.collection('classes')
                     .orderBy('className', 'asc')
                     .get();
 
                 classesData = [];
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Chỉ lấy lớp mà học sinh này thuộc về
+                    // (có thể thêm logic lọc theo studentId nếu có)
                     classesData.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...data
                     });
                 });
-
-                if (classesData.length === 0) {
-                    classesData = getSampleClasses();
-                }
 
                 renderClasses();
 
             } catch (error) {
                 console.error('Lỗi tải lớp:', error);
-                classesData = getSampleClasses();
-                renderClasses();
+                // Không hiển thị dữ liệu mẫu, chỉ hiển thị thông báo lỗi
+                renderEmptyState('error');
             } finally {
                 loadingEl.style.display = 'none';
             }
-        }
-
-        // ============================================================
-        // SAMPLE DATA
-        // ============================================================
-
-        function getSampleClasses() {
-            return [{
-                id: '1',
-                className: '11A7-2025-2026',
-                teacherName: 'Cô Nguyễn Thị Khánh Ly',
-                studentCount: 35,
-                year: '2025 - 2026',
-                exams: [{
-                    id: 'exam1',
-                    name: 'ĐỀ TỔNG',
-                    attempts: 0,
-                    score: 'Chưa thi',
-                    timeLimit: 'Không thời hạn',
-                    status: 'not-started'
-                }]
-            }, {
-                id: '2',
-                className: '11A7',
-                teacherName: 'Thầy Nguyễn Tuấn Khải',
-                studentCount: 2,
-                year: '2025 - 2026',
-                exams: [{
-                    id: 'exam2',
-                    name: 'ĐỀ TỔNG',
-                    attempts: 0,
-                    score: 'Chưa thi',
-                    timeLimit: '20/12/2024 00:00 -> 22/12/2024 00:00',
-                    status: 'not-started'
-                }, {
-                    id: 'exam3',
-                    name: 'VẬT LÝ GKII - LINK 3',
-                    attempts: 0,
-                    score: 'Chưa thi',
-                    timeLimit: 'Không thời hạn',
-                    status: 'not-started'
-                }]
-            }, {
-                id: '3',
-                className: '10A7',
-                teacherName: 'Thầy Phan Quang Tuyến',
-                studentCount: 42,
-                year: '2024 - 2025',
-                exams: [{
-                    id: 'exam4',
-                    name: 'ĐỀ TỔNG',
-                    attempts: 0,
-                    score: 'Chưa thi',
-                    timeLimit: 'Không thời hạn',
-                    status: 'not-started'
-                }]
-            }];
         }
 
         // ============================================================
@@ -603,26 +556,22 @@
             const container = document.getElementById('classList');
 
             if (classesData.length === 0) {
-                container.innerHTML = `
-                    <div class="no-exams">
-                        <div style="font-size:48px; margin-bottom:12px;">📭</div>
-                        <h4 style="color:#2c3e50;">Chưa có lớp học</h4>
-                        <p style="color:#95a5a6; font-size:14px;">Hãy đợi giáo viên thêm bạn vào lớp</p>
-                    </div>
-                `;
+                renderEmptyState('empty');
                 return;
             }
 
             container.innerHTML = classesData.map(cls => {
-                const examCount = cls.exams ? cls.exams.length : 0;
-                const notStarted = cls.exams ? cls.exams.filter(e => e.status === 'not-started' || !e.status).length : 0;
+                // Lấy danh sách đề thi từ lớp (nếu có)
+                const exams = cls.exams || [];
+                const examCount = exams.length;
+                const notStarted = exams.filter(e => e.status === 'not-started' || !e.status).length;
 
                 let examsHTML = '';
-                if (cls.exams && cls.exams.length > 0) {
-                    examsHTML = cls.exams.map(exam => `
-                        <div class="exam-item" onclick="startExam('${exam.id}', '${exam.name}')">
+                if (exams.length > 0) {
+                    examsHTML = exams.map(exam => `
+                        <div class="exam-item" onclick="startExam('${exam.id || cls.id}', '${exam.name}')">
                             <div class="exam-info">
-                                <div class="exam-name">${exam.name}</div>
+                                <div class="exam-name">${exam.name || 'Đề thi'}</div>
                                 <div class="exam-stats">
                                     <span><i class="fas fa-users"></i> ${exam.attempts || 0} lượt làm đề</span>
                                     <span><i class="fas fa-star"></i> Điểm: ${exam.score || 'Chưa thi'}</span>
@@ -642,14 +591,18 @@
                         </div>
                     `).join('');
                 } else {
-                    examsHTML = `<div class="empty-state"><div class="icon">📭</div><p>Chưa có bài tập nào</p></div>`;
+                    examsHTML = `
+                        <div class="empty-state" style="padding:12px;">
+                            <p style="font-size:13px;">📭 Chưa có bài tập nào được giao</p>
+                        </div>
+                    `;
                 }
 
                 return `
-                    <div class="class-card" data-classname="${cls.className.toLowerCase()}">
+                    <div class="class-card" data-classname="${(cls.className || '').toLowerCase()}">
                         <div class="class-header">
                             <div>
-                                <div class="class-name">📚 ${cls.className}</div>
+                                <div class="class-name">📚 ${cls.className || 'Lớp chưa đặt tên'}</div>
                                 <div class="teacher-name"><i class="fas fa-user-tie"></i> ${cls.teacherName || 'Chưa có giáo viên'}</div>
                             </div>
                         </div>
@@ -672,6 +625,35 @@
         }
 
         // ============================================================
+        // EMPTY STATE
+        // ============================================================
+
+        function renderEmptyState(type) {
+            const container = document.getElementById('classList');
+
+            if (type === 'error') {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">⚠️</div>
+                        <h4>Không thể tải dữ liệu</h4>
+                        <p>Vui lòng kiểm tra kết nối mạng và thử lại.</p>
+                        <button class="btn btn-primary" onclick="loadClasses()" style="margin-top:12px;">
+                            <i class="fas fa-sync"></i> Thử lại
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h4>Chưa có lớp học</h4>
+                        <p>Hãy đợi giáo viên thêm bạn vào lớp nhé!</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================================
         // FILTER
         // ============================================================
 
@@ -690,16 +672,15 @@
         }
 
         // ============================================================
-        // START EXAM - CHUYỂN SANG EXAM-DETAIL.HTML
+        // START EXAM
         // ============================================================
 
         function startExam(examId, examName) {
-            // Kiểm tra nếu examId là undefined hoặc null, tạo ID giả
             if (!examId) {
                 examId = 'demo_' + Date.now();
             }
 
-            // Chuyển sang trang chi tiết đề thi với ID
+            // Chuyển sang trang chi tiết đề thi
             window.location.href = 'exam-detail.html?id=' + examId;
         }
 
