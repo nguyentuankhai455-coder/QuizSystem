@@ -214,7 +214,7 @@
             padding: 24px 28px;
         }
 
-        /* ===== AVATAR ===== */
+        /* AVATAR */
         .profile-avatar {
             display: flex;
             align-items: center;
@@ -236,6 +236,8 @@
             font-size: 32px;
             font-weight: 700;
             flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
         }
 
         .profile-avatar .avatar-info h4 {
@@ -256,7 +258,14 @@
             font-size: 12px;
         }
 
-        /* ===== INFO ===== */
+        .profile-avatar .avatar-upload .hint {
+            font-size: 11px;
+            color: #95a5a6;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* INFO */
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -286,16 +295,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .info-item .value .btn-edit {
-            font-size: 12px;
-            color: #3498db;
-            font-weight: 400;
-        }
-
-        .info-item .value .btn-edit:hover {
-            text-decoration: underline;
         }
 
         .info-item .sub-text {
@@ -339,7 +338,7 @@
             grid-column: 1 / -1;
         }
 
-        /* ===== VIP SECTION ===== */
+        /* VIP */
         .vip-section {
             background: linear-gradient(135deg, #fff8e1, #fff3cd);
             border: 2px solid #ffc107;
@@ -383,6 +382,29 @@
             background: #d68910;
         }
 
+        /* Service section */
+        .service-section {
+            margin: 16px 0;
+            padding: 12px 0;
+            border-top: 2px solid #e8edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .service-section .service-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+
+        .service-section .service-actions {
+            display: flex;
+            gap: 8px;
+        }
+
         @media (max-width: 768px) {
             .top-header {
                 padding: 10px 16px;
@@ -420,12 +442,19 @@
             .vip-section .vip-btn {
                 text-align: center;
             }
+            .service-section {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .service-section .service-actions {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="top-header">
         <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
         <div class="header-right">
@@ -437,17 +466,14 @@
 
     <div class="container">
 
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
             <span class="current">Hồ sơ cá nhân</span>
         </div>
 
-        <!-- PROFILE CARD -->
         <div class="profile-card">
 
-            <!-- HEADER -->
             <div class="card-header">
                 <h2>👤 Bài đặt tài khoản</h2>
                 <span class="back-btn" onclick="window.location.href='dashboard.html'">
@@ -455,7 +481,6 @@
                 </span>
             </div>
 
-            <!-- BODY -->
             <div class="card-body">
 
                 <!-- VIP -->
@@ -485,19 +510,17 @@
                         <button class="btn btn-outline btn-sm" onclick="uploadAvatar()">
                             <i class="fas fa-camera"></i> Tải lên
                         </button>
-                        <span style="font-size:11px; color:#95a5a6; display:block; margin-top:2px;">
-                            File ảnh, tối đa 5MB
-                        </span>
+                        <span class="hint">File ảnh, tối đa 5MB</span>
                     </div>
                 </div>
 
-                <!-- ===== CHUNG - PHẦN KHÔNG BỊ MỜ ===== -->
+                <!-- INFO -->
                 <div class="info-grid">
 
-                    <!-- Chung -->
+                    <!-- CHUNG -->
                     <div class="info-item full-width" style="border-bottom: 2px solid #e8edf5; padding-bottom:16px; margin-bottom:8px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                            <span class="label" style="font-size:14px; color:#2c3e50; font-weight:600;">Chung</span>
+                            <span class="label" style="font-size:14px; color:#2c3e50; font-weight:600;">CHUNG</span>
                             <button class="btn btn-secondary btn-sm" onclick="changePassword()">
                                 <i class="fas fa-key"></i> Đổi mật khẩu
                             </button>
@@ -506,55 +529,31 @@
 
                     <!-- Họ và tên -->
                     <div class="info-item">
-                        <span class="label">Họ và tên</span>
+                        <span class="label">HỌ VÀ TÊN</span>
                         <div class="value" id="displayFullname">Nguyễn Tuấn Khải</div>
-                    </div>
-
-                    <!-- Ngày sinh -->
-                    <div class="info-item">
-                        <span class="label">Ngày sinh</span>
-                        <div class="value" id="displayBirthday">14/10/2008</div>
                     </div>
 
                     <!-- Số điện thoại -->
                     <div class="info-item">
-                        <span class="label">Số điện thoại</span>
+                        <span class="label">SỐ ĐIỆN THOẠI</span>
                         <div class="value" id="displayPhone">0587928986</div>
                         <div class="sub-text">
                             <span class="click-link" onclick="editField('Số điện thoại')">Click vào đây để đổi số điện thoại</span>
                         </div>
                     </div>
 
-                    <!-- Số điện thoại phụ huynh -->
-                    <div class="info-item">
-                        <span class="label">Số điện thoại phụ huynh</span>
-                        <div class="value" id="displayParentPhone">0876515794</div>
-                        <div class="sub-text">
-                            <span class="click-link" onclick="editField('Số điện thoại phụ huynh')">Click vào đây để đổi số điện thoại phụ huynh</span>
-                        </div>
-                    </div>
-
                     <!-- Username -->
                     <div class="info-item">
-                        <span class="label">Username</span>
+                        <span class="label">USERNAME</span>
                         <div class="value" id="displayUsername">username123</div>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="info-item">
-                        <span class="label">Email</span>
-                        <div class="value" id="displayEmail">tuankhaimoi12345@gmail.com</div>
-                        <div class="sub-text">
-                            <span class="click-link" onclick="editField('Email')">Click vào đây để đổi email</span>
-                        </div>
                     </div>
 
                     <!-- Giới tính -->
                     <div class="info-item">
-                        <span class="label">Giới tính</span>
+                        <span class="label">GIỚI TÍNH</span>
                         <div class="gender-options">
                             <label>
-                                <input type="radio" name="gender" value="nam" checked> Nam
+                                <input type="radio" name="gender" value="nam"> Nam
                             </label>
                             <label>
                                 <input type="radio" name="gender" value="nu"> Nữ
@@ -562,12 +561,32 @@
                         </div>
                     </div>
 
-                    <!-- Người tạo -->
-                    <div class="info-item">
-                        <span class="label">Người tạo</span>
-                        <div class="value" id="displayCreator">Nguyễn Tuấn Khải</div>
-                    </div>
+                </div>
 
+                <!-- DỊCH VỤ HỖ TRỢ -->
+                <div class="service-section">
+                    <span class="service-title">Dịch vụ hỗ trợ</span>
+                    <div class="service-actions">
+                        <button class="btn btn-danger btn-sm" onclick="cancelService()">
+                            <i class="fas fa-times"></i> Hủy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TÀI LIỆU -->
+                <div class="service-section" style="border-top: none; padding-top:0;">
+                    <span class="service-title">Tài liệu</span>
+                    <div style="font-size:13px; color:#7f8c8d;">
+                        File ảnh, tối đa 5MB
+                    </div>
+                </div>
+
+                <!-- ĐỔI MẬT KHẨU -->
+                <div class="service-section" style="border-top: none; padding-top:0;">
+                    <span class="service-title">Đổi mật khẩu</span>
+                    <button class="btn btn-primary btn-sm" onclick="changePassword()">
+                        <i class="fas fa-key"></i> Đổi mật khẩu
+                    </button>
                 </div>
 
                 <!-- SAVE BUTTON -->
@@ -610,7 +629,7 @@
         // ============================================================
 
         let currentUser = null;
-        let userData = null;
+        let userData = {};
 
         // ============================================================
         // AUTH
@@ -659,16 +678,15 @@
                     userData = doc.data();
                     renderProfile();
                 } else {
+                    // Tạo dữ liệu mới nếu chưa có
                     userData = {
                         fullname: currentUser.fullname || 'Người dùng',
                         email: currentUser.email || 'user@email.com',
-                        birthday: '14/10/2008',
-                        phone: '0587928986',
-                        parentPhone: '0876515794',
+                        phone: '',
                         username: currentUser.email ? currentUser.email.split('@')[0] : 'username',
                         gender: 'nam',
-                        creator: currentUser.fullname || 'Người dùng',
-                        role: currentUser.role || 'student'
+                        role: currentUser.role || 'student',
+                        avatar: ''
                     };
                     renderProfile();
                 }
@@ -677,13 +695,11 @@
                 userData = {
                     fullname: currentUser.fullname || 'Người dùng',
                     email: currentUser.email || 'user@email.com',
-                    birthday: '14/10/2008',
-                    phone: '0587928986',
-                    parentPhone: '0876515794',
+                    phone: '',
                     username: currentUser.email ? currentUser.email.split('@')[0] : 'username',
                     gender: 'nam',
-                    creator: currentUser.fullname || 'Người dùng',
-                    role: currentUser.role || 'student'
+                    role: currentUser.role || 'student',
+                    avatar: ''
                 };
                 renderProfile();
             }
@@ -696,20 +712,28 @@
         function renderProfile() {
             if (!userData) return;
 
-            const initials = userData.fullname.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-            document.getElementById('avatarDisplay').textContent = initials || '??';
+            // Avatar
+            const initials = (userData.fullname || 'User').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+            const avatarEl = document.getElementById('avatarDisplay');
+            if (userData.avatar) {
+                avatarEl.style.backgroundImage = `url(${userData.avatar})`;
+                avatarEl.style.backgroundSize = 'cover';
+                avatarEl.style.backgroundPosition = 'center';
+                avatarEl.textContent = '';
+            } else {
+                avatarEl.style.backgroundImage = '';
+                avatarEl.textContent = initials || '??';
+            }
 
             document.getElementById('profileFullname').textContent = userData.fullname || 'Chưa có tên';
             document.getElementById('profileRole').textContent = userData.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
 
             document.getElementById('displayFullname').textContent = userData.fullname || 'Chưa có tên';
-            document.getElementById('displayBirthday').textContent = userData.birthday || 'Chưa cập nhật';
             document.getElementById('displayPhone').textContent = userData.phone || 'Chưa có số điện thoại';
-            document.getElementById('displayParentPhone').textContent = userData.parentPhone || 'Chưa có số điện thoại phụ huynh';
             document.getElementById('displayUsername').textContent = userData.username || 'username';
-            document.getElementById('displayEmail').textContent = userData.email || 'Chưa có email';
-            document.getElementById('displayCreator').textContent = userData.creator || 'Chưa có thông tin';
 
+            // Giới tính
             const genderRadios = document.querySelectorAll('input[name="gender"]');
             genderRadios.forEach(radio => {
                 radio.checked = radio.value === userData.gender;
@@ -733,11 +757,18 @@
                     }
                     const reader = new FileReader();
                     reader.onload = function(ev) {
-                        document.getElementById('avatarDisplay').style.backgroundImage = `url(${ev.target.result})`;
-                        document.getElementById('avatarDisplay').style.backgroundSize = 'cover';
-                        document.getElementById('avatarDisplay').style.backgroundPosition = 'center';
-                        document.getElementById('avatarDisplay').textContent = '';
-                        alert('✅ Đã tải ảnh đại diện thành công!');
+                        const avatarData = ev.target.result;
+                        userData.avatar = avatarData;
+                        renderProfile();
+                        // Lưu ngay lên Firestore
+                        db.collection('users').doc(currentUser.uid).update({
+                            avatar: avatarData
+                        }).then(() => {
+                            alert('✅ Đã tải ảnh đại diện thành công!');
+                        }).catch(err => {
+                            console.error('Lỗi lưu ảnh:', err);
+                            alert('⚠️ Không thể lưu ảnh. Vui lòng thử lại!');
+                        });
                     };
                     reader.readAsDataURL(file);
                 }
@@ -749,15 +780,21 @@
             const newValue = prompt(`Nhập ${fieldName} mới:`);
             if (newValue !== null && newValue.trim() !== '') {
                 const fieldMap = {
-                    'Số điện thoại': 'phone',
-                    'Số điện thoại phụ huynh': 'parentPhone',
-                    'Email': 'email'
+                    'Số điện thoại': 'phone'
                 };
                 const key = fieldMap[fieldName];
                 if (key) {
                     userData[key] = newValue.trim();
                     renderProfile();
-                    alert(`✅ Đã cập nhật ${fieldName}!`);
+                    // Lưu ngay lên Firestore
+                    db.collection('users').doc(currentUser.uid).update({
+                        [key]: newValue.trim()
+                    }).then(() => {
+                        alert(`✅ Đã cập nhật ${fieldName}!`);
+                    }).catch(err => {
+                        console.error('Lỗi lưu:', err);
+                        alert('⚠️ Không thể lưu thay đổi. Vui lòng thử lại!');
+                    });
                 }
             }
         }
@@ -777,23 +814,54 @@
             }
         }
 
-        function saveProfile() {
+        function cancelService() {
+            if (confirm('Bạn có chắc chắn muốn hủy dịch vụ?')) {
+                alert('✅ Đã hủy dịch vụ!');
+            }
+        }
+
+        // ============================================================
+        // SAVE PROFILE - LƯU LÊN FIRESTORE
+        // ============================================================
+
+        async function saveProfile() {
+            // Lấy giới tính
             const genderRadio = document.querySelector('input[name="gender"]:checked');
             const gender = genderRadio ? genderRadio.value : 'nam';
 
+            // Cập nhật dữ liệu
             userData.gender = gender;
 
-            db.collection('users').doc(currentUser.uid).update(userData)
-                .then(() => {
-                    alert('✅ Đã lưu thông tin cá nhân thành công!');
-                    const saved = JSON.parse(localStorage.getItem('quizCurrentUser'));
-                    saved.fullname = userData.fullname;
-                    localStorage.setItem('quizCurrentUser', JSON.stringify(saved));
-                })
-                .catch((error) => {
-                    console.error('Lỗi lưu profile:', error);
-                    alert('❌ Không thể lưu thông tin. Vui lòng thử lại!');
+            // Hiển thị loading
+            const saveBtn = document.querySelector('.btn-success');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+            saveBtn.disabled = true;
+
+            try {
+                // Lưu lên Firestore
+                await db.collection('users').doc(currentUser.uid).update({
+                    fullname: userData.fullname,
+                    phone: userData.phone,
+                    username: userData.username,
+                    gender: userData.gender
                 });
+
+                // Cập nhật localStorage
+                const saved = JSON.parse(localStorage.getItem('quizCurrentUser'));
+                saved.fullname = userData.fullname;
+                localStorage.setItem('quizCurrentUser', JSON.stringify(saved));
+
+                alert('✅ Đã lưu thông tin cá nhân thành công!');
+                renderProfile();
+
+            } catch (error) {
+                console.error('Lỗi lưu profile:', error);
+                alert('❌ Không thể lưu thông tin. Vui lòng thử lại!');
+            } finally {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }
         }
 
         // ============================================================
