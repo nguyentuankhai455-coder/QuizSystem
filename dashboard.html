@@ -24,7 +24,6 @@
             min-height: 100vh;
         }
 
-        /* HEADER */
         .top-header {
             background: white;
             padding: 12px 24px;
@@ -116,14 +115,22 @@
             background: #7f8c8d;
         }
 
-        /* CONTAINER */
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+        .btn-outline:hover {
+            background: #3498db;
+            color: white;
+        }
+
         .container {
             max-width: 1100px;
             margin: 0 auto;
             padding: 16px 24px;
         }
 
-        /* BREADCRUMB */
         .breadcrumb {
             display: flex;
             align-items: center;
@@ -150,7 +157,6 @@
             color: #b0b8c4;
         }
 
-        /* WELCOME */
         .welcome-section {
             background: white;
             border-radius: 16px;
@@ -172,7 +178,6 @@
             margin-top: 4px;
         }
 
-        /* DASHBOARD GRID */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -189,8 +194,8 @@
             cursor: pointer;
             border-left: 4px solid #3498db;
             text-decoration: none;
-            display: block;
             color: inherit;
+            display: block;
         }
 
         .dash-card:hover {
@@ -230,6 +235,63 @@
             font-weight: 700;
             display: inline-block;
             margin-top: 6px;
+        }
+
+        .badge-student {
+            background: #f39c12;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        /* Học sinh cards có màu khác */
+        .dash-card.student-card {
+            border-left-color: #f39c12;
+        }
+
+        .dash-card.student-card .icon {
+            color: #f39c12;
+        }
+
+        .dash-card.student-card .count {
+            color: #f39c12;
+        }
+
+        .dash-card.teacher-card {
+            border-left-color: #3498db;
+        }
+
+        .dash-card.teacher-card .icon {
+            color: #3498db;
+        }
+
+        .dash-card.teacher-card .count {
+            color: #3498db;
+        }
+
+        .section-divider {
+            margin: 24px 0 12px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: #e8edf5;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         @media (max-width: 768px) {
@@ -279,59 +341,8 @@
         </div>
 
         <!-- DASHBOARD GRID -->
-        <div class="dashboard-grid">
-            <a href="exams.html" class="dash-card">
-                <div class="icon"><i class="fas fa-file-alt"></i></div>
-                <h4>Bài tập</h4>
-                <p>Quản lý bài tập</p>
-                <div class="count" id="examCount">0</div>
-            </a>
-
-            <a href="exams.html" class="dash-card">
-                <div class="icon"><i class="fas fa-pencil-alt"></i></div>
-                <h4>Đề thi</h4>
-                <p>Quản lý đề thi</p>
-                <div class="count" id="examCount2">0</div>
-            </a>
-
-            <a href="classes.html" class="dash-card">
-                <div class="icon"><i class="fas fa-users"></i></div>
-                <h4>Quản lý lớp</h4>
-                <p>Quản lý lớp học</p>
-                <div class="count">0</div>
-            </a>
-
-            <a href="#" class="dash-card">
-                <div class="icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                <h4>Quản lý giáo viên</h4>
-                <p>Quản lý giáo viên</p>
-                <div class="count">0</div>
-            </a>
-
-            <a href="#" class="dash-card">
-                <div class="icon"><i class="fas fa-box"></i></div>
-                <h4>Kho nội dung</h4>
-                <p>Kho tài nguyên</p>
-            </a>
-
-            <a href="questions.html" class="dash-card">
-                <div class="icon"><i class="fas fa-database"></i></div>
-                <h4>Ngân hàng câu hỏi</h4>
-                <p>Quản lý câu hỏi</p>
-            </a>
-
-            <a href="#" class="dash-card">
-                <div class="icon"><i class="fas fa-graduation-cap"></i></div>
-                <h4>Khóa học</h4>
-                <p>Quản lý khóa học</p>
-            </a>
-
-            <a href="#" class="dash-card">
-                <div class="icon"><i class="fas fa-robot"></i></div>
-                <h4>Hỏi đáp bằng AI</h4>
-                <p>Hỏi đáp với trí tuệ nhân tạo</p>
-                <span class="badge-new">Mới</span>
-            </a>
+        <div id="dashboardContainer">
+            <!-- Sẽ được render bằng JS theo role -->
         </div>
 
     </div>
@@ -356,10 +367,16 @@
         const db = firebase.firestore();
 
         // ============================================================
-        // AUTH
+        // BIẾN TOÀN CỤ
         // ============================================================
 
         let currentUser = null;
+        let examCount = 0;
+        let classCount = 0;
+
+        // ============================================================
+        // AUTH
+        // ============================================================
 
         function checkAuth() {
             const saved = localStorage.getItem('quizCurrentUser');
@@ -380,7 +397,8 @@
             document.getElementById('userRoleBadge').textContent = roleLabel;
             document.getElementById('welcomeName').textContent = currentUser.fullname || 'User';
 
-            loadExamCount();
+            loadCounts();
+            renderDashboard();
         }
 
         function handleLogout() {
@@ -395,17 +413,155 @@
         }
 
         // ============================================================
-        // LOAD COUNT
+        // LOAD COUNTS
         // ============================================================
 
-        async function loadExamCount() {
+        async function loadCounts() {
             try {
-                const snapshot = await db.collection('exams').get();
-                const count = snapshot.size;
-                document.getElementById('examCount').textContent = count;
-                document.getElementById('examCount2').textContent = count;
+                // Đếm số đề thi
+                const examSnapshot = await db.collection('exams').get();
+                examCount = examSnapshot.size;
+
+                // Đếm số lớp (nếu có collection classes)
+                try {
+                    const classSnapshot = await db.collection('classes').get();
+                    classCount = classSnapshot.size;
+                } catch (e) {
+                    classCount = 0;
+                }
+
             } catch (error) {
-                console.error('Lỗi tải số lượng đề:', error);
+                console.error('Lỗi tải số lượng:', error);
+                examCount = 0;
+                classCount = 0;
+            }
+        }
+
+        // ============================================================
+        // RENDER DASHBOARD THEO ROLE
+        // ============================================================
+
+        function renderDashboard() {
+            const container = document.getElementById('dashboardContainer');
+
+            if (currentUser.role === 'student') {
+                // ===== HỌC SINH =====
+                container.innerHTML = `
+                    <!-- Học sinh: Chỉ thấy các chức năng học tập -->
+                    <div class="section-divider">📚 Học tập</div>
+                    <div class="dashboard-grid">
+
+                        <a href="student.html" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Lớp học của tôi</h4>
+                            <p>Xem danh sách lớp</p>
+                            <div class="count">${classCount || 0}</div>
+                        </a>
+
+                        <a href="student.html" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>Bài tập / Đề thi</h4>
+                            <p>Bài tập được giao</p>
+                            <div class="count">${examCount || 0}</div>
+                        </a>
+
+                        <a href="#" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-chart-line"></i></div>
+                            <h4>Kết quả học tập</h4>
+                            <p>Xem điểm số của bạn</p>
+                            <span class="badge-student">Điểm TB: --</span>
+                        </a>
+
+                        <a href="#" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-calendar-check"></i></div>
+                            <h4>Lịch thi</h4>
+                            <p>Các kỳ thi sắp tới</p>
+                            <span class="badge-student">0 sắp tới</span>
+                        </a>
+
+                        <a href="#" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-robot"></i></div>
+                            <h4>Hỏi đáp bằng AI</h4>
+                            <p>Hỏi đáp với trí tuệ nhân tạo</p>
+                            <span class="badge-new">Mới</span>
+                        </a>
+
+                        <a href="#" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-user-circle"></i></div>
+                            <h4>Hồ sơ cá nhân</h4>
+                            <p>Thông tin tài khoản</p>
+                        </a>
+
+                    </div>
+                `;
+
+            } else {
+                // ===== GIÁO VIÊN =====
+                container.innerHTML = `
+                    <!-- Giáo viên: Thấy tất cả chức năng quản lý -->
+                    <div class="section-divider">📊 Quản lý</div>
+                    <div class="dashboard-grid">
+
+                        <a href="exams.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>Bài tập</h4>
+                            <p>Quản lý bài tập</p>
+                            <div class="count">${examCount || 0}</div>
+                        </a>
+
+                        <a href="exams.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-pencil-alt"></i></div>
+                            <h4>Đề thi</h4>
+                            <p>Quản lý đề thi</p>
+                            <div class="count">${examCount || 0}</div>
+                        </a>
+
+                        <a href="classes.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Quản lý lớp</h4>
+                            <p>Quản lý lớp học</p>
+                            <div class="count">${classCount || 0}</div>
+                        </a>
+
+                        <a href="#" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                            <h4>Quản lý giáo viên</h4>
+                            <p>Quản lý giáo viên</p>
+                            <div class="count">0</div>
+                        </a>
+
+                    </div>
+
+                    <div class="section-divider">📁 Nội dung & Công cụ</div>
+                    <div class="dashboard-grid">
+
+                        <a href="#" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-box"></i></div>
+                            <h4>Kho nội dung</h4>
+                            <p>Kho tài nguyên</p>
+                        </a>
+
+                        <a href="questions.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-database"></i></div>
+                            <h4>Ngân hàng câu hỏi</h4>
+                            <p>Quản lý câu hỏi</p>
+                        </a>
+
+                        <a href="#" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                            <h4>Khóa học</h4>
+                            <p>Quản lý khóa học</p>
+                        </a>
+
+                        <a href="#" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-robot"></i></div>
+                            <h4>Hỏi đáp bằng AI</h4>
+                            <p>Hỏi đáp với trí tuệ nhân tạo</p>
+                            <span class="badge-new">Mới</span>
+                        </a>
+
+                    </div>
+                `;
             }
         }
 
