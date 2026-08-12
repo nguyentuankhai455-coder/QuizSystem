@@ -376,7 +376,7 @@
             background: white;
             border-radius: 16px;
             padding: 30px;
-            max-width: 500px;
+            max-width: 600px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -424,6 +424,32 @@
 
         .modal .actions .btn {
             padding: 8px 24px;
+        }
+
+        .modal .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8edf5;
+        }
+
+        .modal .folder-header .folder-icon {
+            font-size: 32px;
+            color: #f39c12;
+        }
+
+        .modal .folder-header .folder-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .modal .folder-header .folder-count {
+            font-size: 13px;
+            color: #95a5a6;
+            margin-left: auto;
         }
 
         /* ===== FOOTER ===== */
@@ -581,6 +607,24 @@
         </div>
     </div>
 
+    <!-- MODAL MỞ THƯ MỤC - HIỂN THỊ ĐỀ THI TRONG THƯ MỤC -->
+    <div class="modal-overlay" id="openFolderModal">
+        <div class="modal">
+            <div class="folder-header">
+                <div class="folder-icon" id="openFolderIcon"><i class="fas fa-folder" style="color:#f39c12;"></i></div>
+                <div class="folder-title" id="openFolderTitle">Thư mục</div>
+                <div class="folder-count" id="openFolderCount">0 đề thi</div>
+                <button class="btn btn-secondary btn-sm" onclick="closeOpenFolder()">✕</button>
+            </div>
+            <div id="openFolderContent">
+                <!-- Danh sách đề thi trong thư mục sẽ được render ở đây -->
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="closeOpenFolder()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="copyright">
@@ -622,6 +666,7 @@
         let currentUser = null;
         let allExams = [];
         let allFolders = [];
+        let currentFolderExams = [];
 
         // ============================================================
         // AUTH
@@ -661,14 +706,13 @@
         }
 
         // ============================================================
-        // LOAD FOLDERS - ĐÃ SỬA
+        // LOAD FOLDERS
         // ============================================================
 
         async function loadFolders() {
             console.log('🔄 Đang tải thư mục...');
 
             try {
-                // Lấy tất cả thư mục của user hiện tại
                 const snapshot = await db.collection('folders')
                     .where('createdBy', '==', currentUser.uid)
                     .get();
@@ -676,14 +720,12 @@
                 allFolders = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    console.log('📁 Tìm thấy thư mục:', data.name);
                     allFolders.push({
                         id: doc.id,
                         ...data
                     });
                 });
 
-                // Sắp xếp theo thời gian tạo (mới nhất lên đầu)
                 allFolders.sort((a, b) => {
                     const dateA = a.createdAt || '';
                     const dateB = b.createdAt || '';
@@ -732,7 +774,7 @@
         }
 
         // ============================================================
-        // CRUD FOLDER - ĐÃ SỬA
+        // CRUD FOLDER
         // ============================================================
 
         function openCreateFolder() {
@@ -754,10 +796,7 @@
                 return;
             }
 
-            console.log('🔄 Đang tạo thư mục:', name);
-
             try {
-                // Tạo document mới trong collection "folders"
                 const docRef = await db.collection('folders').add({
                     name: name,
                     color: color,
@@ -767,14 +806,8 @@
                     createdAt: new Date().toLocaleString()
                 });
 
-                console.log('✅ Đã tạo thư mục với ID:', docRef.id);
-
-                // Đóng modal
                 closeCreateFolder();
-
-                // Tải lại danh sách thư mục
                 await loadFolders();
-
                 alert('✅ Đã tạo thư mục thành công!');
 
             } catch (error) {
@@ -797,11 +830,181 @@
             }
         }
 
+        // ============================================================
+        // MỞ THƯ MỤC - HIỂN THỊ ĐỀ THI TRONG THƯ MỤC
+        // ============================================================
+
         function openFolder(folderId) {
             const folder = allFolders.find(f => f.id === folderId);
-            if (folder) {
-                alert(`📁 ${folder.name}\n\n📌 Chức năng mở thư mục đang được phát triển!`);
+            if (!folder) {
+                alert('Không tìm thấy thư mục!');
+                return;
             }
+
+            // Lọc đề thi thuộc thư mục này
+            // Giả định: đề thi có field folderId để biết thuộc thư mục nào
+            // Nếu chưa có, hiển thị tất cả đề thi và cho phép thêm vào thư mục
+            currentFolderExams = allExams.filter(exam => exam.folderId === folderId);
+
+            // Hiển thị modal
+            const modal = document.getElementById('openFolderModal');
+            modal.classList.add('show');
+
+            document.getElementById('openFolderIcon').innerHTML = `<i class="fas fa-folder" style="color:${folder.color || '#f39c12'};"></i>`;
+            document.getElementById('openFolderTitle').textContent = folder.name;
+            document.getElementById('openFolderCount').textContent = currentFolderExams.length + ' đề thi';
+
+            renderFolderContent();
+        }
+
+        function renderFolderContent() {
+            const container = document.getElementById('openFolderContent');
+
+            if (currentFolderExams.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:#95a5a6;">
+                        <p style="font-size:48px; margin-bottom:12px;">📭</p>
+                        <p style="font-weight:600; color:#2c3e50;">Chưa có đề thi trong thư mục này</p>
+                        <p style="font-size:13px; margin-top:4px;">Kéo thả đề thi vào đây hoặc chọn "Thêm vào thư mục"</p>
+                        <div style="margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                            <button class="btn btn-primary btn-sm" onclick="addExamToFolder()">
+                                <i class="fas fa-plus"></i> Thêm đề thi vào thư mục
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = currentFolderExams.map(exam => `
+                <div class="exam-item" style="border-left-color: #f39c12;">
+                    <div class="exam-info">
+                        <h4>📄 ${exam.title || 'Đề thi không tên'}</h4>
+                        <p>⏱ ${exam.duration || 0} phút · ${exam.questions ? exam.questions.length : 0} câu hỏi</p>
+                        <div class="tags">
+                            <span class="tag">📅 ${exam.createdAt || 'Mới tạo'}</span>
+                            ${exam.status ? `<span class="tag">${exam.status}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="exam-actions">
+                        <button class="btn btn-danger btn-sm" onclick="removeExamFromFolder('${exam.id}')">
+                            <i class="fas fa-times"></i> Xóa khỏi thư mục
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="viewExam('${exam.id}')">
+                            <i class="fas fa-eye"></i> Xem
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function closeOpenFolder() {
+            document.getElementById('openFolderModal').classList.remove('show');
+        }
+
+        // ============================================================
+        // THÊM / XÓA ĐỀ THI VÀO THƯ MỤC
+        // ============================================================
+
+        function addExamToFolder() {
+            // Lấy folderId từ modal hiện tại
+            const folderId = allFolders.find(f => f.name === document.getElementById('openFolderTitle').textContent)?.id;
+            if (!folderId) {
+                alert('Không tìm thấy thư mục!');
+                return;
+            }
+
+            // Lọc các đề thi chưa có trong thư mục
+            const availableExams = allExams.filter(exam => exam.folderId !== folderId);
+
+            if (availableExams.length === 0) {
+                alert('📭 Tất cả đề thi đã có trong thư mục này!');
+                return;
+            }
+
+            // Tạo danh sách chọn
+            let options = availableExams.map((exam, idx) =>
+                `${idx + 1}. ${exam.title || 'Đề thi không tên'}`
+            ).join('\n');
+
+            const choice = prompt(
+                `📂 Chọn đề thi để thêm vào thư mục "${document.getElementById('openFolderTitle').textContent}":\n\n` +
+                options +
+                `\n\nNhập số thứ tự đề thi (ví dụ: 1) hoặc nhập 0 để hủy:`
+            );
+
+            if (!choice || choice === '0') return;
+
+            const index = parseInt(choice) - 1;
+            if (isNaN(index) || index < 0 || index >= availableExams.length) {
+                alert('⚠️ Số thứ tự không hợp lệ!');
+                return;
+            }
+
+            const selectedExam = availableExams[index];
+            if (!selectedExam) return;
+
+            // Cập nhật folderId cho đề thi
+            db.collection('exams').doc(selectedExam.id).update({
+                folderId: folderId
+            }).then(() => {
+                // Cập nhật local
+                selectedExam.folderId = folderId;
+                // Cập nhật số lượng đề thi trong thư mục
+                const folder = allFolders.find(f => f.id === folderId);
+                if (folder) {
+                    folder.examCount = (folder.examCount || 0) + 1;
+                    db.collection('folders').doc(folderId).update({
+                        examCount: folder.examCount
+                    });
+                }
+                // Reload
+                loadFolders();
+                loadExams();
+                openFolder(folderId);
+                alert('✅ Đã thêm đề thi vào thư mục!');
+            }).catch(error => {
+                console.error('Lỗi thêm đề thi vào thư mục:', error);
+                alert('❌ Không thể thêm đề thi vào thư mục!');
+            });
+        }
+
+        function removeExamFromFolder(examId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa đề thi này khỏi thư mục?')) return;
+
+            const exam = allExams.find(e => e.id === examId);
+            if (!exam) return;
+
+            const folderId = exam.folderId;
+            if (!folderId) return;
+
+            db.collection('exams').doc(examId).update({
+                folderId: null
+            }).then(() => {
+                delete exam.folderId;
+                // Cập nhật số lượng
+                const folder = allFolders.find(f => f.id === folderId);
+                if (folder) {
+                    folder.examCount = Math.max(0, (folder.examCount || 0) - 1);
+                    db.collection('folders').doc(folderId).update({
+                        examCount: folder.examCount
+                    });
+                }
+                // Reload
+                loadFolders();
+                loadExams();
+                const folderName = document.getElementById('openFolderTitle').textContent;
+                const f = allFolders.find(f => f.name === folderName);
+                if (f) {
+                    openFolder(f.id);
+                } else {
+                    closeOpenFolder();
+                }
+                alert('✅ Đã xóa đề thi khỏi thư mục!');
+            }).catch(error => {
+                console.error('Lỗi xóa đề thi khỏi thư mục:', error);
+                alert('❌ Không thể xóa đề thi khỏi thư mục!');
+            });
         }
 
         // ============================================================
@@ -891,6 +1094,10 @@
             const questionCount = exam.questions ? exam.questions.length : 0;
             const createdDate = exam.createdAt || 'Mới tạo';
 
+            const folderName = exam.folderId ?
+                (allFolders.find(f => f.id === exam.folderId)?.name || '') :
+                '';
+
             return `
                 <div class="exam-item" data-title="${(exam.title || '').toLowerCase()}">
                     <div class="exam-info">
@@ -899,6 +1106,7 @@
                         <div class="tags">
                             <span class="tag">📅 ${createdDate}</span>
                             ${exam.status ? `<span class="tag">${exam.status}</span>` : ''}
+                            ${folderName ? `<span class="tag" style="background:#f39c12; color:white;">📁 ${folderName}</span>` : ''}
                         </div>
                     </div>
                     <div class="exam-actions">
@@ -917,6 +1125,10 @@
                 </div>
             `;
         }
+
+        // ============================================================
+        // ACTIONS
+        // ============================================================
 
         function filterExams() {
             const keyword = document.getElementById('searchExam').value.toLowerCase();
