@@ -22,6 +22,8 @@
         body {
             background: #f0f4f8;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .top-header {
@@ -134,6 +136,7 @@
             max-width: 1100px;
             margin: 0 auto;
             padding: 16px 24px;
+            flex: 1;
         }
 
         .breadcrumb {
@@ -296,12 +299,50 @@
         }
 
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            padding: 16px 24px;
+            border-top: 2px solid #e8edf5;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 40px;
+        }
+
+        .footer .copyright {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer .copyright .heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .footer .copyright .brand {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .footer .copyright .version {
+            background: #e8edf5;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #7f8c8d;
         }
 
         @media (max-width: 768px) {
@@ -319,12 +360,15 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+            .footer {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="top-header">
         <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
         <div class="header-right">
@@ -336,14 +380,12 @@
 
     <div class="container">
 
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
             <span class="current">Đề thi</span>
         </div>
 
-        <!-- PAGE HEADER -->
         <div class="page-header">
             <h2>📋 Đề thi</h2>
             <div class="actions">
@@ -356,7 +398,6 @@
             </div>
         </div>
 
-        <!-- SEARCH -->
         <div class="search-box">
             <input type="text" id="searchExam" placeholder="🔍 Tìm kiếm đề thi..." oninput="filterExams()">
             <button class="btn btn-secondary" onclick="document.getElementById('searchExam').value=''; filterExams();">
@@ -364,21 +405,33 @@
             </button>
         </div>
 
-        <!-- ĐỀ XUẤT -->
         <h3 style="color:#2c3e50; margin-bottom:10px; font-size:15px;">🌟 Được đề xuất</h3>
         <div id="suggestedExams" class="exam-grid"></div>
 
-        <!-- TẤT CẢ -->
         <h3 style="color:#2c3e50; margin:20px 0 10px; font-size:15px;">📚 Tất cả đề thi</h3>
         <div id="allExams" class="exam-grid"></div>
 
-        <!-- LOADING -->
         <div id="examLoading" class="loading-spinner" style="display:none;">
             <i class="fas fa-spinner"></i>
             <p style="margin-top:8px;">Đang tải đề thi...</p>
         </div>
 
     </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
 
     <script>
         // ============================================================
@@ -428,7 +481,6 @@
             const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
             document.getElementById('userRoleBadge').textContent = roleLabel;
 
-            // Load đề thi ngay khi vào trang
             loadExams();
         }
 
@@ -452,7 +504,6 @@
             loadingEl.style.display = 'block';
 
             try {
-                // Lấy tất cả đề thi từ Firestore
                 const snapshot = await db.collection('exams')
                     .orderBy('createdAt', 'desc')
                     .get();
@@ -472,7 +523,6 @@
             } catch (error) {
                 console.error('❌ Lỗi tải đề thi:', error);
 
-                // Thử load từ cache nếu có
                 const cached = localStorage.getItem('cachedExams');
                 if (cached) {
                     try {
@@ -481,7 +531,6 @@
                         console.log('📁 Đã tải từ cache');
                     } catch (e) {}
                 } else {
-                    // Hiển thị thông báo lỗi
                     document.getElementById('allExams').innerHTML = `
                         <div class="no-exams">
                             <div class="icon">⚠️</div>
@@ -503,10 +552,8 @@
         // ============================================================
 
         function renderExams() {
-            // Lưu cache
             localStorage.setItem('cachedExams', JSON.stringify(allExams));
 
-            // Suggested (3 đề đầu tiên)
             const suggested = allExams.slice(0, 3);
             const container1 = document.getElementById('suggestedExams');
 
@@ -522,7 +569,6 @@
                 container1.innerHTML = suggested.map(exam => examHTML(exam)).join('');
             }
 
-            // All exams
             const container2 = document.getElementById('allExams');
 
             if (allExams.length === 0) {
@@ -593,12 +639,10 @@
                 }
             });
 
-            // Xóa thông báo no-result cũ
             const container = document.getElementById('allExams');
             const noResult = container.querySelector('.no-result');
             if (noResult) noResult.remove();
 
-            // Nếu không tìm thấy gì
             if (!found && items.length > 0) {
                 const div = document.createElement('div');
                 div.className = 'no-exams no-result';
@@ -616,11 +660,8 @@
 
             try {
                 await db.collection('exams').doc(examId).delete();
-
-                // Xóa khỏi danh sách local
                 allExams = allExams.filter(e => e.id !== examId);
                 renderExams();
-
                 alert('✅ Đã xóa đề thi thành công!');
 
             } catch (error) {
@@ -647,7 +688,6 @@
         }
 
         function editExam(examId) {
-            // Lưu ID vào localStorage để create-manual.html biết
             localStorage.setItem('editingExamId', examId);
             window.location.href = 'create-manual.html';
         }
@@ -663,7 +703,6 @@
             }
         });
 
-        // Khởi chạy
         checkAuth();
     </script>
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tự soạn đề - QuizSystem</title>
+    <title>Ma trận đề - QuizSystem</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -22,6 +22,8 @@
         body {
             background: #f0f4f8;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .top-header {
@@ -91,22 +93,6 @@
             background: #c0392b;
         }
 
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #229954;
-        }
-
         .btn-secondary {
             background: #95a5a6;
             color: white;
@@ -115,18 +101,19 @@
             background: #7f8c8d;
         }
 
-        .btn-warning {
-            background: #f39c12;
+        .btn-primary {
+            background: #3498db;
             color: white;
         }
-        .btn-warning:hover {
-            background: #d68910;
+        .btn-primary:hover {
+            background: #2980b9;
         }
 
         .container {
             max-width: 1100px;
             margin: 0 auto;
             padding: 16px 24px;
+            flex: 1;
         }
 
         .breadcrumb {
@@ -169,280 +156,126 @@
             font-size: 20px;
         }
 
-        /* ===== FORM ===== */
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #34495e;
-            margin-bottom: 4px;
-            font-size: 13px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        /* ===== QUESTION CARD (Định dạng chuẩn Word) ===== */
-        .question-card {
+        .feature-box {
             background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-box .icon {
+            font-size: 72px;
+            color: #2ecc71;
+            margin-bottom: 16px;
+        }
+
+        .feature-box h3 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .feature-box p {
+            color: #7f8c8d;
+            font-size: 16px;
+            max-width: 500px;
+            margin: 0 auto 16px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-grid .item {
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 20px;
             border: 2px solid #e8edf5;
-            border-radius: 10px;
-            padding: 18px 20px;
-            margin-bottom: 14px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
 
-        .question-card .q-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .feature-grid .item .icon-sm {
+            font-size: 32px;
+            margin-bottom: 8px;
         }
 
-        .question-card .q-header .q-number {
-            font-weight: 700;
+        .feature-grid .item h4 {
             color: #2c3e50;
             font-size: 15px;
-            background: #e8f4fd;
-            padding: 2px 14px;
-            border-radius: 12px;
-            color: #2980b9;
         }
 
-        .question-card .q-header .btn-remove {
-            background: #fee2e2;
-            border: none;
-            color: #dc2626;
-            padding: 4px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .question-card .q-header .btn-remove:hover {
-            background: #fecaca;
-        }
-
-        .question-card .q-content {
-            margin-bottom: 10px;
-        }
-
-        .question-card .q-content textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 14px;
-            min-height: 60px;
-            transition: border-color 0.3s;
-        }
-
-        .question-card .q-content textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .question-card .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .question-card .options-grid .option-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .question-card .options-grid .option-item .option-label {
-            font-weight: 700;
-            color: #2c3e50;
-            font-size: 14px;
-            min-width: 28px;
-        }
-
-        .question-card .options-grid .option-item input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid #e0e6ed;
-            border-radius: 6px;
-            font-size: 13px;
-            transition: border-color 0.3s;
-        }
-
-        .question-card .options-grid .option-item input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .question-card .q-correct {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .question-card .q-correct label {
-            font-weight: 600;
-            color: #34495e;
-            font-size: 13px;
-        }
-
-        .question-card .q-correct select {
-            padding: 6px 12px;
-            border: 2px solid #e0e6ed;
-            border-radius: 6px;
-            font-size: 13px;
-            background: white;
-            cursor: pointer;
-        }
-
-        .question-card .q-correct select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        /* ===== TEMPLATE ===== */
-        .template-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 8px;
-            margin: 12px 0;
-        }
-
-        .template-btn {
-            padding: 10px;
-            border: 2px dashed #d0d7e6;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .template-btn:hover {
-            border-color: #3498db;
-            background: #f0f7ff;
-            transform: translateY(-2px);
-        }
-
-        .template-btn strong {
-            display: block;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-
-        .template-btn small {
+        .feature-grid .item p {
             color: #7f8c8d;
-            font-size: 11px;
+            font-size: 13px;
         }
 
-        .flex {
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            padding: 16px 24px;
+            border-top: 2px solid #e8edf5;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 40px;
+        }
+
+        .footer .copyright {
             display: flex;
-        }
-        .gap-10 {
-            gap: 10px;
-        }
-        .flex-wrap {
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
             flex-wrap: wrap;
         }
-        .mt-16 {
-            margin-top: 16px;
+
+        .footer .copyright .heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
         }
 
-        .loading-text {
-            display: none;
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .footer .copyright .brand {
             color: #3498db;
-            margin-top: 8px;
-        }
-        .loading-text.show {
-            display: block;
+            font-weight: 700;
         }
 
-        /* ===== PREVIEW ===== */
-        .preview-section {
-            background: #f8faff;
-            border: 2px solid #e8edf5;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 16px;
-        }
-
-        .preview-section h4 {
-            color: #2c3e50;
-            font-size: 15px;
-            margin-bottom: 10px;
-        }
-
-        .preview-section .preview-content {
-            font-size: 14px;
-            line-height: 1.8;
-            color: #2c3e50;
-        }
-
-        .preview-section .preview-content .p-question {
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .preview-section .preview-content .p-option {
-            padding-left: 24px;
-        }
-
-        .preview-section .preview-content .p-correct {
-            color: #27ae60;
-            font-weight: 600;
+        .footer .copyright .version {
+            background: #e8edf5;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #7f8c8d;
         }
 
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .question-card .options-grid {
-                grid-template-columns: 1fr;
-            }
             .top-header {
                 padding: 10px 16px;
             }
             .container {
                 padding: 10px 16px;
             }
-            .page-header {
-                flex-direction: column;
-                align-items: stretch;
+            .feature-box {
+                padding: 24px 16px;
+            }
+            .feature-box .icon {
+                font-size: 48px;
+            }
+            .footer {
+                padding: 12px 16px;
+                font-size: 12px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="top-header">
         <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
         <div class="header-right">
@@ -454,7 +287,6 @@
 
     <div class="container">
 
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
@@ -462,63 +294,60 @@
             <span class="sep">›</span>
             <span onclick="window.location.href='create-exam.html'">Tạo đề mới</span>
             <span class="sep">›</span>
-            <span class="current">✏️ Tự soạn đề</span>
+            <span class="current">🔀 Ma trận đề</span>
         </div>
 
-        <!-- PAGE HEADER -->
         <div class="page-header">
-            <h2>✏️ Tự soạn Đề thi / Bài tập</h2>
-            <div>
-                <button class="btn btn-secondary" onclick="window.location.href='create-exam.html'">
-                    <i class="fas fa-arrow-left"></i> Quay lại
-                </button>
-            </div>
+            <h2>🔀 Tạo đề từ Ma trận đề</h2>
+            <button class="btn btn-secondary" onclick="window.location.href='create-exam.html'">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </button>
         </div>
 
-        <!-- TEMPLATE MẪU -->
-        <div style="margin-bottom:16px;">
-            <h3 style="color:#2c3e50; margin-bottom:8px; font-size:14px;">📌 Chọn mẫu đề có sẵn:</h3>
-            <div class="template-grid">
-                <div class="template-btn" onclick="loadTemplate('toan')"><strong>🧮 Toán</strong><small>5 câu</small></div>
-                <div class="template-btn" onclick="loadTemplate('van')"><strong>📖 Văn</strong><small>5 câu</small></div>
-                <div class="template-btn" onclick="loadTemplate('anh')"><strong>🇬🇧 Anh</strong><small>5 câu</small></div>
-                <div class="template-btn" onclick="loadTemplate('tin')"><strong>💻 Tin</strong><small>5 câu</small></div>
-            </div>
-        </div>
+        <div class="feature-box">
+            <div class="icon"><i class="fas fa-random"></i></div>
+            <h3>Ma trận đề</h3>
+            <p>Azota sẽ sinh ngẫu nhiên đề mới từ các chuyên đề, số lượng câu trong mỗi chuyên đề, các mức độ khó đề mà người dùng lựa chọn.</p>
 
-        <!-- FORM -->
-        <div style="border-top:2px solid #e8edf5; padding-top:16px;">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Tiêu đề đề thi *</label>
-                    <input type="text" id="examTitle" placeholder="VD: Đề kiểm tra Toán 15 phút">
+            <div class="feature-grid">
+                <div class="item">
+                    <div class="icon-sm">📚</div>
+                    <h4>Chuyên đề</h4>
+                    <p>Chọn chuyên đề cần kiểm tra</p>
                 </div>
-                <div class="form-group">
-                    <label>Thời gian (phút)</label>
-                    <input type="number" id="examDuration" value="15" min="1">
+                <div class="item">
+                    <div class="icon-sm">📊</div>
+                    <h4>Mức độ khó</h4>
+                    <p>Dễ - Trung bình - Khó</p>
+                </div>
+                <div class="item">
+                    <div class="icon-sm">🔢</div>
+                    <h4>Số lượng câu</h4>
+                    <p>Tùy chỉnh số câu mỗi chuyên đề</p>
                 </div>
             </div>
 
-            <!-- Danh sách câu hỏi -->
-            <div id="questionsContainer"></div>
-
-            <!-- Nút thao tác -->
-            <div class="flex gap-10 flex-wrap mt-16">
-                <button class="btn btn-primary" onclick="addQuestion()">➕ Thêm câu hỏi</button>
-                <button class="btn btn-success" onclick="saveExam()">💾 Lưu đề thi</button>
-                <button class="btn btn-secondary" onclick="clearForm()">🔄 Xóa form</button>
-                <button class="btn btn-secondary" onclick="togglePreview()">👁 Xem trước</button>
-            </div>
-            <div id="saveLoading" class="loading-text">⏳ Đang lưu...</div>
-        </div>
-
-        <!-- PREVIEW -->
-        <div id="previewSection" class="preview-section" style="display:none;">
-            <h4>📄 Xem trước đề thi</h4>
-            <div id="previewContent" class="preview-content"></div>
+            <button class="btn btn-primary" style="margin-top:20px;" onclick="alert('📌 Tính năng đang được phát triển!')">
+                <i class="fas fa-rocket"></i> Bắt đầu tạo ngay
+            </button>
         </div>
 
     </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
 
     <script>
         // ============================================================
@@ -537,19 +366,8 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // ============================================================
-        // BIẾN TOÀN CỤ
-        // ============================================================
 
         let currentUser = null;
-        let questionCounter = 0;
-        let currentEditingExamId = null;
-
-        // ============================================================
-        // AUTH
-        // ============================================================
 
         function checkAuth() {
             const saved = localStorage.getItem('quizCurrentUser');
@@ -564,41 +382,9 @@
                 window.location.href = 'index.html';
                 return;
             }
-
             document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
             const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
             document.getElementById('userRoleBadge').textContent = roleLabel;
-
-            // Kiểm tra template từ localStorage
-            const templateData = localStorage.getItem('templateData');
-            if (templateData) {
-                try {
-                    const tpl = JSON.parse(templateData);
-                    document.getElementById('examTitle').value = tpl.title;
-                    document.getElementById('examDuration').value = tpl.duration;
-
-                    const container = document.getElementById('questionsContainer');
-                    container.innerHTML = '';
-                    tpl.questions.forEach((q, idx) => {
-                        addQuestionWithData(idx, q.content, q.options, q.correct);
-                    });
-                    localStorage.removeItem('templateData');
-                } catch (e) {}
-            }
-
-            // Kiểm tra sửa đề
-            const editingId = localStorage.getItem('editingExamId');
-            if (editingId) {
-                loadExamForEdit(editingId);
-            }
-
-            // Tạo câu hỏi mặc định
-            setTimeout(() => {
-                const container = document.getElementById('questionsContainer');
-                if (container.children.length === 0) {
-                    addQuestion();
-                }
-            }, 300);
         }
 
         function handleLogout() {
@@ -611,337 +397,6 @@
                 window.location.href = 'index.html';
             });
         }
-
-        // ============================================================
-        // LOAD EXAM FOR EDIT
-        // ============================================================
-
-        async function loadExamForEdit(examId) {
-            try {
-                const doc = await db.collection('exams').doc(examId).get();
-                if (doc.exists) {
-                    const exam = { id: doc.id, ...doc.data() };
-                    currentEditingExamId = examId;
-
-                    document.getElementById('examTitle').value = exam.title;
-                    document.getElementById('examDuration').value = exam.duration;
-
-                    const container = document.getElementById('questionsContainer');
-                    container.innerHTML = '';
-
-                    if (exam.questions) {
-                        exam.questions.forEach((q, i) => {
-                            addQuestionWithData(i, q.content, q.options, q.correct);
-                        });
-                    }
-
-                    // Thêm nút cập nhật
-                    const oldBtn = document.querySelector('.btn-update-exam');
-                    if (oldBtn) oldBtn.remove();
-
-                    const btn = document.createElement('button');
-                    btn.className = 'btn btn-warning btn-update-exam';
-                    btn.textContent = '🔄 Cập nhật đề thi';
-                    btn.onclick = saveExam;
-                    document.querySelector('.flex.gap-10').appendChild(btn);
-
-                    localStorage.removeItem('editingExamId');
-                }
-            } catch (error) {
-                console.error('Lỗi tải đề để sửa:', error);
-            }
-        }
-
-        // ============================================================
-        // TEMPLATES (Định dạng chuẩn Word)
-        // ============================================================
-
-        const TEMPLATES = {
-            toan: {
-                title: 'Đề Toán cơ bản',
-                duration: 15,
-                questions: [
-                    { content: '1 + 1 bằng bao nhiêu?', options: ['1', '2', '3', '4'], correct: 1 },
-                    { content: '2 × 3 bằng bao nhiêu?', options: ['4', '5', '6', '7'], correct: 2 },
-                    { content: '10 : 2 bằng bao nhiêu?', options: ['3', '4', '5', '6'], correct: 2 },
-                    { content: 'Căn bậc hai của 16 là?', options: ['2', '4', '6', '8'], correct: 1 },
-                    { content: 'Số nguyên tố nhỏ nhất là?', options: ['0', '1', '2', '3'], correct: 2 }
-                ]
-            },
-            van: {
-                title: 'Đề Văn học cơ bản',
-                duration: 15,
-                questions: [
-                    { content: 'Tác giả của "Truyện Kiều" là ai?', options: ['Nguyễn Du', 'Hồ Xuân Hương', 'Nguyễn Đình Chiểu', 'Tố Hữu'], correct: 0 },
-                    { content: 'Thể thơ "Lục bát" có số chữ mỗi câu là?', options: ['6-8', '7-7', '5-7', '8-6'], correct: 0 },
-                    { content: 'Tác phẩm nào sau đây thuộc văn học trung đại?', options: ['Số đỏ', 'Chí Phèo', 'Nhật ký trong tù', 'Tắt đèn'], correct: 2 },
-                    { content: 'Tác giả của bài thơ "Đồng chí" là?', options: ['Chính Hữu', 'Tố Hữu', 'Huy Cận', 'Xuân Diệu'], correct: 0 },
-                    { content: 'Truyện "Thánh Gióng" thuộc thể loại gì?', options: ['Truyền thuyết', 'Cổ tích', 'Ngụ ngôn', 'Truyện cười'], correct: 0 }
-                ]
-            },
-            anh: {
-                title: 'Đề Tiếng Anh cơ bản',
-                duration: 15,
-                questions: [
-                    { content: '"Hello" có nghĩa là gì?', options: ['Chào', 'Tạm biệt', 'Cảm ơn', 'Xin lỗi'], correct: 0 },
-                    { content: 'Số "twenty" là số mấy?', options: ['12', '20', '22', '2'], correct: 1 },
-                    { content: 'Màu "blue" là màu gì?', options: ['Đỏ', 'Vàng', 'Xanh dương', 'Trắng'], correct: 2 },
-                    { content: '"Dog" là con gì?', options: ['Mèo', 'Chó', 'Gà', 'Vịt'], correct: 1 },
-                    { content: '"Goodbye" có nghĩa là?', options: ['Chào', 'Cảm ơn', 'Tạm biệt', 'Xin chào'], correct: 2 }
-                ]
-            },
-            tin: {
-                title: 'Đề Tin học cơ bản',
-                duration: 15,
-                questions: [
-                    { content: 'CPU là viết tắt của từ gì?', options: ['Central Processing Unit', 'Computer Personal Unit', 'Core Processing Unit', 'Central Program Unit'], correct: 0 },
-                    { content: 'Đơn vị đo dung lượng nào lớn hơn 1 GB?', options: ['MB', 'KB', 'TB', 'B'], correct: 2 },
-                    { content: 'Hệ điều hành nào sau đây là mã nguồn mở?', options: ['Windows', 'Linux', 'macOS', 'iOS'], correct: 1 },
-                    { content: 'Phím tắt "Ctrl+C" dùng để làm gì?', options: ['Dán', 'Sao chép', 'Cắt', 'Lưu'], correct: 1 },
-                    { content: 'WWW là viết tắt của?', options: ['World Wide Web', 'World Wide Work', 'Web World Wide', 'Wide World Web'], correct: 0 }
-                ]
-            }
-        };
-
-        function loadTemplate(templateKey) {
-            const tpl = TEMPLATES[templateKey];
-            if (!tpl) return;
-
-            document.getElementById('examTitle').value = tpl.title;
-            document.getElementById('examDuration').value = tpl.duration;
-
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
-
-            tpl.questions.forEach((q, idx) => {
-                addQuestionWithData(idx, q.content, q.options, q.correct);
-            });
-
-            const oldBtn = document.querySelector('.btn-update-exam');
-            if (oldBtn) oldBtn.remove();
-            currentEditingExamId = null;
-        }
-
-        // ============================================================
-        // QUESTION MANAGEMENT (Định dạng chuẩn Word)
-        // ============================================================
-
-        function addQuestion() {
-            addQuestionWithData(questionCounter, '', ['', '', '', ''], 0);
-            questionCounter++;
-        }
-
-        function addQuestionWithData(id, content, options, correct) {
-            const container = document.getElementById('questionsContainer');
-            const div = document.createElement('div');
-            div.className = 'question-card';
-            div.dataset.qid = id;
-
-            const optionLetters = ['A', 'B', 'C', 'D'];
-            let optionsHTML = '';
-            for (let i = 0; i < 4; i++) {
-                optionsHTML += `
-                    <div class="option-item">
-                        <span class="option-label">${optionLetters[i]}.</span>
-                        <input type="text" placeholder="Đáp án ${optionLetters[i]}" 
-                               value="${options[i] || ''}" 
-                               data-opt="${i}">
-                    </div>
-                `;
-            }
-
-            div.innerHTML = `
-                <div class="q-header">
-                    <span class="q-number">Câu ${container.children.length + 1}</span>
-                    <button class="btn-remove" onclick="removeQuestion(this)">✕ Xóa</button>
-                </div>
-                <div class="q-content">
-                    <textarea rows="2" placeholder="Nội dung câu hỏi...">${content}</textarea>
-                </div>
-                <div class="options-grid">
-                    ${optionsHTML}
-                </div>
-                <div class="q-correct">
-                    <label>✅ Đáp án đúng:</label>
-                    <select>
-                        ${optionLetters.map((l, i) => `<option value="${i}" ${i === correct ? 'selected' : ''}>${l}</option>`).join('')}
-                    </select>
-                </div>
-            `;
-
-            container.appendChild(div);
-        }
-
-        function removeQuestion(btn) {
-            const card = btn.closest('.question-card');
-            if (document.querySelectorAll('.question-card').length <= 1) {
-                alert('Phải có ít nhất 1 câu hỏi!');
-                return;
-            }
-            card.remove();
-            document.querySelectorAll('.question-card .q-number').forEach((el, idx) => {
-                el.textContent = `Câu ${idx + 1}`;
-            });
-        }
-
-        function clearForm() {
-            document.getElementById('examTitle').value = '';
-            document.getElementById('examDuration').value = '15';
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
-            questionCounter = 0;
-            addQuestion();
-            const oldBtn = document.querySelector('.btn-update-exam');
-            if (oldBtn) oldBtn.remove();
-            currentEditingExamId = null;
-            document.getElementById('previewSection').style.display = 'none';
-        }
-
-        // ============================================================
-        // PREVIEW
-        // ============================================================
-
-        function togglePreview() {
-            const section = document.getElementById('previewSection');
-            if (section.style.display === 'none') {
-                generatePreview();
-                section.style.display = 'block';
-            } else {
-                section.style.display = 'none';
-            }
-        }
-
-        function generatePreview() {
-            const container = document.getElementById('previewContent');
-            const title = document.getElementById('examTitle').value || '[Chưa có tiêu đề]';
-            const duration = document.getElementById('examDuration').value || 15;
-            const questionCards = document.querySelectorAll('.question-card');
-
-            let html = `<div style="font-weight:700; font-size:18px; color:#2c3e50;">📄 ${title}</div>`;
-            html += `<div style="color:#7f8c8d; font-size:14px; margin-bottom:12px;">⏱ ${duration} phút</div>`;
-            html += `<hr style="border-color:#e8edf5; margin:12px 0;">`;
-
-            const optionLetters = ['A', 'B', 'C', 'D'];
-
-            questionCards.forEach((card, idx) => {
-                const content = card.querySelector('.q-content textarea').value || '[Nội dung câu hỏi]';
-                const optInputs = card.querySelectorAll('.options-grid .option-item input');
-                const selected = parseInt(card.querySelector('select').value);
-
-                html += `<div class="p-question">Câu ${idx + 1}: ${content}</div>`;
-                optInputs.forEach((inp, i) => {
-                    const optText = inp.value || `[Đáp án ${optionLetters[i]}]`;
-                    const isCorrect = (i === selected);
-                    html += `<div class="p-option" style="${isCorrect ? 'color:#27ae60; font-weight:600;' : ''}">
-                        ${optionLetters[i]}. ${optText} ${isCorrect ? '✅' : ''}
-                    </div>`;
-                });
-                html += `<div style="margin-bottom:8px;"></div>`;
-            });
-
-            container.innerHTML = html;
-        }
-
-        // ============================================================
-        // SAVE EXAM
-        // ============================================================
-
-        function getExamDataFromForm() {
-            const title = document.getElementById('examTitle').value.trim();
-            if (!title) { alert('Vui lòng nhập tiêu đề đề thi!'); return null; }
-
-            const duration = parseInt(document.getElementById('examDuration').value) || 15;
-            const questionCards = document.querySelectorAll('.question-card');
-
-            if (questionCards.length === 0) {
-                alert('Vui lòng thêm ít nhất 1 câu hỏi!');
-                return null;
-            }
-
-            const questions = [];
-            let valid = true;
-
-            questionCards.forEach((card) => {
-                const content = card.querySelector('.q-content textarea').value.trim();
-                if (!content) { valid = false; return; }
-
-                const optInputs = card.querySelectorAll('.options-grid .option-item input');
-                const options = [];
-                optInputs.forEach(inp => {
-                    if (!inp.value.trim()) { valid = false; }
-                    options.push(inp.value.trim());
-                });
-
-                const correct = parseInt(card.querySelector('select').value);
-                questions.push({ content, options, correct });
-            });
-
-            if (!valid) {
-                alert('Vui lòng điền đầy đủ nội dung câu hỏi và các đáp án!');
-                return null;
-            }
-
-            return { title, duration, questions };
-        }
-
-        async function saveExam() {
-            const examData = getExamDataFromForm();
-            if (!examData) return;
-
-            const loadingEl = document.getElementById('saveLoading');
-            loadingEl.classList.add('show');
-
-            try {
-                if (currentEditingExamId) {
-                    await db.collection('exams').doc(currentEditingExamId).update({
-                        ...examData,
-                        updatedAt: new Date().toLocaleString()
-                    });
-                    alert('✅ Đã cập nhật đề thi!');
-                } else {
-                    await db.collection('exams').add({
-                        ...examData,
-                        createdBy: currentUser.uid,
-                        createdByEmail: currentUser.email,
-                        createdAt: new Date().toLocaleString(),
-                        status: 'Đã xuất bản'
-                    });
-                    alert('✅ Đã lưu đề thi thành công!');
-                }
-
-                clearForm();
-                const oldBtn = document.querySelector('.btn-update-exam');
-                if (oldBtn) oldBtn.remove();
-                currentEditingExamId = null;
-                questionCounter = 0;
-                addQuestion();
-
-                setTimeout(() => {
-                    window.location.href = 'exams.html';
-                }, 1500);
-
-            } catch (error) {
-                console.error('Lỗi lưu đề:', error);
-                alert('Không thể lưu đề thi!');
-            } finally {
-                loadingEl.classList.remove('show');
-            }
-        }
-
-        // ============================================================
-        // AUTO GENERATE PREVIEW KHI THAY ĐỔI
-        // ============================================================
-
-        document.addEventListener('input', function() {
-            const section = document.getElementById('previewSection');
-            if (section.style.display !== 'none') {
-                generatePreview();
-            }
-        });
-
-        // ============================================================
-        // INIT
-        // ============================================================
 
         auth.onAuthStateChanged((user) => {
             if (!user) {

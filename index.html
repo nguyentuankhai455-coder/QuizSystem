@@ -21,6 +21,7 @@
             background: linear-gradient(135deg, #e8f0fe 0%, #d4e4f7 100%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -37,14 +38,8 @@
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .auth-container h1 {
@@ -103,14 +98,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-group {
@@ -259,12 +248,57 @@
             padding: 3px 0;
         }
 
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 30px;
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #95a5a6;
+            max-width: 440px;
+            width: 100%;
+        }
+
+        .footer .copyright {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .footer .copyright .heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .footer .copyright .brand {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .footer .copyright .version {
+            background: #e8edf5;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            color: #95a5a6;
+        }
+
         @media (max-width: 480px) {
             .auth-container {
                 padding: 30px 20px;
             }
             .auth-container h1 {
                 font-size: 26px;
+            }
+            .footer {
+                font-size: 11px;
             }
         }
     </style>
@@ -330,6 +364,21 @@
             <div id="registerLoading" class="loading">⏳ Đang xử lý...</div>
         </div>
     </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:11px;">DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
 
     <script>
         // ============================================================
@@ -572,6 +621,39 @@
         // ============================================================
         // KHỞI TẠO
         // ============================================================
+
+        async function createDemoAccounts() {
+            try {
+                const teacherCheck = await db.collection('users').where('email', '==', 'teacher@demo.com').get();
+                const studentCheck = await db.collection('users').where('email', '==', 'student@demo.com').get();
+
+                if (teacherCheck.empty) {
+                    try { await auth.createUserWithEmailAndPassword('teacher@demo.com', '123456'); } catch (e) {}
+                    const user = await auth.signInWithEmailAndPassword('teacher@demo.com', '123456');
+                    await db.collection('users').doc(user.user.uid).set({
+                        fullname: 'Giáo viên demo',
+                        email: 'teacher@demo.com',
+                        role: 'teacher',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    await auth.signOut();
+                }
+
+                if (studentCheck.empty) {
+                    try { await auth.createUserWithEmailAndPassword('student@demo.com', '123456'); } catch (e) {}
+                    const user = await auth.signInWithEmailAndPassword('student@demo.com', '123456');
+                    await db.collection('users').doc(user.user.uid).set({
+                        fullname: 'Học sinh demo',
+                        email: 'student@demo.com',
+                        role: 'student',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    await auth.signOut();
+                }
+            } catch (error) {
+                console.error('Lỗi tạo tài khoản demo:', error);
+            }
+        }
 
         createDemoAccounts();
 

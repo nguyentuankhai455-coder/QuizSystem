@@ -16,7 +16,7 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background: #f0f4f8; min-height: 100vh; }
+        body { background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; }
 
         .top-header {
             background: white; padding: 12px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -42,7 +42,7 @@
         .btn-outline:hover { background: #3498db; color: white; }
         .btn-sm { padding: 4px 12px; font-size: 12px; }
 
-        .container { max-width: 1100px; margin: 0 auto; padding: 16px 24px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 16px 24px; flex: 1; }
 
         .breadcrumb {
             display: flex; align-items: center; gap: 8px; font-size: 14px; color: #7f8c8d;
@@ -154,6 +154,48 @@
         .status-message.loading { background: #fff3cd; border: 2px solid #ffc107; color: #856404; }
         .status-message.warning { background: #fff3cd; border: 2px solid #ffc107; color: #856404; }
 
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            padding: 16px 24px;
+            border-top: 2px solid #e8edf5;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 40px;
+        }
+
+        .footer .copyright {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer .copyright .heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .footer .copyright .brand {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .footer .copyright .version {
+            background: #e8edf5;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
         @media (max-width: 768px) {
             .top-header { padding: 10px 16px; }
             .container { padding: 10px 16px; }
@@ -162,6 +204,7 @@
             .editor-footer { flex-direction: column; align-items: stretch; }
             .page-header { flex-direction: column; align-items: stretch; }
             .template-samples { padding: 6px 12px; }
+            .footer { padding: 12px 16px; font-size: 12px; }
         }
     </style>
 </head>
@@ -302,8 +345,22 @@
             </div>
 
         </div>
-
     </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
 
     <script>
         // ============================================================
@@ -472,7 +529,6 @@
 
                 console.log('📄 Nội dung file:', text.substring(0, 300));
 
-                // CHUẨN HÓA VÀ PARSE
                 const normalizedText = normalizeExamText(text);
                 const result = autoDetectAndParse(normalizedText);
 
@@ -577,7 +633,6 @@
 
                 if (line === '') { i++; continue; }
 
-                // Tách đáp án trên cùng dòng
                 const pattern = /([A-Da-d])\.\s*([^A-Da-d]*?)(?=\s*[A-Da-d]\.\s*|$)/g;
                 let matches = [];
                 let match;
@@ -664,7 +719,7 @@
         }
 
         // ============================================================
-        // AUTO DETECT & PARSE - KHÔNG CẦN "CÂU X:"
+        // AUTO DETECT & PARSE
         // ============================================================
 
         function autoDetectAndParse(text) {
@@ -674,7 +729,6 @@
             let currentQuestion = null;
             let hasQuestionPrefix = false;
 
-            // Lấy title
             if (lines.length > 0) {
                 const firstLine = lines[0];
                 const isOption = /^[A-Da-d]\./.test(firstLine) || /^\*[A-Da-d]\./.test(firstLine);
@@ -685,7 +739,6 @@
                 }
             }
 
-            // Lọc bỏ dòng rác
             const cleanedLines = lines.filter(line => {
                 if (/^[\d\s\-_=+*#]+$/.test(line)) return false;
                 if (line.length < 2) return false;
@@ -695,15 +748,12 @@
             for (let i = 0; i < cleanedLines.length; i++) {
                 const line = cleanedLines[i];
 
-                // Kiểm tra nếu là dòng câu hỏi
                 const isQuestionLine = /^(Câu\s*\d+[:.]|Câu\s*\d+\)|\d+[:.]\s*)/.test(line);
                 const isOption = /^[A-Da-d]\./.test(line) || /^\*[A-Da-d]\./.test(line);
 
-                // Lấy đáp án từ dòng
                 const optionsInLine = extractOptionsFromLine(line);
 
                 if (isQuestionLine && !isOption) {
-                    // Có "Câu X:" -> lưu câu hỏi trước
                     if (currentQuestion && currentQuestion.options.length > 0) {
                         let correctIndex = currentQuestion.options.findIndex(o => o.correct);
                         questions.push({
@@ -726,7 +776,6 @@
                     }
 
                 } else if (isOption && currentQuestion) {
-                    // Đáp án trên dòng riêng
                     const isCorrect = detectCorrectOption(line);
                     const cleanLine = line.replace(/^\*/, '').trim();
                     const optionText = cleanLine.replace(/^[A-Da-d]\.\s*/, '').trim();
@@ -736,7 +785,6 @@
                     });
 
                 } else if (optionsInLine.length > 0 && !isOption && currentQuestion) {
-                    // Đáp án trên cùng dòng với văn bản
                     optionsInLine.forEach(opt => {
                         const exists = currentQuestion.options.some(o => o.text === opt.text);
                         if (!exists) {
@@ -745,17 +793,13 @@
                     });
 
                 } else if (currentQuestion && !isOption && !isQuestionLine) {
-                    // Văn bản bình thường
                     if (currentQuestion.options.length === 0) {
-                        // Chưa có đáp án -> nối vào câu hỏi
                         if (currentQuestion.content) {
                             currentQuestion.content += ' ' + line;
                         } else {
                             currentQuestion.content = line;
                         }
                     } else {
-                        // Đã có đáp án -> có thể là câu hỏi mới không có "Câu X:"
-                        // Kiểm tra xem dòng này có đáp án không
                         const moreOptions = extractOptionsFromLine(line);
                         if (moreOptions.length > 0) {
                             moreOptions.forEach(opt => {
@@ -765,7 +809,6 @@
                                 }
                             });
                         } else if (!hasQuestionPrefix) {
-                            // Nếu KHÔNG có "Câu X:" và đây là dòng mới -> tạo câu hỏi mới
                             if (currentQuestion.options.length > 0) {
                                 let correctIndex = currentQuestion.options.findIndex(o => o.correct);
                                 questions.push({
@@ -783,7 +826,6 @@
                 }
             }
 
-            // Lưu câu hỏi cuối
             if (currentQuestion && currentQuestion.options.length > 0) {
                 let correctIndex = currentQuestion.options.findIndex(o => o.correct);
                 questions.push({
@@ -793,15 +835,12 @@
                 });
             }
 
-            // Nếu không có câu hỏi nào, thử parse lại với cách khác
             if (questions.length === 0) {
-                // Thử tách theo dòng trống
                 const blocks = text.split(/\n\s*\n/);
                 for (let block of blocks) {
                     const lines2 = block.split('\n').map(l => l.trim()).filter(l => l);
                     if (lines2.length < 2) continue;
 
-                    // Tìm dòng đầu tiên không phải đáp án
                     let qContent = '';
                     let opts = [];
                     for (let line of lines2) {
