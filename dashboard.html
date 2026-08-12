@@ -26,23 +26,22 @@
             flex-direction: column;
         }
 
-        /* ===== HEADER ===== */
         .top-header {
             background: white;
-            padding: 12px 30px;
+            padding: 14px 40px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .top-header .logo {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
             color: #2c3e50;
             cursor: pointer;
@@ -67,14 +66,14 @@
         .top-header .header-right .badge-role {
             background: #e8f4fd;
             color: #2980b9;
-            padding: 4px 14px;
+            padding: 4px 16px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
         }
 
         .btn {
-            padding: 8px 18px;
+            padding: 8px 20px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
@@ -131,11 +130,10 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px 30px;
+            padding: 24px 40px;
             flex: 1;
         }
 
-        /* ===== BREADCRUMB ===== */
         .breadcrumb {
             display: flex;
             align-items: center;
@@ -162,7 +160,6 @@
             color: #b0b8c4;
         }
 
-        /* ===== WELCOME ===== */
         .welcome-section {
             background: white;
             border-radius: 16px;
@@ -184,7 +181,6 @@
             margin-top: 4px;
         }
 
-        /* ===== SECTION DIVIDER ===== */
         .section-divider {
             margin: 28px 0 16px 0;
             font-size: 18px;
@@ -202,7 +198,6 @@
             background: #e8edf5;
         }
 
-        /* ===== DASHBOARD GRID ===== */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -323,7 +318,7 @@
         /* ===== FOOTER ===== */
         .footer {
             background: white;
-            padding: 16px 30px;
+            padding: 16px 40px;
             border-top: 2px solid #e8edf5;
             text-align: center;
             font-size: 14px;
@@ -362,7 +357,6 @@
             color: #7f8c8d;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .dashboard-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -370,14 +364,14 @@
         }
 
         @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
             .top-header {
-                padding: 10px 16px;
+                padding: 10px 20px;
             }
             .container {
-                padding: 12px 16px;
+                padding: 12px 20px;
+            }
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             .welcome-section {
                 padding: 18px 20px;
@@ -386,7 +380,7 @@
                 font-size: 18px;
             }
             .footer {
-                padding: 12px 16px;
+                padding: 12px 20px;
                 font-size: 12px;
             }
             .dash-card {
@@ -443,7 +437,7 @@
 
     </div>
 
-    <!-- FOOTER -->
+    <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="copyright">
             <span>© 2026</span>
@@ -452,7 +446,8 @@
             <span>Made with</span>
             <span class="heart">❤️</span>
             <span>by</span>
-            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải by DEV Dora Fanclub Việt Nam</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
             <span class="version">v2.0.0</span>
         </div>
     </footer>
@@ -483,6 +478,9 @@
         let currentUser = null;
         let examCount = 0;
         let classCount = 0;
+        let questionCount = 0;
+        let courseCount = 0;
+        let contentCount = 0;
 
         // ============================================================
         // AUTH
@@ -538,10 +536,29 @@
                     classCount = 0;
                 }
 
+                try {
+                    const questionSnapshot = await db.collection('questions').get();
+                    questionCount = questionSnapshot.size;
+                } catch (e) {
+                    questionCount = 0;
+                }
+
+                try {
+                    const courseSnapshot = await db.collection('courses').get();
+                    courseCount = courseSnapshot.size;
+                } catch (e) {
+                    courseCount = 0;
+                }
+
+                try {
+                    const contentSnapshot = await db.collection('contents').get();
+                    contentCount = contentSnapshot.size;
+                } catch (e) {
+                    contentCount = 0;
+                }
+
             } catch (error) {
                 console.error('Lỗi tải số lượng:', error);
-                examCount = 0;
-                classCount = 0;
             }
         }
 
@@ -647,24 +664,25 @@
                     <div class="section-divider">📁 Nội dung & Công cụ</div>
                     <div class="dashboard-grid">
 
-                        <a href="#" class="dash-card teacher-card" onclick="comingSoon()">
+                        <a href="content-library.html" class="dash-card teacher-card">
                             <div class="icon"><i class="fas fa-box"></i></div>
                             <h4>Kho nội dung</h4>
                             <p>Kho tài nguyên</p>
-                            <span class="coming-soon-badge">🚀 Coming soon</span>
+                            <div class="count">${contentCount || 0}</div>
                         </a>
 
                         <a href="questions.html" class="dash-card teacher-card">
                             <div class="icon"><i class="fas fa-database"></i></div>
                             <h4>Ngân hàng câu hỏi</h4>
                             <p>Quản lý câu hỏi</p>
+                            <div class="count">${questionCount || 0}</div>
                         </a>
 
-                        <a href="#" class="dash-card teacher-card" onclick="comingSoon()">
+                        <a href="courses.html" class="dash-card teacher-card">
                             <div class="icon"><i class="fas fa-graduation-cap"></i></div>
                             <h4>Khóa học</h4>
                             <p>Quản lý khóa học</p>
-                            <span class="coming-soon-badge">🚀 Coming soon</span>
+                            <div class="count">${courseCount || 0}</div>
                         </a>
 
                         <a href="profile.html" class="dash-card teacher-card">
