@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đề thi - QuizSystem</title>
+    <title>Dashboard - QuizSystem</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -28,20 +28,20 @@
 
         .top-header {
             background: white;
-            padding: 12px 24px;
+            padding: 14px 40px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .top-header .logo {
-            font-size: 22px;
+            font-size: 26px;
             font-weight: 800;
             color: #2c3e50;
             cursor: pointer;
@@ -53,7 +53,7 @@
         .top-header .header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
             flex-wrap: wrap;
         }
 
@@ -66,14 +66,14 @@
         .top-header .header-right .badge-role {
             background: #e8f4fd;
             color: #2980b9;
-            padding: 4px 14px;
+            padding: 4px 16px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
         }
 
         .btn {
-            padding: 8px 18px;
+            padding: 8px 20px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
@@ -127,15 +127,10 @@
             color: white;
         }
 
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 16px 24px;
+            padding: 24px 40px;
             flex: 1;
         }
 
@@ -145,7 +140,7 @@
             gap: 8px;
             font-size: 14px;
             color: #7f8c8d;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -165,276 +160,170 @@
             color: #b0b8c4;
         }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
+        .welcome-section {
+            background: white;
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
         }
 
-        .page-header h2 {
+        .welcome-section h2 {
+            font-size: 24px;
             color: #2c3e50;
-            font-size: 20px;
+        }
+        .welcome-section h2 span {
+            color: #3498db;
+        }
+        .welcome-section p {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-top: 4px;
         }
 
-        .page-header .actions {
+        .section-divider {
+            margin: 28px 0 16px 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .search-box input {
-            flex: 1;
-            min-width: 180px;
-            padding: 10px 16px;
-            border: 2px solid #e0e6ed;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .exam-grid {
-            display: grid;
+            align-items: center;
             gap: 12px;
         }
 
-        .exam-item {
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: #e8edf5;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 16px;
+        }
+
+        .dash-card {
             background: white;
-            border-radius: 12px;
-            padding: 16px 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            border-radius: 14px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
             transition: all 0.3s;
-            border-left: 4px solid #27ae60;
+            cursor: pointer;
+            border-left: 4px solid #3498db;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+            min-height: 130px;
         }
 
-        .exam-item:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        .dash-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
 
-        .exam-item .exam-info h4 {
+        .dash-card .icon {
+            font-size: 28px;
+            color: #3498db;
+            margin-bottom: 8px;
+        }
+
+        .dash-card h4 {
             color: #2c3e50;
-            font-size: 15px;
+            font-size: 16px;
+            font-weight: 600;
         }
 
-        .exam-item .exam-info p {
+        .dash-card p {
             color: #7f8c8d;
             font-size: 13px;
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
-        .exam-item .exam-info .tags {
-            display: flex;
-            gap: 6px;
-            margin-top: 4px;
-            flex-wrap: wrap;
+        .dash-card .count {
+            font-size: 26px;
+            font-weight: 800;
+            color: #3498db;
+            margin-top: 8px;
         }
 
-        .exam-item .exam-info .tags .tag {
-            background: #e8edf5;
+        .coming-soon-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f39c12;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-new {
+            background: #27ae60;
+            color: white;
             padding: 2px 10px;
             border-radius: 12px;
             font-size: 11px;
-            color: #2c3e50;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 6px;
         }
 
-        .exam-item .exam-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        /* Folder styles */
-        .folder-item {
-            background: #f8faff;
+        .badge-student {
+            background: #f39c12;
+            color: white;
+            padding: 2px 10px;
             border-radius: 12px;
-            padding: 16px 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            border-left: 4px solid #f39c12;
-            cursor: pointer;
-            transition: all 0.3s;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 6px;
         }
 
-        .folder-item:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            background: #fefefe;
+        .dash-card.student-card {
+            border-left-color: #f39c12;
         }
 
-        .folder-item .folder-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .folder-item .folder-info .folder-icon {
-            font-size: 24px;
+        .dash-card.student-card .icon {
             color: #f39c12;
         }
 
-        .folder-item .folder-info h4 {
-            color: #2c3e50;
-            font-size: 15px;
+        .dash-card.student-card .count {
+            color: #f39c12;
         }
 
-        .folder-item .folder-info p {
-            color: #7f8c8d;
-            font-size: 13px;
+        .dash-card.teacher-card {
+            border-left-color: #3498db;
         }
 
-        .folder-item .folder-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .no-exams {
-            text-align: center;
-            padding: 50px 20px;
-            color: #95a5a6;
-            background: white;
-            border-radius: 12px;
-        }
-
-        .no-exams .icon {
-            font-size: 56px;
-            margin-bottom: 12px;
-            color: #d0d7e6;
-        }
-
-        .no-exams h4 {
-            color: #2c3e50;
-            font-size: 18px;
-            margin-bottom: 6px;
-        }
-
-        .no-exams p {
-            color: #95a5a6;
-            font-size: 14px;
-        }
-
-        .loading-spinner {
-            text-align: center;
-            padding: 40px;
+        .dash-card.teacher-card .icon {
             color: #3498db;
         }
 
-        .loading-spinner i {
-            font-size: 32px;
-            animation: spin 1s linear infinite;
+        .dash-card.teacher-card .count {
+            color: #3498db;
         }
 
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Modal tạo thư mục */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal h3 {
-            color: #2c3e50;
-            margin-bottom: 16px;
-        }
-
-        .modal .form-group {
-            margin-bottom: 14px;
-        }
-
-        .modal .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #34495e;
-            margin-bottom: 4px;
-            font-size: 13px;
-        }
-
-        .modal .form-group input,
-        .modal .form-group select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .modal .form-group input:focus,
-        .modal .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .modal .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-            justify-content: flex-end;
-        }
-
-        .modal .actions .btn {
-            padding: 8px 24px;
+        .hidden {
+            display: none !important;
         }
 
         /* ===== FOOTER ===== */
         .footer {
             background: white;
-            padding: 16px 24px;
+            padding: 16px 40px;
             border-top: 2px solid #e8edf5;
             text-align: center;
             font-size: 14px;
             color: #7f8c8d;
-            margin-top: 40px;
+            margin-top: auto;
         }
 
         .footer .copyright {
@@ -468,31 +357,50 @@
             color: #7f8c8d;
         }
 
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
             .top-header {
-                padding: 10px 16px;
+                padding: 10px 20px;
             }
             .container {
-                padding: 10px 16px;
+                padding: 12px 20px;
             }
-            .exam-item {
-                flex-direction: column;
-                align-items: stretch;
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .folder-item {
-                flex-direction: column;
-                align-items: stretch;
+            .welcome-section {
+                padding: 18px 20px;
             }
-            .page-header {
-                flex-direction: column;
-                align-items: stretch;
+            .welcome-section h2 {
+                font-size: 18px;
             }
             .footer {
-                padding: 12px 16px;
+                padding: 12px 20px;
                 font-size: 12px;
             }
-            .modal {
-                padding: 20px;
+            .dash-card {
+                padding: 16px 18px;
+                min-height: 110px;
+            }
+            .dash-card .icon {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .top-header .header-right {
+                gap: 8px;
+            }
+            .top-header .header-right .user-name {
+                font-size: 13px;
             }
         }
     </style>
@@ -515,74 +423,18 @@
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
-            <span class="current">Đề thi</span>
+            <span class="current">Tổng quan</span>
         </div>
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h2>📋 Đề thi</h2>
-            <div class="actions">
-                <button class="btn btn-primary" onclick="window.location.href='create-exam.html'">
-                    <i class="fas fa-plus"></i> Tạo đề thi
-                </button>
-                <button class="btn btn-outline" onclick="openCreateFolder()">
-                    <i class="fas fa-folder"></i> Tạo thư mục
-                </button>
-            </div>
+        <!-- WELCOME -->
+        <div class="welcome-section">
+            <h2>👋 Chào mừng trở lại, <span id="welcomeName">User</span></h2>
+            <p>Quản lý hệ thống giáo dục của bạn một cách hiệu quả</p>
         </div>
 
-        <!-- SEARCH -->
-        <div class="search-box">
-            <input type="text" id="searchExam" placeholder="🔍 Tìm kiếm đề thi..." oninput="filterExams()">
-            <button class="btn btn-secondary" onclick="document.getElementById('searchExam').value=''; filterExams();">
-                <i class="fas fa-times"></i> Xóa
-            </button>
-        </div>
+        <!-- DASHBOARD -->
+        <div id="dashboardContainer"></div>
 
-        <!-- FOLDERS -->
-        <h3 style="color:#2c3e50; margin-bottom:10px; font-size:15px;">📁 Thư mục</h3>
-        <div id="folderList" class="exam-grid"></div>
-
-        <!-- ĐỀ XUẤT -->
-        <h3 style="color:#2c3e50; margin:20px 0 10px; font-size:15px;">🌟 Được đề xuất</h3>
-        <div id="suggestedExams" class="exam-grid"></div>
-
-        <!-- TẤT CẢ -->
-        <h3 style="color:#2c3e50; margin:20px 0 10px; font-size:15px;">📚 Tất cả đề thi</h3>
-        <div id="allExams" class="exam-grid"></div>
-
-        <!-- LOADING -->
-        <div id="examLoading" class="loading-spinner" style="display:none;">
-            <i class="fas fa-spinner"></i>
-            <p style="margin-top:8px;">Đang tải đề thi...</p>
-        </div>
-
-    </div>
-
-    <!-- MODAL TẠO THƯ MỤC -->
-    <div class="modal-overlay" id="folderModal">
-        <div class="modal">
-            <h3>📁 Tạo thư mục mới</h3>
-            <div class="form-group">
-                <label>Tên thư mục *</label>
-                <input type="text" id="folderName" placeholder="Nhập tên thư mục...">
-            </div>
-            <div class="form-group">
-                <label>Màu sắc</label>
-                <select id="folderColor">
-                    <option value="#f39c12">🟡 Vàng</option>
-                    <option value="#3498db">🔵 Xanh dương</option>
-                    <option value="#27ae60">🟢 Xanh lá</option>
-                    <option value="#e74c3c">🔴 Đỏ</option>
-                    <option value="#8e44ad">🟣 Tím</option>
-                    <option value="#e67e22">🟠 Cam</option>
-                </select>
-            </div>
-            <div class="actions">
-                <button class="btn btn-secondary" onclick="closeCreateFolder()">Hủy</button>
-                <button class="btn btn-success" onclick="createFolder()">✅ Tạo thư mục</button>
-            </div>
-        </div>
     </div>
 
     <!-- ===== FOOTER ===== -->
@@ -602,7 +454,7 @@
 
     <script>
         // ============================================================
-        // FIREBASE CONFIG
+        // FIREBASE
         // ============================================================
 
         const firebaseConfig = {
@@ -624,8 +476,11 @@
         // ============================================================
 
         let currentUser = null;
-        let allExams = [];
-        let allFolders = [];
+        let examCount = 0;
+        let classCount = 0;
+        let questionCount = 0;
+        let courseCount = 0;
+        let contentCount = 0;
 
         // ============================================================
         // AUTH
@@ -648,9 +503,10 @@
             document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
             const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
             document.getElementById('userRoleBadge').textContent = roleLabel;
+            document.getElementById('welcomeName').textContent = currentUser.fullname || 'User';
 
-            loadExams();
-            loadFolders();
+            loadCounts();
+            renderDashboard();
         }
 
         function handleLogout() {
@@ -665,319 +521,187 @@
         }
 
         // ============================================================
-        // LOAD FOLDERS
+        // LOAD COUNTS
         // ============================================================
 
-        async function loadFolders() {
+        async function loadCounts() {
             try {
-                const snapshot = await db.collection('folders')
-                    .where('createdBy', '==', currentUser.uid)
-                    .orderBy('createdAt', 'desc')
-                    .get();
+                const examSnapshot = await db.collection('exams').get();
+                examCount = examSnapshot.size;
 
-                allFolders = [];
-                snapshot.forEach(doc => {
-                    allFolders.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
+                try {
+                    const classSnapshot = await db.collection('classes').get();
+                    classCount = classSnapshot.size;
+                } catch (e) {
+                    classCount = 0;
+                }
 
-                renderFolders();
+                try {
+                    const questionSnapshot = await db.collection('questions').get();
+                    questionCount = questionSnapshot.size;
+                } catch (e) {
+                    questionCount = 0;
+                }
+
+                try {
+                    const courseSnapshot = await db.collection('courses').get();
+                    courseCount = courseSnapshot.size;
+                } catch (e) {
+                    courseCount = 0;
+                }
+
+                try {
+                    const contentSnapshot = await db.collection('contents').get();
+                    contentCount = contentSnapshot.size;
+                } catch (e) {
+                    contentCount = 0;
+                }
+
             } catch (error) {
-                console.error('Lỗi tải thư mục:', error);
-                renderFolders();
+                console.error('Lỗi tải số lượng:', error);
             }
         }
 
-        function renderFolders() {
-            const container = document.getElementById('folderList');
+        // ============================================================
+        // RENDER DASHBOARD THEO ROLE
+        // ============================================================
 
-            if (allFolders.length === 0) {
+        function renderDashboard() {
+            const container = document.getElementById('dashboardContainer');
+
+            if (currentUser.role === 'student') {
+                // ===== HỌC SINH =====
                 container.innerHTML = `
-                    <div style="text-align:center; padding:20px; color:#95a5a6; background:white; border-radius:12px;">
-                        <p>📭 Chưa có thư mục nào</p>
-                        <p style="font-size:13px; margin-top:4px;">Nhấn "Tạo thư mục" để sắp xếp đề thi</p>
+                    <div class="section-divider">📚 Học tập</div>
+                    <div class="dashboard-grid">
+
+                        <a href="student-classes.html" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Lớp học của tôi</h4>
+                            <p>Xem danh sách lớp</p>
+                            <div class="count">${classCount || 0}</div>
+                        </a>
+
+                        <a href="student-exams.html" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>Bài tập / Đề thi</h4>
+                            <p>Bài tập được giao</p>
+                            <div class="count">${examCount || 0}</div>
+                        </a>
+
+                        <a href="#" class="dash-card student-card" onclick="comingSoon()">
+                            <div class="icon"><i class="fas fa-chart-line"></i></div>
+                            <h4>Kết quả học tập</h4>
+                            <p>Xem điểm số của bạn</p>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
+                        </a>
+
+                        <a href="#" class="dash-card student-card" onclick="comingSoon()">
+                            <div class="icon"><i class="fas fa-calendar-check"></i></div>
+                            <h4>Lịch thi</h4>
+                            <p>Các kỳ thi sắp tới</p>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
+                        </a>
+
+                    </div>
+
+                    <div class="section-divider">🚀 Đang phát triển</div>
+                    <div class="dashboard-grid">
+
+                        <a href="#" class="dash-card student-card" onclick="comingSoon()">
+                            <div class="icon"><i class="fas fa-robot"></i></div>
+                            <h4>Hỏi đáp bằng AI</h4>
+                            <p>Hỏi đáp với trí tuệ nhân tạo</p>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
+                        </a>
+
+                        <a href="profile.html" class="dash-card student-card">
+                            <div class="icon"><i class="fas fa-user-circle"></i></div>
+                            <h4>Hồ sơ cá nhân</h4>
+                            <p>Thông tin tài khoản</p>
+                        </a>
+
                     </div>
                 `;
-                return;
-            }
 
-            container.innerHTML = allFolders.map(folder => `
-                <div class="folder-item" onclick="openFolder('${folder.id}')">
-                    <div class="folder-info">
-                        <div class="folder-icon"><i class="fas fa-folder" style="color:${folder.color || '#f39c12'};"></i></div>
-                        <div>
-                            <h4>📁 ${folder.name}</h4>
-                            <p>${folder.examCount || 0} đề thi · ${folder.createdAt || 'Mới tạo'}</p>
-                        </div>
-                    </div>
-                    <div class="folder-actions">
-                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteFolder('${folder.id}')">
-                            <i class="fas fa-trash"></i> Xóa
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ============================================================
-        // CRUD FOLDER
-        // ============================================================
-
-        function openCreateFolder() {
-            document.getElementById('folderModal').classList.add('show');
-            document.getElementById('folderName').value = '';
-        }
-
-        function closeCreateFolder() {
-            document.getElementById('folderModal').classList.remove('show');
-        }
-
-        async function createFolder() {
-            const name = document.getElementById('folderName').value.trim();
-            const color = document.getElementById('folderColor').value;
-
-            if (!name) {
-                alert('⚠️ Vui lòng nhập tên thư mục!');
-                return;
-            }
-
-            try {
-                await db.collection('folders').add({
-                    name: name,
-                    color: color,
-                    examCount: 0,
-                    createdBy: currentUser.uid,
-                    createdByEmail: currentUser.email,
-                    createdAt: new Date().toLocaleString()
-                });
-
-                closeCreateFolder();
-                loadFolders();
-                alert('✅ Đã tạo thư mục thành công!');
-            } catch (error) {
-                console.error('Lỗi tạo thư mục:', error);
-                alert('❌ Không thể tạo thư mục!');
-            }
-        }
-
-        async function deleteFolder(folderId) {
-            if (!confirm('Bạn có chắc chắn muốn xóa thư mục này?')) return;
-
-            try {
-                await db.collection('folders').doc(folderId).delete();
-                allFolders = allFolders.filter(f => f.id !== folderId);
-                renderFolders();
-                alert('✅ Đã xóa thư mục!');
-            } catch (error) {
-                console.error('Lỗi xóa thư mục:', error);
-                alert('❌ Không thể xóa thư mục!');
-            }
-        }
-
-        function openFolder(folderId) {
-            const folder = allFolders.find(f => f.id === folderId);
-            if (folder) {
-                alert(`📁 ${folder.name}\n\n📌 Chức năng mở thư mục đang được phát triển!\nSẽ hiển thị danh sách đề thi trong thư mục này.`);
-            }
-        }
-
-        // ============================================================
-        // LOAD EXAMS FROM FIRESTORE
-        // ============================================================
-
-        async function loadExams() {
-            const loadingEl = document.getElementById('examLoading');
-            loadingEl.style.display = 'block';
-
-            try {
-                const snapshot = await db.collection('exams')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-
-                allExams = [];
-                snapshot.forEach(doc => {
-                    allExams.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-
-                console.log('✅ Đã tải ' + allExams.length + ' đề thi từ Firebase');
-
-                renderExams();
-
-            } catch (error) {
-                console.error('❌ Lỗi tải đề thi:', error);
-
-                const cached = localStorage.getItem('cachedExams');
-                if (cached) {
-                    try {
-                        allExams = JSON.parse(cached);
-                        renderExams();
-                        console.log('📁 Đã tải từ cache');
-                    } catch (e) {}
-                } else {
-                    document.getElementById('allExams').innerHTML = `
-                        <div class="no-exams">
-                            <div class="icon">⚠️</div>
-                            <h4>Không thể tải dữ liệu</h4>
-                            <p>Vui lòng kiểm tra kết nối Internet và thử lại.</p>
-                            <button class="btn btn-primary" onclick="loadExams()" style="margin-top:12px;">
-                                <i class="fas fa-sync"></i> Thử lại
-                            </button>
-                        </div>
-                    `;
-                }
-            } finally {
-                loadingEl.style.display = 'none';
-            }
-        }
-
-        // ============================================================
-        // RENDER EXAMS
-        // ============================================================
-
-        function renderExams() {
-            localStorage.setItem('cachedExams', JSON.stringify(allExams));
-
-            const suggested = allExams.slice(0, 3);
-            const container1 = document.getElementById('suggestedExams');
-
-            if (suggested.length === 0) {
-                container1.innerHTML = `
-                    <div class="no-exams">
-                        <div class="icon">📭</div>
-                        <h4>Chưa có đề thi nào</h4>
-                        <p>Hãy tạo đề thi đầu tiên của bạn!</p>
-                    </div>
-                `;
             } else {
-                container1.innerHTML = suggested.map(exam => examHTML(exam)).join('');
-            }
+                // ===== GIÁO VIÊN =====
+                container.innerHTML = `
+                    <div class="section-divider">📊 Quản lý</div>
+                    <div class="dashboard-grid">
 
-            const container2 = document.getElementById('allExams');
+                        <a href="exams.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>Bài tập</h4>
+                            <p>Quản lý bài tập</p>
+                            <div class="count">${examCount || 0}</div>
+                        </a>
 
-            if (allExams.length === 0) {
-                container2.innerHTML = `
-                    <div class="no-exams">
-                        <div class="icon">📭</div>
-                        <h4>Chưa có đề thi nào</h4>
-                        <p>Nhấn nút <strong>"Tạo đề thi"</strong> để bắt đầu!</p>
+                        <a href="exams.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-pencil-alt"></i></div>
+                            <h4>Đề thi</h4>
+                            <p>Quản lý đề thi</p>
+                            <div class="count">${examCount || 0}</div>
+                        </a>
+
+                        <a href="classes.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Quản lý lớp</h4>
+                            <p>Quản lý lớp học</p>
+                            <div class="count">${classCount || 0}</div>
+                        </a>
+
+                        <a href="#" class="dash-card teacher-card" onclick="comingSoon()">
+                            <div class="icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                            <h4>Quản lý giáo viên</h4>
+                            <p>Quản lý giáo viên</p>
+                            <div class="count">0</div>
+                            <span class="coming-soon-badge">🚀 Coming soon</span>
+                        </a>
+
+                    </div>
+
+                    <div class="section-divider">📁 Nội dung & Công cụ</div>
+                    <div class="dashboard-grid">
+
+                        <a href="content-library.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-box"></i></div>
+                            <h4>Kho nội dung</h4>
+                            <p>Kho tài nguyên</p>
+                            <div class="count">${contentCount || 0}</div>
+                        </a>
+
+                        <a href="questions.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-database"></i></div>
+                            <h4>Ngân hàng câu hỏi</h4>
+                            <p>Quản lý câu hỏi</p>
+                            <div class="count">${questionCount || 0}</div>
+                        </a>
+
+                        <a href="courses.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                            <h4>Khóa học</h4>
+                            <p>Quản lý khóa học</p>
+                            <div class="count">${courseCount || 0}</div>
+                        </a>
+
+                        <a href="profile.html" class="dash-card teacher-card">
+                            <div class="icon"><i class="fas fa-user-circle"></i></div>
+                            <h4>Hồ sơ cá nhân</h4>
+                            <p>Thông tin tài khoản</p>
+                        </a>
+
                     </div>
                 `;
-            } else {
-                container2.innerHTML = allExams.map(exam => examHTML(exam)).join('');
             }
         }
 
         // ============================================================
-        // EXAM HTML
+        // COMING SOON FUNCTION
         // ============================================================
 
-        function examHTML(exam) {
-            const isTeacher = currentUser && currentUser.role === 'teacher';
-            const questionCount = exam.questions ? exam.questions.length : 0;
-            const createdDate = exam.createdAt || 'Mới tạo';
-
-            return `
-                <div class="exam-item" data-title="${(exam.title || '').toLowerCase()}">
-                    <div class="exam-info">
-                        <h4>📄 ${exam.title || 'Đề thi không tên'}</h4>
-                        <p>⏱ ${exam.duration || 0} phút · ${questionCount} câu hỏi</p>
-                        <div class="tags">
-                            <span class="tag">📅 ${createdDate}</span>
-                            ${exam.status ? `<span class="tag">${exam.status}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="exam-actions">
-                        ${isTeacher ? `
-                            <button class="btn btn-primary btn-sm" onclick="editExam('${exam.id}')">
-                                <i class="fas fa-edit"></i> Sửa
-                            </button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteExam('${exam.id}')">
-                                <i class="fas fa-trash"></i> Xóa
-                            </button>
-                        ` : ''}
-                        <button class="btn btn-success btn-sm" onclick="viewExam('${exam.id}')">
-                            <i class="fas fa-eye"></i> Xem
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // ============================================================
-        // ACTIONS
-        // ============================================================
-
-        function filterExams() {
-            const keyword = document.getElementById('searchExam').value.toLowerCase();
-            const items = document.querySelectorAll('#allExams .exam-item');
-            let found = false;
-
-            items.forEach(item => {
-                const title = item.dataset.title || '';
-                if (title.includes(keyword)) {
-                    item.style.display = 'flex';
-                    found = true;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            const container = document.getElementById('allExams');
-            const noResult = container.querySelector('.no-result');
-            if (noResult) noResult.remove();
-
-            if (!found && items.length > 0) {
-                const div = document.createElement('div');
-                div.className = 'no-exams no-result';
-                div.innerHTML = `
-                    <div class="icon">🔍</div>
-                    <h4>Không tìm thấy đề thi</h4>
-                    <p>Thử tìm kiếm với từ khóa khác</p>
-                `;
-                container.appendChild(div);
-            }
-        }
-
-        async function deleteExam(examId) {
-            if (!confirm('Bạn có chắc chắn muốn xóa đề thi này?')) return;
-
-            try {
-                await db.collection('exams').doc(examId).delete();
-                allExams = allExams.filter(e => e.id !== examId);
-                renderExams();
-                alert('✅ Đã xóa đề thi thành công!');
-
-            } catch (error) {
-                console.error('Lỗi xóa đề thi:', error);
-                alert('❌ Không thể xóa đề thi. Vui lòng thử lại!');
-            }
-        }
-
-        function viewExam(examId) {
-            const exam = allExams.find(e => e.id === examId);
-            if (!exam) {
-                alert('Không tìm thấy đề thi!');
-                return;
-            }
-
-            const questionList = exam.questions ? exam.questions.map((q, i) => {
-                const options = q.options ? q.options.map((opt, oi) =>
-                    `    ${['A','B','C','D'][oi]}. ${opt}`
-                ).join('\n') : '';
-                return `Câu ${i+1}: ${q.content}\n${options}\nĐáp án: ${['A','B','C','D'][q.correct]}`;
-            }).join('\n\n') : 'Không có câu hỏi';
-
-            alert(`📄 ${exam.title}\n⏱ ${exam.duration} phút\n📝 ${exam.questions ? exam.questions.length : 0} câu hỏi\n\n${questionList}`);
-        }
-
-        function editExam(examId) {
-            localStorage.setItem('editingExamId', examId);
-            window.location.href = 'create-manual.html';
+        function comingSoon() {
+            alert('🚀 Tính năng này đang được phát triển!\n\n📌 "Coming soon" - Hãy quay lại sau nhé!');
         }
 
         // ============================================================
