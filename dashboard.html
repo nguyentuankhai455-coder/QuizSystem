@@ -22,6 +22,8 @@
         body {
             background: #f0f4f8;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .top-header {
@@ -129,6 +131,7 @@
             max-width: 1100px;
             margin: 0 auto;
             padding: 16px 24px;
+            flex: 1;
         }
 
         .breadcrumb {
@@ -309,6 +312,48 @@
             display: none !important;
         }
 
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            padding: 16px 24px;
+            border-top: 2px solid #e8edf5;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: auto;
+        }
+
+        .footer .copyright {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer .copyright .heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .footer .copyright .brand {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .footer .copyright .version {
+            background: #e8edf5;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
         @media (max-width: 768px) {
             .top-header {
                 padding: 10px 16px;
@@ -318,6 +363,10 @@
             }
             .dashboard-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+            .footer {
+                padding: 12px 16px;
+                font-size: 12px;
             }
         }
 
@@ -359,6 +408,20 @@
         <div id="dashboardContainer"></div>
 
     </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải by DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
 
     <script>
         // ============================================================
@@ -456,7 +519,6 @@
             const container = document.getElementById('dashboardContainer');
 
             if (currentUser.role === 'student') {
-                // ===== HỌC SINH =====
                 container.innerHTML = `
                     <div class="section-divider">📚 Học tập</div>
                     <div class="dashboard-grid">
@@ -511,7 +573,6 @@
                 `;
 
             } else {
-                // ===== GIÁO VIÊN =====
                 container.innerHTML = `
                     <div class="section-divider">📊 Quản lý</div>
                     <div class="dashboard-grid">
@@ -580,10 +641,6 @@
                 `;
             }
         }
-
-        // ============================================================
-        // COMING SOON FUNCTION
-        // ============================================================
 
         function comingSoon() {
             alert('🚀 Tính năng này đang được phát triển!\n\n📌 "Coming soon" - Hãy quay lại sau nhé!');
