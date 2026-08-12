@@ -354,7 +354,7 @@
             }
         }
 
-        /* Modal tạo thư mục */
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -511,14 +511,12 @@
 
     <div class="container">
 
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
             <span class="current">Đề thi</span>
         </div>
 
-        <!-- PAGE HEADER -->
         <div class="page-header">
             <h2>📋 Đề thi</h2>
             <div class="actions">
@@ -531,7 +529,6 @@
             </div>
         </div>
 
-        <!-- SEARCH -->
         <div class="search-box">
             <input type="text" id="searchExam" placeholder="🔍 Tìm kiếm đề thi..." oninput="filterExams()">
             <button class="btn btn-secondary" onclick="document.getElementById('searchExam').value=''; filterExams();">
@@ -551,7 +548,6 @@
         <h3 style="color:#2c3e50; margin:20px 0 10px; font-size:15px;">📚 Tất cả đề thi</h3>
         <div id="allExams" class="exam-grid"></div>
 
-        <!-- LOADING -->
         <div id="examLoading" class="loading-spinner" style="display:none;">
             <i class="fas fa-spinner"></i>
             <p style="margin-top:8px;">Đang tải đề thi...</p>
@@ -649,8 +645,8 @@
             const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
             document.getElementById('userRoleBadge').textContent = roleLabel;
 
-            loadExams();
             loadFolders();
+            loadExams();
         }
 
         function handleLogout() {
@@ -665,27 +661,40 @@
         }
 
         // ============================================================
-        // LOAD FOLDERS
+        // LOAD FOLDERS - ĐÃ SỬA
         // ============================================================
 
         async function loadFolders() {
+            console.log('🔄 Đang tải thư mục...');
+
             try {
+                // Lấy tất cả thư mục của user hiện tại
                 const snapshot = await db.collection('folders')
                     .where('createdBy', '==', currentUser.uid)
-                    .orderBy('createdAt', 'desc')
                     .get();
 
                 allFolders = [];
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    console.log('📁 Tìm thấy thư mục:', data.name);
                     allFolders.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...data
                     });
                 });
 
+                // Sắp xếp theo thời gian tạo (mới nhất lên đầu)
+                allFolders.sort((a, b) => {
+                    const dateA = a.createdAt || '';
+                    const dateB = b.createdAt || '';
+                    return dateB.localeCompare(dateA);
+                });
+
+                console.log('✅ Đã tải ' + allFolders.length + ' thư mục');
                 renderFolders();
+
             } catch (error) {
-                console.error('Lỗi tải thư mục:', error);
+                console.error('❌ Lỗi tải thư mục:', error);
                 renderFolders();
             }
         }
@@ -693,11 +702,12 @@
         function renderFolders() {
             const container = document.getElementById('folderList');
 
-            if (allFolders.length === 0) {
+            if (!allFolders || allFolders.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center; padding:20px; color:#95a5a6; background:white; border-radius:12px;">
-                        <p>📭 Chưa có thư mục nào</p>
-                        <p style="font-size:13px; margin-top:4px;">Nhấn "Tạo thư mục" để sắp xếp đề thi</p>
+                    <div style="text-align:center; padding:20px; color:#95a5a6; background:white; border-radius:12px; border: 2px dashed #d0d7e6;">
+                        <p style="font-size:32px; margin-bottom:8px;">📭</p>
+                        <p style="font-weight:600; color:#2c3e50;">Chưa có thư mục nào</p>
+                        <p style="font-size:13px; margin-top:4px;">Nhấn <strong>"Tạo thư mục"</strong> để sắp xếp đề thi</p>
                     </div>
                 `;
                 return;
@@ -722,12 +732,13 @@
         }
 
         // ============================================================
-        // CRUD FOLDER
+        // CRUD FOLDER - ĐÃ SỬA
         // ============================================================
 
         function openCreateFolder() {
             document.getElementById('folderModal').classList.add('show');
             document.getElementById('folderName').value = '';
+            document.getElementById('folderName').focus();
         }
 
         function closeCreateFolder() {
@@ -743,8 +754,11 @@
                 return;
             }
 
+            console.log('🔄 Đang tạo thư mục:', name);
+
             try {
-                await db.collection('folders').add({
+                // Tạo document mới trong collection "folders"
+                const docRef = await db.collection('folders').add({
                     name: name,
                     color: color,
                     examCount: 0,
@@ -753,12 +767,19 @@
                     createdAt: new Date().toLocaleString()
                 });
 
+                console.log('✅ Đã tạo thư mục với ID:', docRef.id);
+
+                // Đóng modal
                 closeCreateFolder();
-                loadFolders();
+
+                // Tải lại danh sách thư mục
+                await loadFolders();
+
                 alert('✅ Đã tạo thư mục thành công!');
+
             } catch (error) {
-                console.error('Lỗi tạo thư mục:', error);
-                alert('❌ Không thể tạo thư mục!');
+                console.error('❌ Lỗi tạo thư mục:', error);
+                alert('❌ Không thể tạo thư mục! Lỗi: ' + error.message);
             }
         }
 
@@ -771,7 +792,7 @@
                 renderFolders();
                 alert('✅ Đã xóa thư mục!');
             } catch (error) {
-                console.error('Lỗi xóa thư mục:', error);
+                console.error('❌ Lỗi xóa thư mục:', error);
                 alert('❌ Không thể xóa thư mục!');
             }
         }
@@ -779,12 +800,12 @@
         function openFolder(folderId) {
             const folder = allFolders.find(f => f.id === folderId);
             if (folder) {
-                alert(`📁 ${folder.name}\n\n📌 Chức năng mở thư mục đang được phát triển!\nSẽ hiển thị danh sách đề thi trong thư mục này.`);
+                alert(`📁 ${folder.name}\n\n📌 Chức năng mở thư mục đang được phát triển!`);
             }
         }
 
         // ============================================================
-        // LOAD EXAMS FROM FIRESTORE
+        // LOAD EXAMS
         // ============================================================
 
         async function loadExams() {
@@ -804,19 +825,16 @@
                     });
                 });
 
-                console.log('✅ Đã tải ' + allExams.length + ' đề thi từ Firebase');
-
+                console.log('✅ Đã tải ' + allExams.length + ' đề thi');
                 renderExams();
 
             } catch (error) {
                 console.error('❌ Lỗi tải đề thi:', error);
-
                 const cached = localStorage.getItem('cachedExams');
                 if (cached) {
                     try {
                         allExams = JSON.parse(cached);
                         renderExams();
-                        console.log('📁 Đã tải từ cache');
                     } catch (e) {}
                 } else {
                     document.getElementById('allExams').innerHTML = `
@@ -834,10 +852,6 @@
                 loadingEl.style.display = 'none';
             }
         }
-
-        // ============================================================
-        // RENDER EXAMS
-        // ============================================================
 
         function renderExams() {
             localStorage.setItem('cachedExams', JSON.stringify(allExams));
@@ -872,10 +886,6 @@
             }
         }
 
-        // ============================================================
-        // EXAM HTML
-        // ============================================================
-
         function examHTML(exam) {
             const isTeacher = currentUser && currentUser.role === 'teacher';
             const questionCount = exam.questions ? exam.questions.length : 0;
@@ -907,10 +917,6 @@
                 </div>
             `;
         }
-
-        // ============================================================
-        // ACTIONS
-        // ============================================================
 
         function filterExams() {
             const keyword = document.getElementById('searchExam').value.toLowerCase();
