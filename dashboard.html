@@ -651,8 +651,9 @@
             const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
             document.getElementById('userRoleBadge').textContent = roleLabel;
 
-            // Load dữ liệu ngay khi vào trang
-            Promise.all([loadExams(), loadFolders()]);
+            // Load dữ liệu
+            loadFolders();
+            loadExams();
         }
 
         function handleLogout() {
@@ -667,10 +668,12 @@
         }
 
         // ============================================================
-        // LOAD FOLDERS
+        // LOAD FOLDERS - CÓ LOG ĐỂ DEBUG
         // ============================================================
 
         async function loadFolders() {
+            console.log('🔄 Đang tải thư mục...');
+
             try {
                 const snapshot = await db.collection('folders')
                     .where('createdBy', '==', currentUser.uid)
@@ -679,17 +682,20 @@
 
                 allFolders = [];
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    console.log('📁 Tìm thấy thư mục:', data.name);
                     allFolders.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...data
                     });
                 });
 
-                console.log('📁 Đã tải ' + allFolders.length + ' thư mục');
+                console.log('✅ Đã tải ' + allFolders.length + ' thư mục');
                 renderFolders();
 
             } catch (error) {
                 console.error('❌ Lỗi tải thư mục:', error);
+                // Nếu lỗi, vẫn hiển thị giao diện trống
                 renderFolders();
             }
         }
@@ -699,9 +705,10 @@
 
             if (!allFolders || allFolders.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center; padding:20px; color:#95a5a6; background:white; border-radius:12px;">
-                        <p>📭 Chưa có thư mục nào</p>
-                        <p style="font-size:13px; margin-top:4px;">Nhấn "Tạo thư mục" để sắp xếp đề thi</p>
+                    <div style="text-align:center; padding:20px; color:#95a5a6; background:white; border-radius:12px; border: 2px dashed #d0d7e6;">
+                        <p style="font-size:32px; margin-bottom:8px;">📭</p>
+                        <p style="font-weight:600; color:#2c3e50;">Chưa có thư mục nào</p>
+                        <p style="font-size:13px; margin-top:4px;">Nhấn <strong>"Tạo thư mục"</strong> để sắp xếp đề thi</p>
                     </div>
                 `;
                 return;
@@ -726,7 +733,7 @@
         }
 
         // ============================================================
-        // CRUD FOLDER
+        // CRUD FOLDER - CÓ LOG ĐỂ DEBUG
         // ============================================================
 
         function openCreateFolder() {
@@ -748,9 +755,11 @@
                 return;
             }
 
+            console.log('🔄 Đang tạo thư mục:', name);
+
             try {
-                // Lưu lên Firestore
-                await db.collection('folders').add({
+                // Thêm vào Firestore
+                const docRef = await db.collection('folders').add({
                     name: name,
                     color: color,
                     examCount: 0,
@@ -759,17 +768,19 @@
                     createdAt: new Date().toLocaleString()
                 });
 
+                console.log('✅ Đã tạo thư mục với ID:', docRef.id);
+
                 // Đóng modal
                 closeCreateFolder();
 
-                // Reload danh sách thư mục
+                // Tải lại danh sách thư mục
                 await loadFolders();
 
                 alert('✅ Đã tạo thư mục thành công!');
 
             } catch (error) {
                 console.error('❌ Lỗi tạo thư mục:', error);
-                alert('❌ Không thể tạo thư mục! Vui lòng thử lại.');
+                alert('❌ Không thể tạo thư mục! Lỗi: ' + error.message);
             }
         }
 
@@ -795,7 +806,7 @@
         }
 
         // ============================================================
-        // LOAD EXAMS FROM FIRESTORE
+        // LOAD EXAMS
         // ============================================================
 
         async function loadExams() {
@@ -820,7 +831,6 @@
 
             } catch (error) {
                 console.error('❌ Lỗi tải đề thi:', error);
-                // Thử load từ cache
                 const cached = localStorage.getItem('cachedExams');
                 if (cached) {
                     try {
@@ -844,14 +854,9 @@
             }
         }
 
-        // ============================================================
-        // RENDER EXAMS
-        // ============================================================
-
         function renderExams() {
             localStorage.setItem('cachedExams', JSON.stringify(allExams));
 
-            // Suggested (3 đề đầu)
             const suggested = allExams.slice(0, 3);
             const container1 = document.getElementById('suggestedExams');
 
@@ -867,7 +872,6 @@
                 container1.innerHTML = suggested.map(exam => examHTML(exam)).join('');
             }
 
-            // All exams
             const container2 = document.getElementById('allExams');
 
             if (allExams.length === 0) {
@@ -882,10 +886,6 @@
                 container2.innerHTML = allExams.map(exam => examHTML(exam)).join('');
             }
         }
-
-        // ============================================================
-        // EXAM HTML
-        // ============================================================
 
         function examHTML(exam) {
             const isTeacher = currentUser && currentUser.role === 'teacher';
@@ -918,10 +918,6 @@
                 </div>
             `;
         }
-
-        // ============================================================
-        // ACTIONS
-        // ============================================================
 
         function filterExams() {
             const keyword = document.getElementById('searchExam').value.toLowerCase();
