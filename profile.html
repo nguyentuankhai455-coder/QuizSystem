@@ -366,50 +366,6 @@
             grid-column: 1 / -1;
         }
 
-        /* VIP */
-        .vip-section {
-            background: linear-gradient(135deg, #fff8e1, #fff3cd);
-            border: 2px solid #ffc107;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin: 16px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .vip-section .vip-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .vip-section .vip-info .vip-icon {
-            font-size: 28px;
-            color: #f39c12;
-        }
-
-        .vip-section .vip-info h4 {
-            color: #856404;
-            font-size: 16px;
-        }
-
-        .vip-section .vip-info p {
-            color: #856404;
-            font-size: 13px;
-        }
-
-        .vip-section .vip-btn .btn {
-            background: #f39c12;
-            color: white;
-        }
-
-        .vip-section .vip-btn .btn:hover {
-            background: #d68910;
-        }
-
         /* Service section */
         .service-section {
             margin: 16px 0;
@@ -485,9 +441,6 @@
             .profile-avatar .avatar-upload .upload-row { flex-wrap: wrap; }
             .profile-card .card-body { padding: 16px 18px; }
             .profile-card .card-header { padding: 16px 18px; }
-            .vip-section { flex-direction: column; align-items: stretch; text-align: center; }
-            .vip-section .vip-info { justify-content: center; }
-            .vip-section .vip-btn { text-align: center; }
             .service-section { flex-direction: column; align-items: stretch; text-align: center; }
             .service-section .service-actions { justify-content: center; }
         }
@@ -531,22 +484,6 @@
             </div>
 
             <div class="card-body">
-
-                <!-- VIP -->
-                <div class="vip-section">
-                    <div class="vip-info">
-                        <div class="vip-icon"><i class="fas fa-crown"></i></div>
-                        <div>
-                            <h4>VIP</h4>
-                            <p>Azota VIP</p>
-                        </div>
-                    </div>
-                    <div class="vip-btn">
-                        <button class="btn" onclick="alert('📌 Tính năng đang được phát triển!')">
-                            <i class="fas fa-gem"></i> Nâng cấp VIP
-                        </button>
-                    </div>
-                </div>
 
                 <!-- AVATAR -->
                 <div class="profile-avatar">
@@ -659,12 +596,7 @@
         // CLOUDINARY CONFIG
         // ============================================================
 
-        // Cloud Name của bạn (từ Cloudinary Dashboard)
         const CLOUD_NAME = "y6ooh4tp";
-
-        // Upload Preset (cần tạo trong Cloudinary Settings)
-        // ⚠️ QUAN TRỌNG: Vào Cloudinary → Settings → Upload → Add upload preset
-        // Chọn Signing mode: "Unsigned", đặt tên là "quizsystem_avatar"
         const UPLOAD_PRESET = "quizsystem_avatar";
 
         // ============================================================
@@ -784,7 +716,6 @@
                 avatarEl.textContent = initials || '??';
             }
 
-            // Ẩn/hiện nút xóa avatar
             const deleteBtn = document.getElementById('deleteAvatarBtn');
             if (userData.avatar) {
                 deleteBtn.style.display = 'inline-flex';
@@ -806,7 +737,7 @@
         }
 
         // ============================================================
-        // UPLOAD AVATAR - LÊN CLOUDINARY
+        // UPLOAD AVATAR
         // ============================================================
 
         function uploadAvatar() {
@@ -885,7 +816,7 @@
         }
 
         // ============================================================
-        // DELETE AVATAR - XÓA ẢNH ĐẠI DIỆN
+        // DELETE AVATAR
         // ============================================================
 
         function deleteAvatar() {
@@ -898,7 +829,6 @@
                 return;
             }
 
-            // Xóa avatar trong Firestore
             db.collection('users').doc(currentUser.uid).update({
                 avatar: ''
             })
