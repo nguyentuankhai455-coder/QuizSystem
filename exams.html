@@ -262,6 +262,53 @@
             flex-wrap: wrap;
         }
 
+        /* Folder styles */
+        .folder-item {
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-left: 4px solid #f39c12;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .folder-item:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            background: #fefefe;
+        }
+
+        .folder-item .folder-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .folder-item .folder-info .folder-icon {
+            font-size: 24px;
+            color: #f39c12;
+        }
+
+        .folder-item .folder-info h4 {
+            color: #2c3e50;
+            font-size: 15px;
+        }
+
+        .folder-item .folder-info p {
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
+        .folder-item .folder-actions {
+            display: flex;
+            gap: 6px;
+        }
+
         .no-exams {
             text-align: center;
             padding: 50px 20px;
@@ -299,8 +346,84 @@
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Modal tạo thư mục */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            color: #2c3e50;
+            margin-bottom: 16px;
+        }
+
+        .modal .form-group {
+            margin-bottom: 14px;
+        }
+
+        .modal .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .modal .form-group input,
+        .modal .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .modal .form-group input:focus,
+        .modal .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            justify-content: flex-end;
+        }
+
+        .modal .actions .btn {
+            padding: 8px 24px;
         }
 
         /* ===== FOOTER ===== */
@@ -356,6 +479,10 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+            .folder-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
             .page-header {
                 flex-direction: column;
                 align-items: stretch;
@@ -364,11 +491,15 @@
                 padding: 12px 16px;
                 font-size: 12px;
             }
+            .modal {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- HEADER -->
     <header class="top-header">
         <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
         <div class="header-right">
@@ -380,24 +511,27 @@
 
     <div class="container">
 
+        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
             <span class="sep">›</span>
             <span class="current">Đề thi</span>
         </div>
 
+        <!-- PAGE HEADER -->
         <div class="page-header">
             <h2>📋 Đề thi</h2>
             <div class="actions">
                 <button class="btn btn-primary" onclick="window.location.href='create-exam.html'">
                     <i class="fas fa-plus"></i> Tạo đề thi
                 </button>
-                <button class="btn btn-outline">
+                <button class="btn btn-outline" onclick="openCreateFolder()">
                     <i class="fas fa-folder"></i> Tạo thư mục
                 </button>
             </div>
         </div>
 
+        <!-- SEARCH -->
         <div class="search-box">
             <input type="text" id="searchExam" placeholder="🔍 Tìm kiếm đề thi..." oninput="filterExams()">
             <button class="btn btn-secondary" onclick="document.getElementById('searchExam').value=''; filterExams();">
@@ -405,17 +539,50 @@
             </button>
         </div>
 
-        <h3 style="color:#2c3e50; margin-bottom:10px; font-size:15px;">🌟 Được đề xuất</h3>
+        <!-- FOLDERS -->
+        <h3 style="color:#2c3e50; margin-bottom:10px; font-size:15px;">📁 Thư mục</h3>
+        <div id="folderList" class="exam-grid"></div>
+
+        <!-- ĐỀ XUẤT -->
+        <h3 style="color:#2c3e50; margin:20px 0 10px; font-size:15px;">🌟 Được đề xuất</h3>
         <div id="suggestedExams" class="exam-grid"></div>
 
+        <!-- TẤT CẢ -->
         <h3 style="color:#2c3e50; margin:20px 0 10px; font-size:15px;">📚 Tất cả đề thi</h3>
         <div id="allExams" class="exam-grid"></div>
 
+        <!-- LOADING -->
         <div id="examLoading" class="loading-spinner" style="display:none;">
             <i class="fas fa-spinner"></i>
             <p style="margin-top:8px;">Đang tải đề thi...</p>
         </div>
 
+    </div>
+
+    <!-- MODAL TẠO THƯ MỤC -->
+    <div class="modal-overlay" id="folderModal">
+        <div class="modal">
+            <h3>📁 Tạo thư mục mới</h3>
+            <div class="form-group">
+                <label>Tên thư mục *</label>
+                <input type="text" id="folderName" placeholder="Nhập tên thư mục...">
+            </div>
+            <div class="form-group">
+                <label>Màu sắc</label>
+                <select id="folderColor">
+                    <option value="#f39c12">🟡 Vàng</option>
+                    <option value="#3498db">🔵 Xanh dương</option>
+                    <option value="#27ae60">🟢 Xanh lá</option>
+                    <option value="#e74c3c">🔴 Đỏ</option>
+                    <option value="#8e44ad">🟣 Tím</option>
+                    <option value="#e67e22">🟠 Cam</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="closeCreateFolder()">Hủy</button>
+                <button class="btn btn-success" onclick="createFolder()">✅ Tạo thư mục</button>
+            </div>
+        </div>
     </div>
 
     <!-- ===== FOOTER ===== -->
@@ -458,6 +625,7 @@
 
         let currentUser = null;
         let allExams = [];
+        let allFolders = [];
 
         // ============================================================
         // AUTH
@@ -482,6 +650,7 @@
             document.getElementById('userRoleBadge').textContent = roleLabel;
 
             loadExams();
+            loadFolders();
         }
 
         function handleLogout() {
@@ -493,6 +662,125 @@
                 localStorage.removeItem('quizCurrentUser');
                 window.location.href = 'index.html';
             });
+        }
+
+        // ============================================================
+        // LOAD FOLDERS
+        // ============================================================
+
+        async function loadFolders() {
+            try {
+                const snapshot = await db.collection('folders')
+                    .where('createdBy', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                allFolders = [];
+                snapshot.forEach(doc => {
+                    allFolders.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                renderFolders();
+            } catch (error) {
+                console.error('Lỗi tải thư mục:', error);
+                renderFolders();
+            }
+        }
+
+        function renderFolders() {
+            const container = document.getElementById('folderList');
+
+            if (allFolders.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:20px; color:#95a5a6; background:white; border-radius:12px;">
+                        <p>📭 Chưa có thư mục nào</p>
+                        <p style="font-size:13px; margin-top:4px;">Nhấn "Tạo thư mục" để sắp xếp đề thi</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = allFolders.map(folder => `
+                <div class="folder-item" onclick="openFolder('${folder.id}')">
+                    <div class="folder-info">
+                        <div class="folder-icon"><i class="fas fa-folder" style="color:${folder.color || '#f39c12'};"></i></div>
+                        <div>
+                            <h4>📁 ${folder.name}</h4>
+                            <p>${folder.examCount || 0} đề thi · ${folder.createdAt || 'Mới tạo'}</p>
+                        </div>
+                    </div>
+                    <div class="folder-actions">
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteFolder('${folder.id}')">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        // CRUD FOLDER
+        // ============================================================
+
+        function openCreateFolder() {
+            document.getElementById('folderModal').classList.add('show');
+            document.getElementById('folderName').value = '';
+        }
+
+        function closeCreateFolder() {
+            document.getElementById('folderModal').classList.remove('show');
+        }
+
+        async function createFolder() {
+            const name = document.getElementById('folderName').value.trim();
+            const color = document.getElementById('folderColor').value;
+
+            if (!name) {
+                alert('⚠️ Vui lòng nhập tên thư mục!');
+                return;
+            }
+
+            try {
+                await db.collection('folders').add({
+                    name: name,
+                    color: color,
+                    examCount: 0,
+                    createdBy: currentUser.uid,
+                    createdByEmail: currentUser.email,
+                    createdAt: new Date().toLocaleString()
+                });
+
+                closeCreateFolder();
+                loadFolders();
+                alert('✅ Đã tạo thư mục thành công!');
+            } catch (error) {
+                console.error('Lỗi tạo thư mục:', error);
+                alert('❌ Không thể tạo thư mục!');
+            }
+        }
+
+        async function deleteFolder(folderId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa thư mục này?')) return;
+
+            try {
+                await db.collection('folders').doc(folderId).delete();
+                allFolders = allFolders.filter(f => f.id !== folderId);
+                renderFolders();
+                alert('✅ Đã xóa thư mục!');
+            } catch (error) {
+                console.error('Lỗi xóa thư mục:', error);
+                alert('❌ Không thể xóa thư mục!');
+            }
+        }
+
+        function openFolder(folderId) {
+            const folder = allFolders.find(f => f.id === folderId);
+            if (folder) {
+                alert(`📁 ${folder.name}\n\n📌 Chức năng mở thư mục đang được phát triển!\nSẽ hiển thị danh sách đề thi trong thư mục này.`);
+            }
         }
 
         // ============================================================
