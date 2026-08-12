@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khóa học - QuizSystem</title>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .top-header {
+            background: white; padding: 12px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .top-header .logo { font-size: 22px; font-weight: 800; color: #2c3e50; cursor: pointer; }
+        .top-header .logo span { color: #3498db; }
+        .top-header .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .top-header .header-right .user-name { font-weight: 600; color: #2c3e50; font-size: 14px; }
+        .top-header .header-right .badge-role { background: #e8f4fd; color: #2980b9; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+        .btn { padding: 8px 18px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #229954; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        .btn-secondary:hover { background: #7f8c8d; }
+        .btn-outline { background: transparent; border: 2px solid #3498db; color: #3498db; }
+        .btn-outline:hover { background: #3498db; color: white; }
+        .btn-sm { padding: 4px 12px; font-size: 12px; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 16px 24px; flex: 1; }
+
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px; font-size: 14px; color: #7f8c8d;
+            margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .breadcrumb span { cursor: pointer; transition: color 0.3s; }
+        .breadcrumb span:hover { color: #3498db; }
+        .breadcrumb .current { color: #2c3e50; font-weight: 600; cursor: default; }
+        .breadcrumb .sep { color: #b0b8c4; }
+
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            gap: 10px; margin-bottom: 16px;
+        }
+        .page-header h2 { color: #2c3e50; font-size: 20px; }
+
+        .search-box {
+            display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .search-box input {
+            flex: 1; min-width: 200px; padding: 10px 16px; border: 2px solid #e0e6ed;
+            border-radius: 10px; font-size: 14px; transition: border-color 0.3s;
+        }
+        .search-box input:focus { outline: none; border-color: #3498db; }
+
+        .course-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+        }
+
+        .course-card {
+            background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            transition: all 0.3s; border-left: 4px solid #27ae60;
+        }
+        .course-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .course-card .icon { font-size: 32px; color: #27ae60; margin-bottom: 8px; }
+        .course-card h4 { color: #2c3e50; font-size: 16px; }
+        .course-card p { color: #7f8c8d; font-size: 13px; margin-top: 4px; }
+        .course-card .meta { font-size: 12px; color: #95a5a6; margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .course-card .meta .tag { background: #e8edf5; padding: 2px 10px; border-radius: 12px; }
+        .course-card .actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #95a5a6; }
+        .empty-state .icon { font-size: 56px; color: #d0d7e6; margin-bottom: 12px; }
+        .empty-state h4 { color: #2c3e50; font-size: 18px; margin-bottom: 6px; }
+
+        .footer {
+            background: white; padding: 16px 24px; border-top: 2px solid #e8edf5;
+            text-align: center; font-size: 14px; color: #7f8c8d; margin-top: 40px;
+        }
+        .footer .copyright { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .footer .copyright .heart { color: #e74c3c; animation: heartbeat 1.5s ease-in-out infinite; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        .footer .copyright .brand { color: #3498db; font-weight: 700; }
+        .footer .copyright .version { background: #e8edf5; padding: 2px 10px; border-radius: 12px; font-size: 11px; color: #7f8c8d; }
+
+        @media (max-width: 768px) {
+            .top-header { padding: 10px 16px; }
+            .container { padding: 10px 16px; }
+            .course-grid { grid-template-columns: 1fr; }
+            .footer { padding: 12px 16px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
+        <div class="header-right">
+            <span class="user-name" id="userDisplayName">👋 User</span>
+            <span class="badge-role" id="userRoleBadge">Giáo viên</span>
+            <button class="btn btn-danger" onclick="handleLogout()">🚪 Đăng xuất</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="breadcrumb">
+            <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
+            <span class="sep">›</span>
+            <span class="current">Khóa học</span>
+        </div>
+
+        <div class="page-header">
+            <h2>🎓 Khóa học</h2>
+            <div>
+                <button class="btn btn-success" onclick="alert('📌 Tính năng tạo khóa học đang được phát triển!')">
+                    <i class="fas fa-plus"></i> Tạo khóa học
+                </button>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchCourse" placeholder="🔍 Tìm kiếm khóa học..." oninput="filterCourses()">
+            <button class="btn btn-secondary" onclick="document.getElementById('searchCourse').value=''; filterCourses();">
+                <i class="fas fa-times"></i> Xóa
+            </button>
+        </div>
+
+        <div id="courseList" class="course-grid">
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <h4>Chưa có khóa học nào</h4>
+                <p>Bắt đầu tạo khóa học đầu tiên!</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================================
+        // FIREBASE
+        // ============================================================
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
+            authDomain: "quizsystem-1d1c2.firebaseapp.com",
+            projectId: "quizsystem-1d1c2",
+            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
+            messagingSenderId: "435483557148",
+            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
+            measurementId: "G-FS5YZWPDD9"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let courses = [];
+
+        // ============================================================
+        // AUTH
+        // ============================================================
+
+        function checkAuth() {
+            const saved = localStorage.getItem('quizCurrentUser');
+            if (!saved) { window.location.href = 'index.html'; return; }
+            try { currentUser = JSON.parse(saved); } catch (e) { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; return; }
+
+            document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
+            const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
+            document.getElementById('userRoleBadge').textContent = roleLabel;
+
+            loadCourses();
+        }
+
+        function handleLogout() {
+            if (!confirm('Bạn muốn đăng xuất?')) return;
+            auth.signOut().then(() => { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; })
+                .catch(() => { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; });
+        }
+
+        // ============================================================
+        // LOAD COURSES
+        // ============================================================
+
+        async function loadCourses() {
+            try {
+                const snapshot = await db.collection('courses')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                courses = [];
+                snapshot.forEach(doc => {
+                    courses.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderCourses();
+            } catch (error) {
+                console.error('Lỗi tải khóa học:', error);
+                renderCourses();
+            }
+        }
+
+        // ============================================================
+        // RENDER COURSES
+        // ============================================================
+
+        function renderCourses() {
+            const container = document.getElementById('courseList');
+
+            if (courses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h4>Chưa có khóa học nào</h4>
+                        <p>Bắt đầu tạo khóa học đầu tiên!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = courses.map(course => {
+                const statusMap = {
+                    'draft': '📝 Nháp',
+                    'published': '📢 Đã xuất bản',
+                    'archived': '📦 Đã lưu trữ'
+                };
+                const statusText = statusMap[course.status] || '📝 Nháp';
+                const date = course.createdAt || 'Mới tạo';
+
+                return `
+                    <div class="course-card" data-title="${(course.title || '').toLowerCase()}">
+                        <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                        <h4>${course.title || 'Khóa học không tên'}</h4>
+                        <p>${course.description || 'Chưa có mô tả'}</p>
+                        <div class="meta">
+                            <span><i class="fas fa-user"></i> ${course.studentCount || 0} học sinh</span>
+                            <span><i class="fas fa-book"></i> ${course.lessonCount || 0} bài học</span>
+                            <span class="tag">${statusText}</span>
+                            <span><i class="fas fa-calendar"></i> ${date}</span>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-primary btn-sm" onclick="viewCourse('${course.id}')">
+                                <i class="fas fa-eye"></i> Xem
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCourse('${course.id}')">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================================
+        // ACTIONS
+        // ============================================================
+
+        function filterCourses() {
+            const keyword = document.getElementById('searchCourse').value.toLowerCase();
+            const items = document.querySelectorAll('.course-card');
+            items.forEach(item => {
+                const title = item.dataset.title || '';
+                item.style.display = title.includes(keyword) ? 'block' : 'none';
+            });
+        }
+
+        function viewCourse(id) {
+            const item = courses.find(c => c.id === id);
+            if (item) {
+                alert(`📚 ${item.title || 'Khóa học'}\n\n📌 Tính năng xem đang được phát triển!`);
+            }
+        }
+
+        async function deleteCourse(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa khóa học này?')) return;
+            try {
+                await db.collection('courses').doc(id).delete();
+                courses = courses.filter(c => c.id !== id);
+                renderCourses();
+                alert('✅ Đã xóa khóa học!');
+            } catch (error) {
+                console.error('Lỗi xóa:', error);
+                alert('❌ Không thể xóa khóa học!');
+            }
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) { localStorage.removeItem('quizCurrentUser'); window.location.href = 'index.html'; }
+        });
+
+        checkAuth();
+    </script>
+
+</body>
+</html>
