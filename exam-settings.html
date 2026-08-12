@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt đề thi - QuizSystem</title>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-header {
+            background: white;
+            padding: 12px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-header .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+        .top-header .logo span {
+            color: #3498db;
+        }
+
+        .top-header .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .top-header .header-right .user-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .top-header .header-right .badge-role {
+            background: #e8f4fd;
+            color: #2980b9;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+        .btn-outline:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            flex: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb span {
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .breadcrumb span:hover {
+            color: #3498db;
+        }
+        .breadcrumb .current {
+            color: #2c3e50;
+            font-weight: 600;
+            cursor: default;
+        }
+        .breadcrumb .sep {
+            color: #b0b8c4;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .settings-card .card-header {
+            padding: 18px 24px;
+            border-bottom: 2px solid #e8edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .settings-card .card-header h3 {
+            color: #2c3e50;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .settings-card .card-header .badge {
+            font-size: 12px;
+            color: #95a5a6;
+            background: #f0f4f8;
+            padding: 2px 12px;
+            border-radius: 12px;
+        }
+
+        .settings-card .card-body {
+            padding: 20px 24px;
+        }
+
+        .settings-card .card-body .form-group {
+            margin-bottom: 16px;
+        }
+
+        .settings-card .card-body .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .settings-card .card-body .form-group .hint {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 4px;
+        }
+
+        .settings-card .card-body .form-group input,
+        .settings-card .card-body .form-group select,
+        .settings-card .card-body .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .settings-card .card-body .form-group input:focus,
+        .settings-card .card-body .form-group select:focus,
+        .settings-card .card-body .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .settings-card .card-body .form-group .radio-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .settings-card .card-body .form-group .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 400;
+            font-size: 14px;
+            color: #34495e;
+            cursor: pointer;
+        }
+
+        .settings-card .card-body .form-group .radio-group input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #3498db;
+            cursor: pointer;
+        }
+
+        .settings-card .card-body .form-group .checkbox-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .settings-card .card-body .form-group .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 400;
+            font-size: 14px;
+            color: #34495e;
+            cursor: pointer;
+        }
+
+        .settings-card .card-body .form-group .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #3498db;
+            cursor: pointer;
+        }
+
+        .settings-card .card-body .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .settings-card .card-body .info-box {
+            background: #f8faff;
+            border: 2px solid #e8edf5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 8px;
+        }
+
+        .settings-card .card-body .info-box .link {
+            color: #3498db;
+            cursor: pointer;
+        }
+
+        .settings-card .card-body .info-box .link:hover {
+            text-decoration: underline;
+        }
+
+        .settings-card .card-body .divider {
+            border-top: 2px solid #e8edf5;
+            margin: 20px 0;
+        }
+
+        .footer-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-actions .btn {
+            padding: 10px 32px;
+            font-size: 14px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .modal .success-icon {
+            font-size: 64px;
+            color: #27ae60;
+            margin-bottom: 16px;
+        }
+
+        .modal h3 {
+            color: #2c3e50;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .modal p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .modal .exam-link {
+            background: #f8faff;
+            border: 2px solid #e8edf5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 16px 0;
+            word-break: break-all;
+            font-size: 14px;
+            color: #3498db;
+        }
+
+        .modal .embed-code {
+            background: #f8faff;
+            border: 2px solid #e8edf5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+            word-break: break-all;
+            color: #2c3e50;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            padding: 16px 24px;
+            border-top: 2px solid #e8edf5;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 40px;
+        }
+
+        .footer .copyright {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer .copyright .heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .footer .copyright .brand {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .footer .copyright .version {
+            background: #e8edf5;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 10px 16px;
+            }
+            .container {
+                padding: 10px 16px;
+            }
+            .settings-card .card-body .form-row {
+                grid-template-columns: 1fr;
+            }
+            .footer-actions {
+                flex-direction: column;
+            }
+            .footer-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .modal {
+                padding: 20px;
+            }
+            .footer {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="top-header">
+        <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
+        <div class="header-right">
+            <span class="user-name" id="userDisplayName">👋 User</span>
+            <span class="badge-role" id="userRoleBadge">Giáo viên</span>
+            <button class="btn btn-danger" onclick="handleLogout()">🚪 Đăng xuất</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="breadcrumb">
+            <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
+            <span class="sep">›</span>
+            <span onclick="window.location.href='exams.html'">Đề thi</span>
+            <span class="sep">›</span>
+            <span class="current">Cài đặt đề thi</span>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 1. CẤU HÌNH CHUNG -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>📋 Cấu hình chung</h3>
+                <span class="badge">Bắt buộc</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Tên đề thi *</label>
+                    <input type="text" id="examTitle" placeholder="Nhập tên đề thi...">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Khối học</label>
+                        <select id="examGrade">
+                            <option value="">-- Chọn khối --</option>
+                            <option value="9">Khối 9</option>
+                            <option value="10">Khối 10</option>
+                            <option value="11">Khối 11</option>
+                            <option value="12">Khối 12</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Môn học</label>
+                        <select id="examSubject">
+                            <option value="">-- Chọn môn --</option>
+                            <option value="toan">Toán</option>
+                            <option value="van">Văn</option>
+                            <option value="anh">Tiếng Anh</option>
+                            <option value="ly">Vật lý</option>
+                            <option value="hoa">Hóa học</option>
+                            <option value="sinh">Sinh học</option>
+                            <option value="su">Lịch sử</option>
+                            <option value="dia">Địa lý</option>
+                            <option value="gdcd">Giáo dục công dân</option>
+                            <option value="tin">Tin học</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mục đích tạo đề</label>
+                    <select id="examPurpose">
+                        <option value="">-- Chọn mục đích --</option>
+                        <option value="hk1">Học kỳ 1</option>
+                        <option value="hk2">Học kỳ 2</option>
+                        <option value="gk1">Kiểm tra giữa kỳ I</option>
+                        <option value="gk2">Kiểm tra giữa kỳ II</option>
+                        <option value="ck1">Kiểm tra cuối kỳ I</option>
+                        <option value="ck2">Kiểm tra cuối kỳ II</option>
+                        <option value="ontap">Ôn tập theo chương bài</option>
+                        <option value="luyentap">Luyện tập</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea id="examDescription" rows="3" placeholder="Nhập mô tả đề thi..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 2. LOẠI CẤU HÌNH & THỜI GIAN -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>⚙️ Loại cấu hình & Thời gian</h3>
+                <span class="badge">Tùy chọn</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Loại cấu hình</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="examType" value="exam" checked> 📝 Kiểm tra
+                        </label>
+                        <label>
+                            <input type="radio" name="examType" value="practice"> 🎯 Luyện tập
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        <strong>Cấu hình Luyện tập:</strong> Câu hỏi được hiển thị từng câu một giống game "Ai là triệu phú". Học sinh nhận được đáp án đúng và lời giải ngay sau mỗi câu. <span class="link">Tìm hiểu thêm</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Thời gian làm bài (phút)</label>
+                    <input type="number" id="examDuration" value="0" min="0" placeholder="0 = không giới hạn">
+                    <div class="hint">Nhập 0 để không giới hạn thời gian</div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Thời gian bắt đầu</label>
+                        <input type="datetime-local" id="examStartTime">
+                    </div>
+                    <div class="form-group">
+                        <label>Thời gian kết thúc</label>
+                        <input type="datetime-local" id="examEndTime">
+                    </div>
+                </div>
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    Bỏ trống nếu không muốn giới hạn thời gian. Việc sửa cấu hình lùi thời gian khi học sinh đã thi có thể làm mất dữ liệu bài làm.
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 3. AI ĐƯỢC PHÉP LÀM -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>👥 Ai được phép làm</h3>
+                <span class="badge">Tùy chọn</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="examAccess" value="all" checked> 🌐 Tất cả mọi người
+                        </label>
+                        <label>
+                            <input type="radio" name="examAccess" value="class"> 📚 Giao theo lớp
+                        </label>
+                        <label>
+                            <input type="radio" name="examAccess" value="student"> 👤 Giao theo học sinh
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Lựa chọn này cho phép những học sinh không đăng ký/đăng nhập tài khoản vẫn có thể tham gia thi.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 4. BẢO MẬT & GIÁM SÁT -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>🔒 Bảo mật & Giám sát</h3>
+                <span class="badge">Tùy chọn</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Số lượt làm</label>
+                    <input type="number" id="examAttempts" value="0" min="0">
+                    <div class="hint">Nhập 0 hoặc để trống để không giới hạn số lượt làm đề thi</div>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu đề thi</label>
+                    <input type="text" id="examPassword" placeholder="Nhập mật khẩu...">
+                </div>
+                <div class="form-group">
+                    <label>Giám sát tự động</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="monitorScreen"> 🖥️ Giám sát thoát màn hình
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Hỗ trợ giám sát thoát màn hình tốt nhất trên trình duyệt máy tính
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Xác thực thông tin học sinh</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="requireInfo"> 📝 Yêu cầu khai báo thông tin
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Khi học sinh vào làm bài sẽ phải khai báo thêm các thông tin mà bạn yêu cầu.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Chỉ thi trên ứng dụng <span style="color:#e74c3c; font-size:12px;">(QuizSystem)</span></label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="onlyApp"> 📱 Chỉ thi trên ứng dụng QuizSystem
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Khi bật chức năng này, bài thi sẽ chỉ có thể thực hiện qua ứng dụng QuizSystem, không thể thi trên web. Việc thi qua ứng dụng sẽ giúp tăng cường bảo mật cho kỳ thi.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 5. ĐẢO CÂU HỎI & ĐÁP ÁN -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>🔄 Đảo câu hỏi & Đáp án</h3>
+                <span class="badge">Tùy chọn</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="shuffleQuestions"> 🔀 Đảo câu hỏi và đáp án
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Hệ thống sẽ tự động đảo các câu hỏi và thứ tự đáp án trong mỗi câu hỏi trong mỗi lần học sinh truy cập làm bài. Trường hợp đề có phân nhóm, hệ thống sẽ đảo thứ tự câu hỏi trong phạm vi nhóm, không đảo vị trí các nhóm. <span class="link">Tìm hiểu thêm</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="hideGroupTitle"> 🙈 Ẩn tiêu đề câu hỏi nhóm
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Hệ thống sẽ ẩn toàn bộ tiêu đề nhóm có trong đề thi khi học sinh thi Online hoặc khi giáo viên tải xuống đề thi
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Các phần bắt đầu từ câu</label>
+                    <input type="number" id="startFrom" value="1" min="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 6. BÀN PHÍM NHẬP LIỆU -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>⌨️ Bàn phím nhập liệu</h3>
+                <span class="badge">Tùy chọn</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Loại bàn phím nhập đáp án</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="keyboardBasic"> ⌨️ Bàn phím cơ bản
+                        </label>
+                        <label>
+                            <input type="checkbox" id="keyboardMath"> 📐 Bàn phím toán học
+                        </label>
+                        <label>
+                            <input type="checkbox" id="keyboardText"> 📝 Soạn thảo văn bản
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        ① Có thể chọn nhiều loại bàn phím cùng lúc.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 7. ĐIỂM & ĐÁP ÁN -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>📊 Điểm & Đáp án</h3>
+                <span class="badge">Tùy chọn</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Cho xem điểm</label>
+                    <select id="showScore">
+                        <option value="none">Không</option>
+                        <option value="after">Khi làm bài xong</option>
+                        <option value="all">Khi tất cả thi xong</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cho xem đề thi và đáp án</label>
+                    <select id="showAnswer">
+                        <option value="none">Không</option>
+                        <option value="after">Khi làm bài xong</option>
+                        <option value="all">Khi tất cả thi xong</option>
+                        <option value="score">Khi đạt đến số điểm nhất định</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="hideWrongAnswer"> Ẩn đáp án cho câu trả lời sai
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Khi bật tính năng này, với những câu học sinh làm sai, hệ thống sẽ ẩn đáp án đúng và lời giải. Học sinh phải tự làm lại các câu sai nhiều lần để tìm ra đáp án đúng.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="showRanking"> 🏆 Ẩn bằng xếp hạng
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 8. CẤU HÌNH GIÁ -->
+        <!-- ========================================== -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3>💰 Cấu hình giá</h3>
+                <span class="badge">Tùy chọn</span>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="examPrice" value="free" checked> 🆓 Miễn phí
+                        </label>
+                        <label>
+                            <input type="radio" name="examPrice" value="paid_join"> 💳 Thu phí khi tham gia thi
+                        </label>
+                        <label>
+                            <input type="radio" name="examPrice" value="paid_explain"> 💰 Thu phí khi xem giải thích
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        Chức năng này giúp giáo viên, người tạo đề có thể đặt giá thu phí người tham gia thi. QuizSystem đóng vai trò trung gian cung cấp nền tảng và thu hộ, hàng tháng sẽ đối soát và chuyển khoản về tài khoản ngân hàng của giáo viên/người tạo đề. <span class="link">Tìm hiểu thêm</span>
+                        <br><br>
+                        <strong>Lưu ý:</strong> Chắc chắn rằng bạn đã đủ 18 tuổi để sử dụng chức năng này.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FOOTER ACTIONS -->
+        <!-- ========================================== -->
+        <div class="footer-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='exams.html'">
+                <i class="fas fa-times"></i> Hủy
+            </button>
+            <button class="btn btn-primary" onclick="saveDraft()">
+                <i class="fas fa-save"></i> Lưu nháp
+            </button>
+            <button class="btn btn-success" onclick="publishExam()">
+                <i class="fas fa-rocket"></i> Xuất bản
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ===== MODAL XUẤT BẢN THÀNH CÔNG ===== -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+            <h3>🎉 Xuất bản thành công!</h3>
+            <p>Copy link bên dưới và gửi cho học sinh. Học sinh truy cập link để làm bài và nộp bài.</p>
+            <div class="exam-link" id="examLink">https://quizsystem.com/de-thi/...</div>
+            <div style="text-align:left; font-size:13px; color:#7f8c8d; margin-bottom:8px;">
+                <strong>📌 Nhúng vào website:</strong>
+            </div>
+            <div class="embed-code" id="embedCode">
+                &lt;iframe width="100%" height="900" src="https://quizsystem.com/de-thi/..." title="Đề thi" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="copyLink()">
+                    <i class="fas fa-copy"></i> Sao chép link
+                </button>
+                <button class="btn btn-outline" onclick="copyEmbed()">
+                    <i class="fas fa-code"></i> Sao chép mã nhúng
+                </button>
+                <button class="btn btn-secondary" onclick="closeSuccessModal()">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================================
+        // FIREBASE
+        // ============================================================
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
+            authDomain: "quizsystem-1d1c2.firebaseapp.com",
+            projectId: "quizsystem-1d1c2",
+            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
+            messagingSenderId: "435483557148",
+            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
+            measurementId: "G-FS5YZWPDD9"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ============================================================
+        // BIẾN TOÀN CỤ
+        // ============================================================
+
+        let currentUser = null;
+        let examId = null;
+
+        // ============================================================
+        // AUTH
+        // ============================================================
+
+        function checkAuth() {
+            const saved = localStorage.getItem('quizCurrentUser');
+            if (!saved) {
+                window.location.href = 'index.html';
+                return;
+            }
+            try {
+                currentUser = JSON.parse(saved);
+            } catch (e) {
+                localStorage.removeItem('quizCurrentUser');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
+            const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
+            document.getElementById('userRoleBadge').textContent = roleLabel;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            examId = urlParams.get('id');
+
+            if (examId) {
+                loadExamSettings(examId);
+            }
+        }
+
+        function handleLogout() {
+            if (!confirm('Bạn muốn đăng xuất?')) return;
+            auth.signOut().then(() => {
+                localStorage.removeItem('quizCurrentUser');
+                window.location.href = 'index.html';
+            }).catch(() => {
+                localStorage.removeItem('quizCurrentUser');
+                window.location.href = 'index.html';
+            });
+        }
+
+        // ============================================================
+        // LOAD EXAM SETTINGS
+        // ============================================================
+
+        async function loadExamSettings(id) {
+            try {
+                const doc = await db.collection('exams').doc(id).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('examTitle').value = data.title || '';
+                    document.getElementById('examDuration').value = data.duration || 0;
+                    document.getElementById('examDescription').value = data.description || '';
+                    if (data.grade) document.getElementById('examGrade').value = data.grade;
+                    if (data.subject) document.getElementById('examSubject').value = data.subject;
+                    if (data.purpose) document.getElementById('examPurpose').value = data.purpose;
+                    if (data.attempts) document.getElementById('examAttempts').value = data.attempts;
+                }
+            } catch (error) {
+                console.error('Lỗi tải cài đặt đề:', error);
+            }
+        }
+
+        // ============================================================
+        // SAVE DRAFT
+        // ============================================================
+
+        async function saveDraft() {
+            const examData = getExamData();
+
+            if (!examData.title) {
+                alert('⚠️ Vui lòng nhập tên đề thi!');
+                return;
+            }
+
+            try {
+                if (examId) {
+                    await db.collection('exams').doc(examId).update({
+                        ...examData,
+                        updatedAt: new Date().toLocaleString(),
+                        status: 'draft'
+                    });
+                } else {
+                    const docRef = await db.collection('exams').add({
+                        ...examData,
+                        createdBy: currentUser.uid,
+                        createdByEmail: currentUser.email,
+                        createdAt: new Date().toLocaleString(),
+                        status: 'draft'
+                    });
+                    examId = docRef.id;
+                }
+                alert('✅ Đã lưu nháp thành công!');
+            } catch (error) {
+                console.error('Lỗi lưu nháp:', error);
+                alert('❌ Không thể lưu nháp!');
+            }
+        }
+
+        // ============================================================
+        // PUBLISH EXAM
+        // ============================================================
+
+        async function publishExam() {
+            const examData = getExamData();
+
+            if (!examData.title) {
+                alert('⚠️ Vui lòng nhập tên đề thi!');
+                return;
+            }
+
+            try {
+                let docId = examId;
+
+                if (docId) {
+                    await db.collection('exams').doc(docId).update({
+                        ...examData,
+                        updatedAt: new Date().toLocaleString(),
+                        status: 'published',
+                        publishedAt: new Date().toLocaleString()
+                    });
+                } else {
+                    const docRef = await db.collection('exams').add({
+                        ...examData,
+                        createdBy: currentUser.uid,
+                        createdByEmail: currentUser.email,
+                        createdAt: new Date().toLocaleString(),
+                        status: 'published',
+                        publishedAt: new Date().toLocaleString()
+                    });
+                    docId = docRef.id;
+                }
+
+                const link = `https://quizsystem.com/de-thi/${docId}`;
+                document.getElementById('examLink').textContent = link;
+                document.getElementById('embedCode').textContent =
+                    `<iframe width="100%" height="900" src="${link}" title="Đề thi" frameborder="0" allowfullscreen></iframe>`;
+
+                document.getElementById('successModal').classList.add('show');
+
+            } catch (error) {
+                console.error('Lỗi xuất bản:', error);
+                alert('❌ Không thể xuất bản đề thi!');
+            }
+        }
+
+        // ============================================================
+        // GET EXAM DATA
+        // ============================================================
+
+        function getExamData() {
+            return {
+                title: document.getElementById('examTitle').value.trim(),
+                grade: document.getElementById('examGrade').value,
+                subject: document.getElementById('examSubject').value,
+                purpose: document.getElementById('examPurpose').value,
+                description: document.getElementById('examDescription').value.trim(),
+                duration: parseInt(document.getElementById('examDuration').value) || 0,
+                startTime: document.getElementById('examStartTime').value,
+                endTime: document.getElementById('examEndTime').value,
+                access: document.querySelector('input[name="examAccess"]:checked')?.value || 'all',
+                attempts: parseInt(document.getElementById('examAttempts').value) || 0,
+                password: document.getElementById('examPassword').value.trim(),
+                monitorScreen: document.getElementById('monitorScreen').checked,
+                requireInfo: document.getElementById('requireInfo').checked,
+                onlyApp: document.getElementById('onlyApp').checked,
+                shuffleQuestions: document.getElementById('shuffleQuestions').checked,
+                hideGroupTitle: document.getElementById('hideGroupTitle').checked,
+                startFrom: parseInt(document.getElementById('startFrom').value) || 1,
+                keyboardBasic: document.getElementById('keyboardBasic').checked,
+                keyboardMath: document.getElementById('keyboardMath').checked,
+                keyboardText: document.getElementById('keyboardText').checked,
+                showScore: document.getElementById('showScore').value,
+                showAnswer: document.getElementById('showAnswer').value,
+                hideWrongAnswer: document.getElementById('hideWrongAnswer').checked,
+                showRanking: document.getElementById('showRanking').checked,
+                price: document.querySelector('input[name="examPrice"]:checked')?.value || 'free'
+            };
+        }
+
+        // ============================================================
+        // MODAL ACTIONS
+        // ============================================================
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            window.location.href = 'exams.html';
+        }
+
+        function copyLink() {
+            const link = document.getElementById('examLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('✅ Đã sao chép link!');
+            }).catch(() => {
+                const range = document.createRange();
+                range.selectNode(document.getElementById('examLink'));
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                alert('✅ Đã sao chép link!');
+            });
+        }
+
+        function copyEmbed() {
+            const code = document.getElementById('embedCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Đã sao chép mã nhúng!');
+            }).catch(() => {
+                const range = document.createRange();
+                range.selectNode(document.getElementById('embedCode'));
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                alert('✅ Đã sao chép mã nhúng!');
+            });
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                localStorage.removeItem('quizCurrentUser');
+                window.location.href = 'index.html';
+            }
+        });
+
+        checkAuth();
+    </script>
+
+</body>
+</html>
