@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách đề thi - QuizSystem</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <title>QuizSystem - Tạm dừng hoạt động</title>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -17,585 +13,313 @@
             background: #f0f2f5;
             color: #1a1a2e;
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px 20px;
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
         }
         
-        .header {
+        /* ===== OVERLAY ===== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* ===== POPUP ===== */
+        .popup {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .popup .icon {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .popup h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
             margin-bottom: 8px;
         }
         
-        .header .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        .header .logo span { color: #4f46e5; }
-        
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background: #4f46e5;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #4338ca;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
-        }
-        
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        .btn-secondary:hover { background: #cbd5e0; }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        .btn-success:hover { background: #059669; }
-        
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        .btn-danger:hover { background: #dc2626; }
-        
-        .btn-outline {
-            background: transparent;
+        .popup h1 span {
             color: #4f46e5;
-            border: 2px solid #4f46e5;
-        }
-        .btn-outline:hover { background: #4f46e5; color: white; }
-        
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 13px;
-            border-radius: 8px;
         }
         
-        .breadcrumb {
-            font-size: 14px;
-            color: #718096;
-            margin-bottom: 20px;
-        }
-        .breadcrumb a { color: #4f46e5; text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .breadcrumb span { color: #1a1a2e; font-weight: 600; }
-        
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .page-header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        
-        .filters {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-        .filters input, .filters select {
-            padding: 10px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 14px;
-            background: white;
-            flex: 1;
-            min-width: 180px;
-            transition: all 0.2s ease;
-        }
-        .filters input:focus, .filters select:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
-        }
-        
-        .exam-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 20px;
-        }
-        
-        .exam-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s ease;
-            border: 1px solid #edf2f7;
-            display: flex;
-            flex-direction: column;
-        }
-        .exam-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-            border-color: #4f46e5;
-        }
-        .exam-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 6px;
-        }
-        .exam-card .title {
+        .popup .subtitle {
             font-size: 18px;
-            font-weight: 700;
-            color: #1a1a2e;
-            flex: 1;
-        }
-        .exam-card .course {
-            font-size: 13px;
-            color: #4f46e5;
             font-weight: 600;
+            color: #4f46e5;
             margin-bottom: 12px;
         }
-        .status-badge {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .status-badge.active { background: #d1fae5; color: #065f46; }
-        .status-badge.draft { background: #fef3c7; color: #92400e; }
-        .status-badge.inactive { background: #fee2e2; color: #991b1b; }
         
-        .exam-card .meta {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            font-size: 13px;
-            color: #718096;
-            padding: 12px 0;
-            border-top: 1px solid #f0f0f0;
-            border-bottom: 1px solid #f0f0f0;
-            margin: 10px 0 12px 0;
-        }
-        .exam-card .meta span { display: flex; align-items: center; gap: 4px; }
-        .exam-card .description {
-            color: #4a5568;
-            font-size: 14px;
-            line-height: 1.6;
-            flex: 1;
-            margin-bottom: 14px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .exam-card .card-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .exam-card .card-actions .btn {
-            flex: 1;
-            justify-content: center;
-            min-width: 70px;
-        }
-        
-        #loading-exams {
-            text-align: center;
-            padding: 60px 20px;
-            color: #718096;
+        .popup .message {
             font-size: 16px;
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 8px;
         }
         
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            background: white;
-            border-radius: 16px;
-            border: 2px dashed #e2e8f0;
-            grid-column: 1 / -1;
+        .popup .message strong {
+            color: #1a1a2e;
         }
-        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
-        .empty-state h3 { font-size: 20px; color: #1a1a2e; margin-bottom: 8px; }
-        .empty-state p { color: #718096; margin-bottom: 20px; }
         
-        .footer {
-            text-align: center;
-            padding: 32px 20px 12px;
-            color: #a0aec0;
-            font-size: 13px;
-            border-top: 1px solid #edf2f7;
-            margin-top: 40px;
-        }
-        .footer a { color: #4f46e5; text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
-        
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #1a1a2e;
-            color: white;
-            padding: 14px 24px;
+        .popup .time-box {
+            background: #f8fafc;
             border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
-            animation: slideUp 0.3s ease;
-            font-size: 14px;
-            max-width: 400px;
-        }
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
-        .toast.hidden { display: none; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            padding: 16px 20px;
+            margin: 20px 0;
+            border: 2px solid #edf2f7;
         }
         
-        @media (max-width: 768px) {
-            .header { flex-direction: column; align-items: stretch; text-align: center; }
-            .header-actions { justify-content: center; }
-            .page-header { flex-direction: column; text-align: center; }
-            .filters { flex-direction: column; }
-            .filters input, .filters select { min-width: unset; width: 100%; }
-            .exam-grid { grid-template-columns: 1fr; }
-            .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
+        .popup .time-box .label {
+            font-size: 13px;
+            color: #a0aec0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .hidden { display: none !important; }
+        
+        .popup .time-box .time {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ef4444;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .popup .time-box .date {
+            font-size: 16px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        .popup .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .popup .features .feature {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 8px;
+            border: 1px solid #edf2f7;
+        }
+        
+        .popup .features .feature .f-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .popup .features .feature .f-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .popup .btn {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            margin-top: 8px;
+            box-shadow: 0 8px 30px rgba(79, 70, 229, 0.35);
+        }
+        
+        .popup .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(79, 70, 229, 0.45);
+        }
+        
+        .popup .footer-text {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-top: 20px;
+        }
+        
+        .popup .footer-text a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        .popup .footer-text a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .popup {
+                padding: 32px 24px;
+                margin: 16px;
+                border-radius: 20px;
+            }
+            .popup .icon { font-size: 56px; }
+            .popup h1 { font-size: 24px; }
+            .popup .time-box .time { font-size: 22px; }
+            .popup .features {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .popup .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .popup .features { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="logo">📚 <span>Quiz</span>System</div>
-            <div class="header-actions">
-                <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
-                <a href="profile.html" class="btn btn-secondary">👤 Hồ sơ</a>
-                <button class="btn btn-outline" onclick="handleLogout()">🚪 Đăng xuất</button>
+        <!-- OVERLAY -->
+        <div class="overlay" id="popupOverlay">
+            <div class="popup">
+                <span class="icon">🚀</span>
+                
+                <h1>📚 <span>Quiz</span>System</h1>
+                <div class="subtitle">✨ Hành trình kết thúc ✨</div>
+                
+                <p class="message">
+                    <strong>Cảm ơn bạn đã đồng hành cùng chúng tôi</strong> trong suốt hành trình phát triển 
+                    hệ thống <strong>QuizSystem</strong>.
+                </p>
+                
+                <div class="time-box">
+                    <div class="label">⏰ Thời điểm ngừng hoạt động</div>
+                    <div class="time">00:00</div>
+                    <div class="date">14.08.2026</div>
+                </div>
+                
+                <p class="message">
+                    Web sẽ <strong>không cập nhật</strong> và <strong>ngừng hoạt động</strong> kể từ thời điểm trên. 
+                    Đây là cột mốc kết thúc một chặng đường đáng nhớ.
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <span class="f-icon">💻</span>
+                        <span class="f-label">Dự án đã hoàn thành</span>
+                    </div>
+                    <div class="feature">
+                        <span class="f-icon">❤️</span>
+                        <span class="f-label">Cảm ơn người dùng</span>
+                    </div>
+                    <div class="feature">
+                        <span class="f-icon">🌟</span>
+                        <span class="f-label">Hẹn gặp lại</span>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="closePopup()">
+                    🎯 Đã hiểu, cảm ơn!
+                </button>
+                
+                <div class="footer-text">
+                    Made with ❤️ by <a href="#">Nguyễn Tuấn Khải</a> · DEV Dora Fanclub Việt Nam
+                </div>
             </div>
-        </div>
-        
-        <!-- BREADCRUMB -->
-        <div class="breadcrumb">
-            <a href="dashboard.html">Trang chủ</a> &gt; 
-            <span>Quản lý đề thi</span>
-        </div>
-        
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h1>📝 Danh sách đề thi</h1>
-            <div>
-                <!-- 🔥 ĐÃ SỬA: Dùng thẻ a thay vì button onclick -->
-                <a href="create-exam.html" class="btn btn-primary">➕ Tạo đề thi mới</a>
-                <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
-            </div>
-        </div>
-        
-        <!-- FILTERS -->
-        <div class="filters">
-            <input type="text" id="search-input" placeholder="🔍 Tìm kiếm đề thi..." oninput="filterExams()">
-            <select id="course-filter" onchange="filterExams()">
-                <option value="">Tất cả môn học</option>
-            </select>
-            <select id="sort-filter" onchange="filterExams()">
-                <option value="newest">Mới nhất</option>
-                <option value="oldest">Cũ nhất</option>
-                <option value="title">Theo tên A-Z</option>
-            </select>
-        </div>
-        
-        <!-- LOADING -->
-        <div id="loading-exams">⏳ Đang tải danh sách đề thi...</div>
-        
-        <!-- EXAM GRID -->
-        <div id="exam-grid" class="exam-grid"></div>
-        
-        <!-- EMPTY STATE -->
-        <div id="empty-state" class="empty-state hidden">
-            <div class="icon">📭</div>
-            <h3>Chưa có đề thi nào</h3>
-            <p>Hãy tạo đề thi mới để bắt đầu.</p>
-            <a href="create-exam.html" class="btn btn-primary">➕ Tạo đề thi ngay</a>
-        </div>
-        
-        <!-- FOOTER -->
-        <div class="footer">
-            © 2026 <a href="#">QuizSystem</a> - Made with ❤️ by 
-            <a href="#">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
-            <strong>v2.0.0</strong>
         </div>
     </div>
     
-    <!-- TOAST -->
-    <div id="toast" class="toast hidden"></div>
-    
     <script>
-        // ==================== FIREBASE ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
-            authDomain: "quizsystem-1d1c2.firebaseapp.com",
-            databaseURL: "https://quizsystem-1d1c2-default-rtdb.firebaseio.com",
-            projectId: "quizsystem-1d1c2",
-            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
-            messagingSenderId: "435483557148",
-            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
-            measurementId: "G-FS5YZWPDD9"
-        };
-        
-        let auth = null;
-        let database = null;
-        let firebaseReady = false;
-        let currentUser = null;
-        let exams = [];
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            database = firebase.database();
-            firebaseReady = true;
-            console.log('✅ Firebase connected');
-        } catch (e) {
-            console.warn('⚠️ Firebase init failed:', e.message);
+        // ===== CLOSE POPUP =====
+        function closePopup() {
+            const overlay = document.getElementById('popupOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s ease';
+            
+            // Chuyển hướng sau khi đóng
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Chuyển đến một trang tạm biệt hoặc index
+                // window.location.href = 'goodbye.html';
+            }, 500);
         }
         
-        // ==================== TOAST ====================
-        function showToast(msg, type = 'success') {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.className = `toast ${type}`;
-            el.classList.remove('hidden');
-            clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
-        }
-        
-        // ==================== CHECK AUTH ====================
-        function checkAuth() {
-            if (!firebaseReady || !auth) return;
-            auth.onAuthStateChanged(user => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                    return;
-                }
-                currentUser = user;
-                console.log('✅ Đã đăng nhập:', user.email);
-                loadExams();
-            });
-        }
-        
-        // ==================== LOGOUT ====================
-        async function handleLogout() {
-            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
-            try {
-                if (firebaseReady && auth) {
-                    await auth.signOut();
-                }
-                localStorage.clear();
-                showToast('✅ Đã đăng xuất', 'success');
-                setTimeout(() => { window.location.href = 'index.html'; }, 500);
-            } catch (error) {
-                showToast('❌ Đăng xuất thất bại', 'error');
+        // ===== CLICK OUTSIDE =====
+        document.getElementById('popupOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
             }
-        }
-        
-        // ==================== LOAD EXAMS ====================
-        async function loadExams() {
-            const loading = document.getElementById('loading-exams');
-            const empty = document.getElementById('empty-state');
-            const grid = document.getElementById('exam-grid');
-            
-            loading.classList.remove('hidden');
-            grid.innerHTML = '';
-            empty.classList.add('hidden');
-            
-            try {
-                if (!firebaseReady || !database) {
-                    throw new Error('Không kết nối được Firebase');
-                }
-                
-                const snapshot = await database.ref('exams').once('value');
-                const data = snapshot.val();
-                
-                if (data) {
-                    exams = Object.keys(data).map(key => ({
-                        id: key,
-                        ...data[key]
-                    }));
-                    console.log('✅ Loaded from Firebase:', exams.length);
-                } else {
-                    exams = [];
-                    console.log('📌 No exams found');
-                }
-                
-                loading.classList.add('hidden');
-                
-                if (exams.length === 0) {
-                    empty.classList.remove('hidden');
-                } else {
-                    filterExams();
-                }
-                
-                localStorage.setItem('examCount', exams.length.toString());
-                
-            } catch (error) {
-                console.error('❌ Load error:', error);
-                loading.classList.add('hidden');
-                exams = [];
-                empty.classList.remove('hidden');
-                showToast('⚠️ Không thể tải danh sách đề thi', 'error');
-            }
-        }
-        
-        // ==================== FILTER ====================
-        function filterExams() {
-            const search = document.getElementById('search-input').value.toLowerCase().trim();
-            const course = document.getElementById('course-filter').value;
-            const sort = document.getElementById('sort-filter').value;
-            
-            updateCourseFilter();
-            
-            let filtered = exams.filter(e => {
-                const matchSearch = !search || 
-                    (e.title || '').toLowerCase().includes(search) || 
-                    (e.course || '').toLowerCase().includes(search);
-                const matchCourse = !course || e.course === course;
-                return matchSearch && matchCourse;
-            });
-            
-            switch(sort) {
-                case 'newest': 
-                    filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); 
-                    break;
-                case 'oldest': 
-                    filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); 
-                    break;
-                case 'title': 
-                    filtered.sort((a, b) => (a.title || '').localeCompare(b.title || '')); 
-                    break;
-            }
-            
-            renderExams(filtered);
-        }
-        
-        function updateCourseFilter() {
-            const select = document.getElementById('course-filter');
-            const current = select.value;
-            const courses = [...new Set(exams.map(e => e.course).filter(Boolean))];
-            select.innerHTML = '<option value="">Tất cả môn học</option>' + 
-                courses.map(c => `<option value="${c}">${c}</option>`).join('');
-            if (current) select.value = current;
-        }
-        
-        // ==================== RENDER ====================
-        function renderExams(list) {
-            const grid = document.getElementById('exam-grid');
-            const empty = document.getElementById('empty-state');
-            
-            if (!list || list.length === 0) {
-                grid.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-            
-            grid.innerHTML = list.map(exam => {
-                const statusMap = {
-                    active: ['active', '✅ Hoạt động'],
-                    draft: ['draft', '📝 Bản nháp'],
-                    inactive: ['inactive', '⏸️ Tạm dừng']
-                };
-                const [statusClass, statusText] = statusMap[exam.status] || ['active', '✅ Hoạt động'];
-                const totalQ = exam.totalQuestions || exam.questions?.length || 0;
-                
-                return `
-                <div class="exam-card">
-                    <div class="exam-card-top">
-                        <div class="title">${exam.title || 'Đề thi không tên'}</div>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
-                    </div>
-                    <div class="course">📚 ${exam.course || 'Chưa phân loại'}</div>
-                    <div class="meta">
-                        <span>⏱️ ${exam.duration || 0} phút</span>
-                        <span>📝 ${totalQ} câu</span>
-                        <span>🎯 ${exam.totalScore || 0} điểm</span>
-                    </div>
-                    <div class="description">${exam.description || 'Không có mô tả'}</div>
-                    <div class="card-actions">
-                        <button class="btn btn-outline btn-sm" onclick="viewExam('${exam.id}')">📝 Xem chi tiết</button>
-                        <button class="btn btn-success btn-sm" onclick="takeExam('${exam.id}')">🚀 Làm bài</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteExam('${exam.id}')">🗑️</button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-        
-        // ==================== ACTIONS ====================
-        function viewExam(id) {
-            window.location.href = `exam-detail.html?id=${id}`;
-        }
-        
-        function takeExam(id) {
-            window.location.href = `take-exam.html?id=${id}`;
-        }
-        
-        async function deleteExam(id) {
-            if (!confirm('Bạn có chắc muốn xóa đề thi này?')) return;
-            
-            try {
-                if (firebaseReady && database) {
-                    await database.ref(`exams/${id}`).remove();
-                }
-                exams = exams.filter(e => e.id !== id);
-                localStorage.removeItem(`exam_progress_${id}`);
-                localStorage.removeItem(`exam_time_${id}`);
-                filterExams();
-                
-                localStorage.setItem('examCount', exams.length.toString());
-                showToast('✅ Đã xóa đề thi', 'success');
-            } catch (error) {
-                console.error('❌ Delete error:', error);
-                showToast('❌ Không thể xóa đề thi', 'error');
-            }
-        }
-        
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 exams.html đã tải');
-            checkAuth();
         });
+        
+        // ===== KEYBOARD =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Enter') {
+                closePopup();
+            }
+        });
+        
+        // ===== LOG =====
+        console.log('🚀 QuizSystem - Cảm ơn bạn đã đồng hành!');
+        console.log('⏰ Web sẽ ngừng hoạt động từ 00:00 14.08.2026');
+        console.log('❤️ Made with love by Nguyễn Tuấn Khải');
     </script>
 </body>
 </html>
