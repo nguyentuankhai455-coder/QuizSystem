@@ -326,7 +326,7 @@
             font-size: 14px;
         }
 
-        /* Modal */
+        /* ===== MODAL XUẤT BẢN ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -381,6 +381,19 @@
             word-break: break-all;
             font-size: 14px;
             color: #3498db;
+        }
+
+        .modal .exam-link .copy-btn {
+            background: none;
+            border: none;
+            color: #3498db;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+
+        .modal .exam-link .copy-btn:hover {
+            text-decoration: underline;
         }
 
         .modal .embed-code {
@@ -846,19 +859,28 @@
 
     </div>
 
-    <!-- ===== MODAL XUẤT BẢN THÀNH CÔNG ===== -->
+    <!-- ===== MODAL XUẤT BẢN - ĐÃ SỬA LINK ===== -->
     <div class="modal-overlay" id="successModal">
         <div class="modal">
             <div class="success-icon"><i class="fas fa-check-circle"></i></div>
             <h3>🎉 Xuất bản thành công!</h3>
             <p>Copy link bên dưới và gửi cho học sinh. Học sinh truy cập link để làm bài và nộp bài.</p>
-            <div class="exam-link" id="examLink">https://quizsystem.com/de-thi/...</div>
+
+            <!-- Link vào thi - ĐÃ SỬA -->
+            <div class="exam-link" id="examLink">
+                <span id="examLinkText">https://quizsystem.com/de-thi/...</span>
+                <button class="copy-btn" onclick="copyLink()">📋 Sao chép</button>
+            </div>
+
             <div style="text-align:left; font-size:13px; color:#7f8c8d; margin-bottom:8px;">
                 <strong>📌 Nhúng vào website:</strong>
             </div>
+
+            <!-- Mã nhúng - ĐÃ SỬA -->
             <div class="embed-code" id="embedCode">
                 &lt;iframe width="100%" height="900" src="https://quizsystem.com/de-thi/..." title="Đề thi" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
             </div>
+
             <div class="actions">
                 <button class="btn btn-primary" onclick="copyLink()">
                     <i class="fas fa-copy"></i> Sao chép link
@@ -971,6 +993,35 @@
                     if (data.subject) document.getElementById('examSubject').value = data.subject;
                     if (data.purpose) document.getElementById('examPurpose').value = data.purpose;
                     if (data.attempts) document.getElementById('examAttempts').value = data.attempts;
+                    if (data.password) document.getElementById('examPassword').value = data.password || '';
+                    if (data.startFrom) document.getElementById('startFrom').value = data.startFrom || 1;
+
+                    document.getElementById('monitorScreen').checked = data.monitorScreen || false;
+                    document.getElementById('requireInfo').checked = data.requireInfo || false;
+                    document.getElementById('onlyApp').checked = data.onlyApp || false;
+                    document.getElementById('shuffleQuestions').checked = data.shuffleQuestions || false;
+                    document.getElementById('hideGroupTitle').checked = data.hideGroupTitle || false;
+                    document.getElementById('hideWrongAnswer').checked = data.hideWrongAnswer || false;
+                    document.getElementById('showRanking').checked = data.showRanking || false;
+
+                    document.getElementById('keyboardBasic').checked = data.keyboardBasic || false;
+                    document.getElementById('keyboardMath').checked = data.keyboardMath || false;
+                    document.getElementById('keyboardText').checked = data.keyboardText || false;
+
+                    if (data.type) {
+                        const radio = document.querySelector(`input[name="examType"][value="${data.type}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                    if (data.access) {
+                        const radio = document.querySelector(`input[name="examAccess"][value="${data.access}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                    if (data.price) {
+                        const radio = document.querySelector(`input[name="examPrice"][value="${data.price}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                    if (data.showScore) document.getElementById('showScore').value = data.showScore;
+                    if (data.showAnswer) document.getElementById('showAnswer').value = data.showAnswer;
                 }
             } catch (error) {
                 console.error('Lỗi tải cài đặt đề:', error);
@@ -1014,7 +1065,7 @@
         }
 
         // ============================================================
-        // PUBLISH EXAM
+        // PUBLISH EXAM - TẠO LINK THỰC TẾ
         // ============================================================
 
         async function publishExam() {
@@ -1047,10 +1098,13 @@
                     docId = docRef.id;
                 }
 
-                const link = `https://quizsystem.com/de-thi/${docId}`;
-                document.getElementById('examLink').textContent = link;
-                document.getElementById('embedCode').textContent =
-                    `<iframe width="100%" height="900" src="${link}" title="Đề thi" frameborder="0" allowfullscreen></iframe>`;
+                // Tạo link thực tế dựa trên domain đang chạy
+                const baseUrl = window.location.origin;
+                const examLink = `${baseUrl}/take-exam.html?id=${docId}`;
+                const embedCode = `<iframe width="100%" height="900" src="${baseUrl}/take-exam.html?id=${docId}" title="Đề thi" frameborder="0" allowfullscreen></iframe>`;
+
+                document.getElementById('examLinkText').textContent = examLink;
+                document.getElementById('embedCode').textContent = embedCode;
 
                 document.getElementById('successModal').classList.add('show');
 
@@ -1090,7 +1144,8 @@
                 showAnswer: document.getElementById('showAnswer').value,
                 hideWrongAnswer: document.getElementById('hideWrongAnswer').checked,
                 showRanking: document.getElementById('showRanking').checked,
-                price: document.querySelector('input[name="examPrice"]:checked')?.value || 'free'
+                price: document.querySelector('input[name="examPrice"]:checked')?.value || 'free',
+                type: document.querySelector('input[name="examType"]:checked')?.value || 'exam'
             };
         }
 
@@ -1104,12 +1159,12 @@
         }
 
         function copyLink() {
-            const link = document.getElementById('examLink').textContent;
+            const link = document.getElementById('examLinkText').textContent;
             navigator.clipboard.writeText(link).then(() => {
                 alert('✅ Đã sao chép link!');
             }).catch(() => {
                 const range = document.createRange();
-                range.selectNode(document.getElementById('examLink'));
+                range.selectNode(document.getElementById('examLinkText'));
                 window.getSelection().removeAllRanges();
                 window.getSelection().addRange(range);
                 document.execCommand('copy');
