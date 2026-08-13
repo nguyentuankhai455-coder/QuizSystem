@@ -5,16 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách đề thi - QuizSystem</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -29,26 +25,26 @@
             padding: 24px 20px;
         }
         
-        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 16px;
-            margin-bottom: 28px;
+            margin-bottom: 8px;
         }
         
-        .header h1 {
-            font-size: 28px;
+        .header .logo {
+            font-size: 24px;
             font-weight: 700;
             color: #1a1a2e;
-            letter-spacing: -0.5px;
         }
+        .header .logo span { color: #4f46e5; }
         
         .header-actions {
             display: flex;
             gap: 12px;
+            align-items: center;
             flex-wrap: wrap;
         }
         
@@ -70,7 +66,6 @@
             background: #4f46e5;
             color: white;
         }
-        
         .btn-primary:hover {
             background: #4338ca;
             transform: translateY(-1px);
@@ -81,39 +76,26 @@
             background: #e2e8f0;
             color: #4a5568;
         }
-        
-        .btn-secondary:hover {
-            background: #cbd5e0;
-        }
+        .btn-secondary:hover { background: #cbd5e0; }
         
         .btn-success {
             background: #10b981;
             color: white;
         }
-        
-        .btn-success:hover {
-            background: #059669;
-        }
+        .btn-success:hover { background: #059669; }
         
         .btn-danger {
             background: #ef4444;
             color: white;
         }
-        
-        .btn-danger:hover {
-            background: #dc2626;
-        }
+        .btn-danger:hover { background: #dc2626; }
         
         .btn-outline {
             background: transparent;
             color: #4f46e5;
             border: 2px solid #4f46e5;
         }
-        
-        .btn-outline:hover {
-            background: #4f46e5;
-            color: white;
-        }
+        .btn-outline:hover { background: #4f46e5; color: white; }
         
         .btn-sm {
             padding: 6px 14px;
@@ -121,35 +103,51 @@
             border-radius: 8px;
         }
         
-        /* ===== FILTERS ===== */
+        .breadcrumb {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        .breadcrumb a { color: #4f46e5; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb span { color: #1a1a2e; font-weight: 600; }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        
         .filters {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
             margin-bottom: 24px;
         }
-        
-        .filters input,
-        .filters select {
+        .filters input, .filters select {
             padding: 10px 16px;
             border: 1px solid #e2e8f0;
             border-radius: 10px;
             font-size: 14px;
             background: white;
-            color: #1a1a2e;
-            transition: all 0.2s ease;
             flex: 1;
             min-width: 180px;
+            transition: all 0.2s ease;
         }
-        
-        .filters input:focus,
-        .filters select:focus {
+        .filters input:focus, .filters select:focus {
             outline: none;
             border-color: #4f46e5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
         }
         
-        /* ===== EXAM GRID ===== */
         .exam-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -163,38 +161,32 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
             transition: all 0.3s ease;
             border: 1px solid #edf2f7;
-            cursor: pointer;
             display: flex;
             flex-direction: column;
         }
-        
         .exam-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
             border-color: #4f46e5;
         }
-        
         .exam-card-top {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 6px;
         }
-        
         .exam-card .title {
             font-size: 18px;
             font-weight: 700;
             color: #1a1a2e;
             flex: 1;
         }
-        
         .exam-card .course {
             font-size: 13px;
             color: #4f46e5;
             font-weight: 600;
             margin-bottom: 12px;
         }
-        
         .status-badge {
             display: inline-block;
             padding: 3px 12px;
@@ -203,21 +195,9 @@
             font-weight: 600;
             white-space: nowrap;
         }
-        
-        .status-badge.active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .status-badge.draft {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .status-badge.inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
+        .status-badge.active { background: #d1fae5; color: #065f46; }
+        .status-badge.draft { background: #fef3c7; color: #92400e; }
+        .status-badge.inactive { background: #fee2e2; color: #991b1b; }
         
         .exam-card .meta {
             display: flex;
@@ -230,13 +210,7 @@
             border-bottom: 1px solid #f0f0f0;
             margin: 10px 0 12px 0;
         }
-        
-        .exam-card .meta span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
+        .exam-card .meta span { display: flex; align-items: center; gap: 4px; }
         .exam-card .description {
             color: #4a5568;
             font-size: 14px;
@@ -248,20 +222,17 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        
         .exam-card .card-actions {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
         }
-        
         .exam-card .card-actions .btn {
             flex: 1;
             justify-content: center;
             min-width: 70px;
         }
         
-        /* ===== LOADING ===== */
         #loading-exams {
             text-align: center;
             padding: 60px 20px;
@@ -269,32 +240,18 @@
             font-size: 16px;
         }
         
-        /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             padding: 80px 20px;
             background: white;
             border-radius: 16px;
             border: 2px dashed #e2e8f0;
+            grid-column: 1 / -1;
         }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 20px; color: #1a1a2e; margin-bottom: 8px; }
+        .empty-state p { color: #718096; margin-bottom: 20px; }
         
-        .empty-state .icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-        
-        .empty-state h3 {
-            font-size: 20px;
-            color: #1a1a2e;
-            margin-bottom: 8px;
-        }
-        
-        .empty-state p {
-            color: #718096;
-            margin-bottom: 20px;
-        }
-        
-        /* ===== FOOTER ===== */
         .footer {
             text-align: center;
             padding: 32px 20px 12px;
@@ -303,116 +260,9 @@
             border-top: 1px solid #edf2f7;
             margin-top: 40px;
         }
+        .footer a { color: #4f46e5; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
         
-        .footer a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .modal-overlay.active {
-            display: flex;
-        }
-        
-        .modal {
-            background: white;
-            border-radius: 20px;
-            padding: 32px;
-            max-width: 560px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalIn 0.3s ease;
-        }
-        
-        @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        
-        .modal h3 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: #1a1a2e;
-        }
-        
-        .modal .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .modal .form-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 13px;
-            color: #4a5568;
-            margin-bottom: 4px;
-        }
-        
-        .modal .form-group input,
-        .modal .form-group select,
-        .modal .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.2s;
-        }
-        
-        .modal .form-group input:focus,
-        .modal .form-group select:focus,
-        .modal .form-group textarea:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-        }
-        
-        .modal .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .modal .form-group .hint {
-            font-size: 12px;
-            color: #a0aec0;
-            margin-top: 4px;
-            display: block;
-        }
-        
-        .modal .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            padding-top: 20px;
-            border-top: 1px solid #edf2f7;
-            margin-top: 8px;
-        }
-        
-        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -424,79 +274,54 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
             z-index: 9999;
             animation: slideUp 0.3s ease;
-            max-width: 400px;
             font-size: 14px;
+            max-width: 400px;
         }
-        
-        .toast.success {
-            background: #10b981;
-        }
-        
-        .toast.error {
-            background: #ef4444;
-        }
-        
-        .toast.hidden {
-            display: none;
-        }
-        
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        .toast.hidden { display: none; }
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-            }
-            .header-actions {
-                justify-content: center;
-            }
-            .filters {
-                flex-direction: column;
-            }
-            .filters input,
-            .filters select {
-                min-width: unset;
-                width: 100%;
-            }
-            .exam-grid {
-                grid-template-columns: 1fr;
-            }
-            .modal {
-                padding: 20px;
-                margin: 10px;
-            }
-            .toast {
-                bottom: 12px;
-                right: 12px;
-                left: 12px;
-                max-width: none;
-            }
+            .header { flex-direction: column; align-items: stretch; text-align: center; }
+            .header-actions { justify-content: center; }
+            .page-header { flex-direction: column; text-align: center; }
+            .filters { flex-direction: column; }
+            .filters input, .filters select { min-width: unset; width: 100%; }
+            .exam-grid { grid-template-columns: 1fr; }
+            .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
         }
-        
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- HEADER -->
         <div class="header">
-            <h1>📚 Danh sách đề thi</h1>
+            <div class="logo">📚 <span>Quiz</span>System</div>
             <div class="header-actions">
-                <button class="btn btn-primary" onclick="openCreateModal()">➕ Tạo đề thi mới</button>
-                <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">🏠 Dashboard</button>
+                <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="profile.html" class="btn btn-secondary">👤 Hồ sơ</a>
+                <button class="btn btn-outline" onclick="handleLogout()">🚪 Đăng xuất</button>
+            </div>
+        </div>
+        
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb">
+            <a href="dashboard.html">Trang chủ</a> &gt; 
+            <span>Quản lý đề thi</span>
+        </div>
+        
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <h1>📝 Danh sách đề thi</h1>
+            <div>
+                <!-- 🔥 ĐÃ SỬA: Dùng thẻ a thay vì button onclick -->
+                <a href="create-exam.html" class="btn btn-primary">➕ Tạo đề thi mới</a>
+                <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
             </div>
         </div>
         
@@ -522,52 +347,16 @@
         <!-- EMPTY STATE -->
         <div id="empty-state" class="empty-state hidden">
             <div class="icon">📭</div>
-            <h3>Không có đề thi nào</h3>
+            <h3>Chưa có đề thi nào</h3>
             <p>Hãy tạo đề thi mới để bắt đầu.</p>
-            <button class="btn btn-primary" onclick="openCreateModal()">➕ Tạo đề thi ngay</button>
+            <a href="create-exam.html" class="btn btn-primary">➕ Tạo đề thi ngay</a>
         </div>
         
         <!-- FOOTER -->
         <div class="footer">
-            © 2026 <a href="https://www.quizsystem.com">QuizSystem</a> - Made with ❤️ by <strong>Nguyễn Tuấn Khải</strong> DEV Dora Fanclub Việt Nam
-        </div>
-    </div>
-    
-    <!-- MODAL -->
-    <div class="modal-overlay" id="create-modal">
-        <div class="modal">
-            <h3>➕ Tạo đề thi mới</h3>
-            <form id="create-exam-form" onsubmit="createExam(event)">
-                <div class="form-group">
-                    <label>Tiêu đề đề thi *</label>
-                    <input type="text" id="new-title" required placeholder="VD: Đề thi giữa kỳ - Lập trình Web">
-                </div>
-                <div class="form-group">
-                    <label>Môn học *</label>
-                    <input type="text" id="new-course" required placeholder="VD: Lập trình Web">
-                </div>
-                <div class="form-group">
-                    <label>Thời gian (phút) *</label>
-                    <input type="number" id="new-duration" required min="1" value="60">
-                </div>
-                <div class="form-group">
-                    <label>Tổng điểm</label>
-                    <input type="number" id="new-total-score" min="1" value="100">
-                </div>
-                <div class="form-group">
-                    <label>Mô tả</label>
-                    <textarea id="new-description" placeholder="Mô tả ngắn về đề thi..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Nhập câu hỏi</label>
-                    <textarea id="new-questions-list" placeholder="Câu hỏi 1|Đáp án A,Đáp án B,Đáp án C,Đáp án D" style="min-height:100px;"></textarea>
-                    <span class="hint">Định dạng: Câu hỏi|Đáp án A,Đáp án B,Đáp án C,Đáp án D (mỗi câu 1 dòng)</span>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Hủy</button>
-                    <button type="submit" class="btn btn-success">✅ Tạo đề thi</button>
-                </div>
-            </form>
+            © 2026 <a href="#">QuizSystem</a> - Made with ❤️ by 
+            <a href="#">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
+            <strong>v2.0.0</strong>
         </div>
     </div>
     
@@ -575,7 +364,7 @@
     <div id="toast" class="toast hidden"></div>
     
     <script>
-        // ===== FIREBASE CONFIG =====
+        // ==================== FIREBASE ====================
         const firebaseConfig = {
             apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
             authDomain: "quizsystem-1d1c2.firebaseapp.com",
@@ -587,11 +376,15 @@
             measurementId: "G-FS5YZWPDD9"
         };
         
+        let auth = null;
         let database = null;
         let firebaseReady = false;
+        let currentUser = null;
+        let exams = [];
         
         try {
             firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
             database = firebase.database();
             firebaseReady = true;
             console.log('✅ Firebase connected');
@@ -599,59 +392,7 @@
             console.warn('⚠️ Firebase init failed:', e.message);
         }
         
-        // ===== MOCK DATA =====
-        const mockExams = [
-            {
-                id: 'mock_1',
-                title: 'Đề thi giữa kỳ - Lập trình Web',
-                course: 'Lập trình Web',
-                duration: 60,
-                totalQuestions: 10,
-                totalScore: 100,
-                description: 'Đề thi gồm 10 câu trắc nghiệm về HTML, CSS, JavaScript và các framework phổ biến.',
-                status: 'active',
-                createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-                questions: [
-                    { id: 1, content: 'HTML là viết tắt của từ gì?', options: ['Hyper Text Markup Language', 'High Tech Machine Language', 'Hyper Transfer Markup Language', 'Home Tool Markup Language'] },
-                    { id: 2, content: 'CSS dùng để làm gì?', options: ['Tạo cấu trúc trang web', 'Định dạng giao diện', 'Xử lý dữ liệu', 'Kết nối database'] }
-                ]
-            },
-            {
-                id: 'mock_2',
-                title: 'Đề thi cuối kỳ - Cơ sở dữ liệu',
-                course: 'Cơ sở dữ liệu',
-                duration: 90,
-                totalQuestions: 15,
-                totalScore: 150,
-                description: 'Đề thi gồm 15 câu hỏi về SQL, Normalization, Transaction và NoSQL.',
-                status: 'active',
-                createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-                questions: [
-                    { id: 1, content: 'SQL là viết tắt của?', options: ['Structured Query Language', 'Simple Query Language', 'System Query Language', 'Standard Query Language'] },
-                    { id: 2, content: 'Primary key dùng để làm gì?', options: ['Định danh duy nhất', 'Liên kết bảng', 'Lưu trữ dữ liệu', 'Đánh chỉ mục'] }
-                ]
-            },
-            {
-                id: 'mock_3',
-                title: 'Bài tập thực hành - Python cơ bản',
-                course: 'Python',
-                duration: 45,
-                totalQuestions: 8,
-                totalScore: 80,
-                description: 'Bài tập thực hành về biến, vòng lặp, hàm và xử lý file trong Python.',
-                status: 'draft',
-                createdAt: new Date().toISOString(),
-                questions: [
-                    { id: 1, content: 'Python là ngôn ngữ gì?', options: ['Biên dịch', 'Thông dịch', 'Hợp ngữ', 'Máy'] }
-                ]
-            }
-        ];
-        
-        // ===== STATE =====
-        let exams = [];
-        let isUsingMock = false;
-        
-        // ===== TOAST =====
+        // ==================== TOAST ====================
         function showToast(msg, type = 'success') {
             const el = document.getElementById('toast');
             el.textContent = msg;
@@ -661,42 +402,84 @@
             el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
         }
         
-        // ===== LOAD EXAMS =====
-        async function loadExams() {
-            const loading = document.getElementById('loading-exams');
-            
-            try {
-                if (firebaseReady && database) {
-                    const snapshot = await database.ref('exams').once('value');
-                    const data = snapshot.val();
-                    if (data) {
-                        exams = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-                        console.log('✅ Loaded from Firebase:', exams.length);
-                        loading.classList.add('hidden');
-                        filterExams();
-                        return;
-                    }
+        // ==================== CHECK AUTH ====================
+        function checkAuth() {
+            if (!firebaseReady || !auth) return;
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                    return;
                 }
-                
-                // Fallback to mock
-                isUsingMock = true;
-                exams = JSON.parse(JSON.stringify(mockExams));
-                console.log('📌 Using mock data');
-                loading.classList.add('hidden');
-                filterExams();
-                showToast('📌 Đang sử dụng dữ liệu mẫu', 'error');
-                
-            } catch (e) {
-                console.error('❌ Load error:', e);
-                isUsingMock = true;
-                exams = JSON.parse(JSON.stringify(mockExams));
-                loading.classList.add('hidden');
-                filterExams();
-                showToast('⚠️ Không thể kết nối Firebase', 'error');
+                currentUser = user;
+                console.log('✅ Đã đăng nhập:', user.email);
+                loadExams();
+            });
+        }
+        
+        // ==================== LOGOUT ====================
+        async function handleLogout() {
+            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
+            try {
+                if (firebaseReady && auth) {
+                    await auth.signOut();
+                }
+                localStorage.clear();
+                showToast('✅ Đã đăng xuất', 'success');
+                setTimeout(() => { window.location.href = 'index.html'; }, 500);
+            } catch (error) {
+                showToast('❌ Đăng xuất thất bại', 'error');
             }
         }
         
-        // ===== FILTER =====
+        // ==================== LOAD EXAMS ====================
+        async function loadExams() {
+            const loading = document.getElementById('loading-exams');
+            const empty = document.getElementById('empty-state');
+            const grid = document.getElementById('exam-grid');
+            
+            loading.classList.remove('hidden');
+            grid.innerHTML = '';
+            empty.classList.add('hidden');
+            
+            try {
+                if (!firebaseReady || !database) {
+                    throw new Error('Không kết nối được Firebase');
+                }
+                
+                const snapshot = await database.ref('exams').once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    exams = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    }));
+                    console.log('✅ Loaded from Firebase:', exams.length);
+                } else {
+                    exams = [];
+                    console.log('📌 No exams found');
+                }
+                
+                loading.classList.add('hidden');
+                
+                if (exams.length === 0) {
+                    empty.classList.remove('hidden');
+                } else {
+                    filterExams();
+                }
+                
+                localStorage.setItem('examCount', exams.length.toString());
+                
+            } catch (error) {
+                console.error('❌ Load error:', error);
+                loading.classList.add('hidden');
+                exams = [];
+                empty.classList.remove('hidden');
+                showToast('⚠️ Không thể tải danh sách đề thi', 'error');
+            }
+        }
+        
+        // ==================== FILTER ====================
         function filterExams() {
             const search = document.getElementById('search-input').value.toLowerCase().trim();
             const course = document.getElementById('course-filter').value;
@@ -713,9 +496,15 @@
             });
             
             switch(sort) {
-                case 'newest': filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); break;
-                case 'oldest': filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); break;
-                case 'title': filtered.sort((a, b) => (a.title || '').localeCompare(b.title || '')); break;
+                case 'newest': 
+                    filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); 
+                    break;
+                case 'oldest': 
+                    filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); 
+                    break;
+                case 'title': 
+                    filtered.sort((a, b) => (a.title || '').localeCompare(b.title || '')); 
+                    break;
             }
             
             renderExams(filtered);
@@ -730,7 +519,7 @@
             if (current) select.value = current;
         }
         
-        // ===== RENDER =====
+        // ==================== RENDER ====================
         function renderExams(list) {
             const grid = document.getElementById('exam-grid');
             const empty = document.getElementById('empty-state');
@@ -752,7 +541,7 @@
                 const totalQ = exam.totalQuestions || exam.questions?.length || 0;
                 
                 return `
-                <div class="exam-card" onclick="goToDetail('${exam.id}')">
+                <div class="exam-card">
                     <div class="exam-card-top">
                         <div class="title">${exam.title || 'Đề thi không tên'}</div>
                         <span class="status-badge ${statusClass}">${statusText}</span>
@@ -764,115 +553,48 @@
                         <span>🎯 ${exam.totalScore || 0} điểm</span>
                     </div>
                     <div class="description">${exam.description || 'Không có mô tả'}</div>
-                    <div class="card-actions" onclick="event.stopPropagation();">
-                        <button class="btn btn-outline btn-sm" onclick="goToDetail('${exam.id}')">📝 Xem chi tiết</button>
-                        <button class="btn btn-success btn-sm" onclick="goToTakeExam('${exam.id}')">🚀 Làm bài</button>
+                    <div class="card-actions">
+                        <button class="btn btn-outline btn-sm" onclick="viewExam('${exam.id}')">📝 Xem chi tiết</button>
+                        <button class="btn btn-success btn-sm" onclick="takeExam('${exam.id}')">🚀 Làm bài</button>
                         <button class="btn btn-danger btn-sm" onclick="deleteExam('${exam.id}')">🗑️</button>
                     </div>
                 </div>
             `}).join('');
         }
         
-        // ===== ACTIONS =====
-        function goToDetail(id) {
-            if (!id) { showToast('⚠️ ID không hợp lệ', 'error'); return; }
+        // ==================== ACTIONS ====================
+        function viewExam(id) {
             window.location.href = `exam-detail.html?id=${id}`;
         }
         
-        function goToTakeExam(id) {
-            if (!id) { showToast('⚠️ ID không hợp lệ', 'error'); return; }
+        function takeExam(id) {
             window.location.href = `take-exam.html?id=${id}`;
         }
         
         async function deleteExam(id) {
-            if (!id || !confirm('Bạn có chắc muốn xóa đề thi này?')) return;
+            if (!confirm('Bạn có chắc muốn xóa đề thi này?')) return;
             
             try {
-                if (firebaseReady && database && !isUsingMock) {
+                if (firebaseReady && database) {
                     await database.ref(`exams/${id}`).remove();
                 }
                 exams = exams.filter(e => e.id !== id);
                 localStorage.removeItem(`exam_progress_${id}`);
                 localStorage.removeItem(`exam_time_${id}`);
                 filterExams();
+                
+                localStorage.setItem('examCount', exams.length.toString());
                 showToast('✅ Đã xóa đề thi', 'success');
-            } catch (e) {
-                showToast('❌ Không thể xóa', 'error');
+            } catch (error) {
+                console.error('❌ Delete error:', error);
+                showToast('❌ Không thể xóa đề thi', 'error');
             }
         }
         
-        // ===== MODAL =====
-        function openCreateModal() {
-            document.getElementById('create-modal').classList.add('active');
-            document.getElementById('create-exam-form').reset();
-        }
-        
-        function closeCreateModal() {
-            document.getElementById('create-modal').classList.remove('active');
-        }
-        
-        async function createExam(e) {
-            e.preventDefault();
-            
-            const title = document.getElementById('new-title').value.trim();
-            const course = document.getElementById('new-course').value.trim();
-            const duration = parseInt(document.getElementById('new-duration').value);
-            const totalScore = parseInt(document.getElementById('new-total-score').value) || 0;
-            const description = document.getElementById('new-description').value.trim();
-            const questionsRaw = document.getElementById('new-questions-list').value;
-            
-            if (!title || !course || !duration) {
-                showToast('⚠️ Vui lòng điền đầy đủ thông tin', 'error');
-                return;
-            }
-            
-            let questions = [];
-            if (questionsRaw) {
-                questions = questionsRaw.split('\n').filter(Boolean).map((line, i) => {
-                    const parts = line.split('|').map(s => s.trim());
-                    return {
-                        id: Date.now() + i,
-                        content: parts[0] || `Câu hỏi ${i+1}`,
-                        options: parts[1] ? parts[1].split(',').map(s => s.trim()) : ['Chưa có đáp án']
-                    };
-                });
-            }
-            
-            const examData = {
-                title,
-                course,
-                duration,
-                totalQuestions: questions.length || 10,
-                totalScore,
-                description: description || 'Chưa có mô tả',
-                questions,
-                status: 'active',
-                createdAt: new Date().toISOString()
-            };
-            
-            try {
-                if (firebaseReady && database) {
-                    const ref = database.ref('exams').push();
-                    await ref.set(examData);
-                    showToast('✅ Đã tạo đề thi thành công!', 'success');
-                } else {
-                    const newExam = { ...examData, id: 'mock_' + Date.now() };
-                    exams.push(newExam);
-                    showToast('✅ Đã tạo đề thi (Mock)', 'success');
-                }
-                closeCreateModal();
-                await loadExams();
-            } catch (err) {
-                showToast('❌ Không thể tạo đề thi', 'error');
-            }
-        }
-        
-        // ===== INIT =====
-        document.addEventListener('DOMContentLoaded', () => {
-            loadExams();
-            document.getElementById('create-modal').addEventListener('click', function(e) {
-                if (e.target === this) closeCreateModal();
-            });
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 exams.html đã tải');
+            checkAuth();
         });
     </script>
 </body>
