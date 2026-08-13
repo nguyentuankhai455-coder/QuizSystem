@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ cá nhân - QuizSystem</title>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <!-- Cloudinary SDK -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -25,7 +29,6 @@
             padding: 24px 20px;
         }
         
-        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
@@ -49,6 +52,7 @@
             display: flex;
             gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -69,7 +73,6 @@
             background: #e2e8f0;
             color: #4a5568;
         }
-        
         .btn-secondary:hover {
             background: #cbd5e0;
         }
@@ -79,7 +82,6 @@
             color: #4f46e5;
             border: 2px solid #4f46e5;
         }
-        
         .btn-outline:hover {
             background: #4f46e5;
             color: white;
@@ -89,7 +91,6 @@
             background: #4f46e5;
             color: white;
         }
-        
         .btn-primary:hover {
             background: #4338ca;
             transform: translateY(-1px);
@@ -100,7 +101,6 @@
             background: #ef4444;
             color: white;
         }
-        
         .btn-danger:hover {
             background: #dc2626;
         }
@@ -110,7 +110,20 @@
             font-size: 13px;
         }
         
-        /* ===== BREADCRUMB ===== */
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
         .breadcrumb {
             font-size: 14px;
             color: #718096;
@@ -121,17 +134,14 @@
             color: #4f46e5;
             text-decoration: none;
         }
-        
         .breadcrumb a:hover {
             text-decoration: underline;
         }
-        
         .breadcrumb span {
             color: #1a1a2e;
             font-weight: 600;
         }
         
-        /* ===== PAGE TITLE ===== */
         .page-title {
             font-size: 24px;
             font-weight: 700;
@@ -139,7 +149,6 @@
             margin-bottom: 24px;
         }
         
-        /* ===== PROFILE HEADER ===== */
         .profile-header {
             background: white;
             border-radius: 16px;
@@ -161,7 +170,6 @@
             align-items: center;
             gap: 6px;
         }
-        
         .profile-header .back-btn:hover {
             text-decoration: underline;
         }
@@ -185,12 +193,12 @@
             color: white;
             font-weight: 700;
             flex-shrink: 0;
+            overflow: hidden;
         }
         
         .profile-header .avatar img {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
             object-fit: cover;
         }
         
@@ -220,7 +228,6 @@
             margin-top: 4px;
         }
         
-        /* ===== CARDS ===== */
         .card {
             background: white;
             border-radius: 16px;
@@ -247,12 +254,10 @@
             text-decoration: none;
             cursor: pointer;
         }
-        
         .card .card-title .action-link:hover {
             text-decoration: underline;
         }
         
-        /* ===== FORM ROWS ===== */
         .form-row {
             display: flex;
             align-items: center;
@@ -285,7 +290,6 @@
             font-weight: 500;
             cursor: pointer;
         }
-        
         .form-row .value .edit-link:hover {
             text-decoration: underline;
         }
@@ -333,11 +337,9 @@
             flex: unset;
         }
         
-        /* ===== PASSWORD SECTION ===== */
         .password-section {
             margin-top: 8px;
         }
-        
         .password-section .form-row:last-child {
             border-bottom: none;
         }
@@ -353,12 +355,10 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
         .password-section .btn-change:hover {
             background: #4338ca;
         }
         
-        /* ===== ACTION BUTTONS ===== */
         .action-buttons {
             display: flex;
             gap: 12px;
@@ -368,7 +368,6 @@
             flex-wrap: wrap;
         }
         
-        /* ===== MODAL ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -380,7 +379,6 @@
             align-items: center;
             padding: 20px;
         }
-        
         .modal-overlay.active {
             display: flex;
         }
@@ -415,7 +413,6 @@
         .modal .form-group {
             margin-bottom: 16px;
         }
-        
         .modal .form-group label {
             display: block;
             font-weight: 600;
@@ -423,7 +420,6 @@
             color: #4a5568;
             margin-bottom: 4px;
         }
-        
         .modal .form-group input {
             width: 100%;
             padding: 10px 14px;
@@ -433,7 +429,6 @@
             font-family: inherit;
             transition: border-color 0.2s;
         }
-        
         .modal .form-group input:focus {
             outline: none;
             border-color: #4f46e5;
@@ -449,7 +444,6 @@
             margin-top: 8px;
         }
         
-        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -462,19 +456,11 @@
             z-index: 9999;
             animation: slideUp 0.3s ease;
             font-size: 14px;
+            max-width: 400px;
         }
-        
-        .toast.success {
-            background: #10b981;
-        }
-        
-        .toast.error {
-            background: #ef4444;
-        }
-        
-        .toast.hidden {
-            display: none;
-        }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        .toast.hidden { display: none; }
         
         @keyframes slideUp {
             from {
@@ -487,7 +473,19 @@
             }
         }
         
-        /* ===== RESPONSIVE ===== */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -553,7 +551,7 @@
             <div class="logo">📚 <span>Quiz</span>System</div>
             <div class="header-actions">
                 <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
-                <a href="login.html" class="btn btn-outline">🚪 Đăng xuất</a>
+                <button class="btn btn-outline" onclick="handleLogout()">🚪 Đăng xuất</button>
             </div>
         </div>
         
@@ -572,19 +570,19 @@
             
             <div class="avatar-section">
                 <div class="avatar" id="avatar-display">
-                    TK
+                    <span id="avatar-text">TK</span>
+                    <img id="avatar-image" style="display:none;" alt="Avatar">
                 </div>
                 <div>
                     <div class="user-info">
-                        <h2 id="display-name">user</h2>
+                        <h2 id="display-name">Đang tải...</h2>
                         <div class="role" id="display-role">Học sinh</div>
                     </div>
                     <div class="avatar-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('avatar-upload').click()">
+                        <button class="btn btn-secondary btn-sm" id="upload-btn" onclick="openCloudinaryUpload()">
                             📤 Tải lên
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="removeAvatar()">🗑️ Xóa</button>
-                        <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
                         <span class="hint">File ảnh, tối đa 5MB</span>
                     </div>
                 </div>
@@ -598,17 +596,15 @@
                 <span class="action-link" onclick="openChangePassword()">Đổi mật khẩu</span>
             </div>
             
-            <!-- Họ và tên -->
             <div class="form-row">
                 <span class="label">HỌ VÀ TÊN</span>
-                <span class="value" id="full-name">user</span>
+                <span class="value" id="full-name">Đang tải...</span>
             </div>
             
-            <!-- Số điện thoại -->
             <div class="form-row">
                 <span class="label">SỐ ĐIỆN THOẠI</span>
                 <span class="value">
-                    <span id="phone-number">...</span>
+                    <span id="phone-number">---</span>
                     <span class="edit-link" onclick="editPhone()">Click vào đây để đổi số điện thoại</span>
                 </span>
             </div>
@@ -618,19 +614,17 @@
         <div class="card">
             <div class="card-title">THÔNG TIN CÁ NHÂN</div>
             
-            <!-- Username -->
             <div class="form-row">
                 <span class="label">USERNAME</span>
-                <span class="value" id="username">username</span>
+                <span class="value" id="username">Đang tải...</span>
             </div>
             
-            <!-- Giới tính -->
             <div class="form-row">
                 <span class="label">Giới tính</span>
                 <div class="value">
                     <div class="gender-group">
                         <label>
-                            <input type="radio" name="gender" value="male" checked>
+                            <input type="radio" name="gender" value="male">
                             Nam
                         </label>
                         <label>
@@ -664,13 +658,15 @@
         
         <!-- ACTION BUTTONS -->
         <div class="action-buttons">
-            <button class="btn btn-primary" onclick="saveProfile()">💾 Lưu thay đổi</button>
-            <button class="btn btn-secondary" onclick="resetForm()">↩️ Hủy</button>
+            <button class="btn btn-primary" onclick="saveProfile()" id="save-btn">
+                💾 Lưu thay đổi
+            </button>
+            <button class="btn btn-secondary" onclick="loadProfile()">↩️ Làm mới</button>
         </div>
         
         <!-- FOOTER -->
         <div style="text-align:center; padding:32px 20px 12px; color:#a0aec0; font-size:13px; border-top:1px solid #edf2f7; margin-top:40px;">
-            © 2026 <a href="https://www.quizsystem.com" style="color:#4f46e5; text-decoration:none;">QuizSystem</a> - Made with ❤️ by 
+            © 2026 <a href="#" style="color:#4f46e5; text-decoration:none;">QuizSystem</a> - Made with ❤️ by 
             <a href="#" style="color:#4f46e5; text-decoration:none;">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
             <strong>v2.0.0</strong>
         </div>
@@ -703,54 +699,297 @@
     <div id="toast" class="toast hidden"></div>
     
     <script>
-        // ===== TOAST =====
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
+            authDomain: "quizsystem-1d1c2.firebaseapp.com",
+            databaseURL: "https://quizsystem-1d1c2-default-rtdb.firebaseio.com",
+            projectId: "quizsystem-1d1c2",
+            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
+            messagingSenderId: "435483557148",
+            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
+            measurementId: "G-FS5YZWPDD9"
+        };
+        
+        // ==================== CLOUDINARY CONFIG ====================
+        const CLOUDINARY_CONFIG = {
+            cloudName: 'your-cloud-name', // 🔥 THAY THẾ BẰNG CLOUD NAME CỦA BẠN
+            uploadPreset: 'quizsystem-preset', // 🔥 THAY THẾ BẰNG UPLOAD PRESET
+            folder: 'avatars'
+        };
+        
+        let auth = null;
+        let database = null;
+        let firebaseReady = false;
+        let currentUser = null;
+        let profileData = {};
+        let cloudinaryWidget = null;
+        
+        // ==================== INIT FIREBASE ====================
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            database = firebase.database();
+            firebaseReady = true;
+            console.log('✅ Firebase connected');
+        } catch (e) {
+            console.warn('⚠️ Firebase init failed:', e.message);
+            showToast('⚠️ Không thể kết nối Firebase', 'error');
+        }
+        
+        // ==================== TOAST ====================
         function showToast(msg, type = 'success') {
             const el = document.getElementById('toast');
             el.textContent = msg;
             el.className = `toast ${type}`;
             el.classList.remove('hidden');
             clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
+            el._timer = setTimeout(() => el.classList.add('hidden'), 4000);
         }
         
-        // ===== AVATAR =====
-        function uploadAvatar(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        // ==================== CHECK AUTH ====================
+        function checkAuth() {
+            if (!firebaseReady || !auth) return;
             
-            if (file.size > 5 * 1024 * 1024) {
-                showToast('⚠️ File ảnh vượt quá 5MB', 'error');
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                currentUser = user;
+                console.log('✅ User logged in:', user.email);
+                await loadProfile();
+            });
+        }
+        
+        // ==================== LOAD PROFILE FROM FIREBASE ====================
+        async function loadProfile() {
+            if (!currentUser || !database) {
+                showToast('⚠️ Chưa đăng nhập', 'error');
                 return;
             }
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const avatar = document.getElementById('avatar-display');
-                avatar.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
-                showToast('✅ Đã tải lên ảnh đại diện', 'success');
-            };
-            reader.readAsDataURL(file);
+            try {
+                const snapshot = await database.ref(`users/${currentUser.uid}/profile`).once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    profileData = data;
+                } else {
+                    // Tạo profile mặc định
+                    profileData = {
+                        fullName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+                        phone: '',
+                        username: currentUser.email?.split('@')[0] || 'username',
+                        gender: 'male',
+                        avatar: '',
+                        role: 'Học sinh',
+                        createdAt: new Date().toISOString()
+                    };
+                    // Lưu lên Firebase
+                    await database.ref(`users/${currentUser.uid}/profile`).set(profileData);
+                }
+                
+                renderProfile(profileData);
+                showToast('✅ Đã tải thông tin', 'success');
+                
+            } catch (error) {
+                console.error('❌ Lỗi tải profile:', error);
+                showToast('❌ Không thể tải thông tin', 'error');
+            }
         }
         
-        function removeAvatar() {
-            const avatar = document.getElementById('avatar-display');
-            const name = document.getElementById('display-name').textContent;
+        // ==================== RENDER PROFILE ====================
+        function renderProfile(data) {
+            // Tên hiển thị
+            const displayName = data.fullName || 'User';
+            document.getElementById('display-name').textContent = displayName;
+            document.getElementById('full-name').textContent = displayName;
+            
+            // Username
+            document.getElementById('username').textContent = data.username || 'username';
+            
+            // Phone
+            document.getElementById('phone-number').textContent = data.phone || '---';
+            
+            // Role
+            document.getElementById('display-role').textContent = data.role || 'Học sinh';
+            
+            // Gender
+            if (data.gender) {
+                document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
+            }
+            
+            // Avatar
+            const avatarText = document.getElementById('avatar-text');
+            const avatarImage = document.getElementById('avatar-image');
+            
+            if (data.avatar && data.avatar !== '') {
+                avatarImage.src = data.avatar;
+                avatarImage.style.display = 'block';
+                avatarText.style.display = 'none';
+            } else {
+                const initials = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                avatarText.textContent = initials;
+                avatarText.style.display = 'block';
+                avatarImage.style.display = 'none';
+            }
+            
+            // Lưu vào localStorage để đồng bộ
+            localStorage.setItem('userName', displayName);
+        }
+        
+        // ==================== SAVE PROFILE TO FIREBASE ====================
+        async function saveProfile() {
+            if (!currentUser || !database) {
+                showToast('⚠️ Chưa đăng nhập', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Đang lưu...';
+            
+            try {
+                const fullName = document.getElementById('full-name').textContent;
+                const phone = document.getElementById('phone-number').textContent;
+                const username = document.getElementById('username').textContent;
+                const gender = document.querySelector('input[name="gender"]:checked')?.value || 'male';
+                
+                const updatedData = {
+                    ...profileData,
+                    fullName: fullName,
+                    phone: phone === '---' ? '' : phone,
+                    username: username,
+                    gender: gender,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                await database.ref(`users/${currentUser.uid}/profile`).update(updatedData);
+                profileData = updatedData;
+                
+                // Cập nhật tên hiển thị
+                document.getElementById('display-name').textContent = fullName;
+                localStorage.setItem('userName', fullName);
+                
+                showToast('✅ Đã lưu thông tin thành công!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Lỗi lưu profile:', error);
+                showToast('❌ Không thể lưu thông tin', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '💾 Lưu thay đổi';
+            }
+        }
+        
+        // ==================== CLOUDINARY UPLOAD ====================
+        function openCloudinaryUpload() {
+            if (!CLOUDINARY_CONFIG.cloudName || CLOUDINARY_CONFIG.cloudName === 'your-cloud-name') {
+                showToast('⚠️ Vui lòng cấu hình Cloudinary trong code', 'error');
+                return;
+            }
+            
+            if (cloudinaryWidget) {
+                cloudinaryWidget.open();
+                return;
+            }
+            
+            cloudinaryWidget = cloudinary.createUploadWidget({
+                cloudName: CLOUDINARY_CONFIG.cloudName,
+                uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
+                folder: CLOUDINARY_CONFIG.folder,
+                maxFileSize: 5000000, // 5MB
+                multiple: false,
+                clientAllowedFormats: ['image/*'],
+                styles: {
+                    palette: {
+                        window: '#FFFFFF',
+                        windowBorder: '#E2E8F0',
+                        tabIcon: '#4F46E5',
+                        menuIcons: '#4F46E5',
+                        textDark: '#1A1A2E',
+                        textLight: '#718096',
+                        link: '#4F46E5',
+                        action: '#4F46E5',
+                        inactiveTabIcon: '#A0AEC0',
+                        error: '#EF4444',
+                        inProgress: '#F59E0B',
+                        complete: '#10B981',
+                        sourceBg: '#F8FAFC'
+                    }
+                }
+            }, (error, result) => {
+                if (error) {
+                    console.error('Cloudinary error:', error);
+                    showToast('❌ Lỗi upload ảnh', 'error');
+                    return;
+                }
+                
+                if (result.event === 'success') {
+                    const imageUrl = result.info.secure_url;
+                    console.log('✅ Upload thành công:', imageUrl);
+                    
+                    // Cập nhật avatar
+                    const avatarImage = document.getElementById('avatar-image');
+                    const avatarText = document.getElementById('avatar-text');
+                    avatarImage.src = imageUrl;
+                    avatarImage.style.display = 'block';
+                    avatarText.style.display = 'none';
+                    
+                    // Lưu URL vào profileData
+                    profileData.avatar = imageUrl;
+                    
+                    // Lưu lên Firebase
+                    if (currentUser && database) {
+                        database.ref(`users/${currentUser.uid}/profile/avatar`).set(imageUrl)
+                            .then(() => showToast('✅ Đã cập nhật ảnh đại diện', 'success'))
+                            .catch(err => showToast('❌ Không thể lưu ảnh', 'error'));
+                    }
+                }
+            });
+            
+            cloudinaryWidget.open();
+        }
+        
+        // ==================== REMOVE AVATAR ====================
+        async function removeAvatar() {
+            if (!confirm('Bạn có chắc muốn xóa ảnh đại diện?')) return;
+            
+            const avatarImage = document.getElementById('avatar-image');
+            const avatarText = document.getElementById('avatar-text');
+            
+            avatarImage.style.display = 'none';
+            avatarImage.src = '';
+            
+            const name = document.getElementById('display-name').textContent || 'User';
             const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-            avatar.innerHTML = initials;
-            showToast('✅ Đã xóa ảnh đại diện', 'success');
+            avatarText.textContent = initials;
+            avatarText.style.display = 'block';
+            
+            // Xóa URL khỏi Firebase
+            if (currentUser && database) {
+                try {
+                    await database.ref(`users/${currentUser.uid}/profile/avatar`).remove();
+                    profileData.avatar = '';
+                    showToast('✅ Đã xóa ảnh đại diện', 'success');
+                } catch (error) {
+                    showToast('❌ Không thể xóa ảnh', 'error');
+                }
+            }
         }
         
-        // ===== PHONE =====
+        // ==================== EDIT PHONE ====================
         function editPhone() {
             const current = document.getElementById('phone-number').textContent;
-            const newPhone = prompt('Nhập số điện thoại mới:', current);
-            if (newPhone && newPhone.trim()) {
-                document.getElementById('phone-number').textContent = newPhone.trim();
+            const newPhone = prompt('Nhập số điện thoại mới:', current === '---' ? '' : current);
+            if (newPhone !== null) {
+                document.getElementById('phone-number').textContent = newPhone.trim() || '---';
                 showToast('✅ Đã cập nhật số điện thoại', 'success');
             }
         }
         
-        // ===== PASSWORD MODAL =====
+        // ==================== PASSWORD MODAL ====================
         function openChangePassword() {
             document.getElementById('password-modal').classList.add('active');
             document.getElementById('old-password').value = '';
@@ -762,7 +1001,7 @@
             document.getElementById('password-modal').classList.remove('active');
         }
         
-        function submitChangePassword() {
+        async function submitChangePassword() {
             const oldPwd = document.getElementById('old-password').value;
             const newPwd = document.getElementById('modal-new-password').value;
             const confirmPwd = document.getElementById('modal-confirm-password').value;
@@ -782,12 +1021,35 @@
                 return;
             }
             
-            showToast('✅ Đổi mật khẩu thành công!', 'success');
-            closePasswordModal();
+            try {
+                if (auth && currentUser) {
+                    // Re-authenticate
+                    const credential = firebase.auth.EmailAuthProvider.credential(
+                        currentUser.email,
+                        oldPwd
+                    );
+                    await currentUser.reauthenticateWithCredential(credential);
+                    
+                    // Update password
+                    await currentUser.updatePassword(newPwd);
+                    
+                    showToast('✅ Đổi mật khẩu thành công!', 'success');
+                    closePasswordModal();
+                }
+            } catch (error) {
+                console.error('Password change error:', error);
+                let msg = '❌ Đổi mật khẩu thất bại';
+                if (error.code === 'auth/wrong-password') {
+                    msg = '❌ Mật khẩu cũ không đúng';
+                } else if (error.code === 'auth/too-many-requests') {
+                    msg = '❌ Quá nhiều lần thử, vui lòng thử lại sau';
+                }
+                showToast(msg, 'error');
+            }
         }
         
-        // ===== CHANGE PASSWORD (from card) =====
-        function changePassword() {
+        // ==================== CHANGE PASSWORD (from card) ====================
+        async function changePassword() {
             const newPwd = document.getElementById('new-password').value;
             const confirmPwd = document.getElementById('confirm-password').value;
             
@@ -806,93 +1068,46 @@
                 return;
             }
             
-            showToast('✅ Đổi mật khẩu thành công!', 'success');
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-password').value = '';
-        }
-        
-        // ===== SAVE PROFILE =====
-        function saveProfile() {
-            const name = document.getElementById('full-name').textContent;
-            const phone = document.getElementById('phone-number').textContent;
-            const username = document.getElementById('username').textContent;
-            const gender = document.querySelector('input[name="gender"]:checked');
-            const genderText = gender ? gender.value : 'male';
-            
-            const profileData = {
-                name: name,
-                phone: phone,
-                username: username,
-                gender: genderText,
-                updatedAt: new Date().toISOString()
-            };
-            
-            localStorage.setItem('profile', JSON.stringify(profileData));
-            
-            // Cập nhật tên hiển thị
-            document.getElementById('display-name').textContent = name;
-            
-            showToast('✅ Đã lưu thông tin cá nhân!', 'success');
-        }
-        
-        // ===== RESET FORM =====
-        function resetForm() {
-            const saved = localStorage.getItem('profile');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    document.getElementById('full-name').textContent = data.name || 'user';
-                    document.getElementById('phone-number').textContent = data.phone || '...';
-                    document.getElementById('username').textContent = data.username || 'username';
-                    document.querySelector(`input[name="gender"][value="${data.gender || 'male'}"]`).checked = true;
-                    document.getElementById('display-name').textContent = data.name || 'user';
-                    showToast('↩️ Đã hoàn tác thay đổi', 'success');
-                    return;
-                } catch (e) {}
-            }
-            
-            // Reset về mặc định
-            document.getElementById('full-name').textContent = 'USER';
-            document.getElementById('phone-number').textContent = '...';
-            document.getElementById('username').textContent = 'username';
-            document.querySelector('input[name="gender"][value="male"]').checked = true;
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-password').value = '';
-            document.getElementById('display-name').textContent = 'USRER';
-            showToast('↩️ Đã hoàn tác thay đổi', 'success');
-        }
-        
-        // ===== LOAD SAVED PROFILE =====
-        function loadProfile() {
-            const saved = localStorage.getItem('profile');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    if (data.name) {
-                        document.getElementById('full-name').textContent = data.name;
-                        document.getElementById('display-name').textContent = data.name;
-                    }
-                    if (data.phone) document.getElementById('phone-number').textContent = data.phone;
-                    if (data.username) document.getElementById('username').textContent = data.username;
-                    if (data.gender) {
-                        document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
-                    }
-                    // Cập nhật avatar
-                    const avatar = document.getElementById('avatar-display');
-                    const name = data.name || 'USRER';
-                    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-                    avatar.innerHTML = initials;
-                } catch (e) {}
+            try {
+                if (auth && currentUser) {
+                    await currentUser.updatePassword(newPwd);
+                    showToast('✅ Đổi mật khẩu thành công!', 'success');
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                }
+            } catch (error) {
+                console.error('Password change error:', error);
+                showToast('❌ Đổi mật khẩu thất bại', 'error');
             }
         }
         
-        // ===== CLOSE MODAL ON OVERLAY CLICK =====
-        document.getElementById('password-modal').addEventListener('click', function(e) {
-            if (e.target === this) closePasswordModal();
+        // ==================== LOGOUT ====================
+        async function handleLogout() {
+            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
+            
+            try {
+                if (auth) await auth.signOut();
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userPhoto');
+                localStorage.removeItem('rememberMe');
+                showToast('✅ Đã đăng xuất', 'success');
+                setTimeout(() => { window.location.href = 'index.html'; }, 500);
+            } catch (error) {
+                showToast('❌ Đăng xuất thất bại', 'error');
+            }
+        }
+        
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 profile.html đã tải');
+            checkAuth();
+            
+            document.getElementById('password-modal').addEventListener('click', function(e) {
+                if (e.target === this) closePasswordModal();
+            });
         });
-        
-        // ===== INIT =====
-        document.addEventListener('DOMContentLoaded', loadProfile);
     </script>
 </body>
 </html>
