@@ -5,133 +5,298 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết đề thi - QuizSystem</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .header h1 { font-size: 24px; font-weight: 600; }
-        .header .breadcrumb { font-size: 14px; opacity: 0.9; }
-        .header .breadcrumb a { color: white; text-decoration: none; }
-        .header .breadcrumb a:hover { text-decoration: underline; }
-        .card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 20px; }
-        .exam-title { font-size: 28px; font-weight: 700; color: #2d3748; margin-bottom: 10px; }
-        .exam-meta { display: flex; gap: 30px; flex-wrap: wrap; padding: 15px 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin: 15px 0; }
-        .exam-meta .meta-item { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #4a5568; }
-        .exam-meta .meta-item .label { font-weight: 600; color: #2d3748; }
-        .exam-description { color: #4a5568; line-height: 1.7; margin: 20px 0; font-size: 16px; }
-        .questions-preview { margin: 20px 0; }
-        .questions-preview h3 { font-size: 18px; color: #2d3748; margin-bottom: 15px; }
-        .question-item { background: #f7fafc; padding: 15px 20px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #667eea; }
-        .question-item .q-number { font-weight: 600; color: #667eea; margin-right: 10px; }
-        .question-item .q-text { color: #2d3748; }
-        .btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-block; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
-        .btn-secondary { background: #e2e8f0; color: #4a5568; }
-        .btn-secondary:hover { background: #cbd5e0; }
-        .btn-danger { background: #fc8181; color: white; }
-        .btn-danger:hover { background: #f56565; }
-        .btn-success { background: #48bb78; color: white; }
-        .btn-success:hover { background: #38a169; }
-        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 25px; padding-top: 25px; border-top: 1px solid #e2e8f0; }
-        #loading-message, #error-message { text-align: center; padding: 50px 20px; font-size: 18px; }
-        #loading-message { color: #667eea; }
-        #error-message { color: #fc8181; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        
+        /* Header */
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid #edf2f7;
+            margin-bottom: 20px;
+        }
+        
+        .exam-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+        
+        .exam-course {
+            font-size: 15px;
+            color: #4f46e5;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .exam-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 14px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 16px;
+        }
+        
+        .exam-meta .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .exam-meta .meta-item strong {
+            color: #1a1a2e;
+        }
+        
+        .exam-description {
+            color: #4a5568;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        
+        /* Questions */
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 14px;
+        }
+        
+        .question-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #2d3748;
+        }
+        
+        .question-item .q-num {
+            font-weight: 700;
+            color: #4f46e5;
+            min-width: 28px;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 4px;
+        }
+        
+        /* Status */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-badge.active { background: #d1fae5; color: #065f46; }
+        .status-badge.draft { background: #fef3c7; color: #92400e; }
+        .status-badge.inactive { background: #fee2e2; color: #991b1b; }
+        
+        /* Loading & Error */
+        .loading-state, .error-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .loading-state { color: #718096; }
+        .error-state h2 { color: #dc2626; font-size: 22px; margin-bottom: 8px; }
+        .error-state p { color: #4a5568; margin-bottom: 20px; }
+        
         .hidden { display: none !important; }
-        .footer { text-align: center; padding: 20px; color: #a0aec0; font-size: 14px; margin-top: 40px; border-top: 1px solid #e2e8f0; }
-        .footer a { color: #667eea; text-decoration: none; }
-        @media (max-width: 640px) { .header { flex-direction: column; align-items: flex-start; gap: 10px; } .exam-meta { flex-direction: column; gap: 10px; } .btn-group { flex-direction: column; } .btn { width: 100%; text-align: center; } }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
-        .status-badge.active { background: #c6f6d5; color: #22543d; }
-        .status-badge.inactive { background: #fed7d7; color: #9b2c2c; }
-        .status-badge.draft { background: #fefcbf; color: #975a16; }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 20px 12px;
+            color: #a0aec0;
+            font-size: 13px;
+            border-top: 1px solid #edf2f7;
+            margin-top: 40px;
+        }
+        .footer a { color: #4f46e5; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        
+        @media (max-width: 640px) {
+            .card { padding: 20px; }
+            .exam-meta { flex-direction: column; gap: 8px; }
+            .btn-group { flex-direction: column; }
+            .btn-group .btn { justify-content: center; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div>
-                <h1>📝 Chi tiết đề thi</h1>
-                <div class="breadcrumb">
-                    <a href="dashboard.html">Trang chủ</a> &gt; 
-                    <a href="exams.html">Bài tập</a> &gt; 
-                    <span>Chi tiết đề thi</span>
-                </div>
-            </div>
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="dashboard.html">Trang chủ</a> &gt; 
+            <a href="exams.html">Bài tập</a> &gt; 
+            <span>Chi tiết đề thi</span>
         </div>
-
+        
         <!-- Loading -->
-        <div id="loading-message" class="card">⏳ Đang tải đề thi...</div>
-
-        <!-- Error -->
-        <div id="error-message" class="card hidden">
-            <div style="color: #fc8181; font-size: 18px; font-weight: 600;">❌ Lỗi</div>
-            <div id="error-detail" style="margin-top: 10px; color: #4a5568;"></div>
-            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="window.location.href='exams.html'">
-                ⬅️ Quay lại danh sách
-            </button>
+        <div id="loading-state" class="loading-state card">
+            ⏳ Đang tải đề thi...
         </div>
-
-        <!-- Exam Detail Content -->
+        
+        <!-- Error -->
+        <div id="error-state" class="error-state card hidden">
+            <h2>❌ Không thể tải đề thi</h2>
+            <p id="error-message">Đã xảy ra lỗi khi tải dữ liệu.</p>
+            <button class="btn btn-secondary" onclick="window.location.href='exams.html'">⬅️ Quay lại danh sách</button>
+        </div>
+        
+        <!-- Content -->
         <div id="exam-content" class="hidden">
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
-                    <h2 class="exam-title" id="exam-title">Đề thi mẫu</h2>
-                    <span id="exam-status" class="status-badge active">✅ Đang hoạt động</span>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <div class="exam-title" id="exam-title">Đề thi mẫu</div>
+                        <div class="exam-course" id="exam-course">📚 Chưa phân loại</div>
+                    </div>
+                    <span id="exam-status" class="status-badge active">✅ Hoạt động</span>
                 </div>
                 
                 <div class="exam-meta">
-                    <span class="meta-item">
-                        <span class="label">📚 Môn học:</span>
-                        <span id="exam-course">Chưa có</span>
-                    </span>
-                    <span class="meta-item">
-                        <span class="label">⏱️ Thời gian:</span>
-                        <span id="exam-duration">0 phút</span>
-                    </span>
-                    <span class="meta-item">
-                        <span class="label">📝 Số câu:</span>
-                        <span id="exam-questions">0</span>
-                    </span>
-                    <span class="meta-item">
-                        <span class="label">🎯 Điểm tối đa:</span>
-                        <span id="exam-total-score">0</span>
-                    </span>
+                    <span class="meta-item">⏱️ <strong id="exam-duration">0</strong> phút</span>
+                    <span class="meta-item">📝 <strong id="exam-questions">0</strong> câu</span>
+                    <span class="meta-item">🎯 <strong id="exam-total-score">0</strong> điểm</span>
                 </div>
-
+                
                 <div class="exam-description" id="exam-description">
-                    Mô tả đề thi sẽ hiển thị ở đây.
+                    Không có mô tả cho đề thi này.
                 </div>
-
-                <!-- Questions Preview -->
-                <div class="questions-preview">
-                    <h3>📋 Danh sách câu hỏi</h3>
-                    <div id="questions-list"></div>
-                </div>
-
-                <!-- Action Buttons -->
+                
+                <div class="section-title">📋 Danh sách câu hỏi</div>
+                <div id="questions-list"></div>
+                
                 <div class="btn-group">
                     <button class="btn btn-success" onclick="startExam()">🚀 Bắt đầu làm bài</button>
-                    <button class="btn btn-secondary" onclick="window.location.href='exams.html'">⬅️ Quay lại danh sách</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='exams.html'">⬅️ Quay lại</button>
                     <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Xóa đề thi</button>
                 </div>
             </div>
         </div>
-
+        
         <!-- Footer -->
         <div class="footer">
             © 2026 <a href="https://www.quizsystem.com">QuizSystem</a> - Made with ❤️ by <strong>Nguyễn Tuấn Khải</strong> DEV Dora Fanclub Việt Nam
         </div>
     </div>
-
+    
     <script>
-        // ==================== FIREBASE CONFIG ====================
+        // ===== FIREBASE =====
         const firebaseConfig = {
             apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
             authDomain: "quizsystem-1d1c2.firebaseapp.com",
@@ -142,184 +307,191 @@
             appId: "1:435483557148:web:bde77e8d41f46009518ed9",
             measurementId: "G-FS5YZWPDD9"
         };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // ==================== GLOBAL STATE ====================
+        
+        let database = null;
+        let firebaseReady = false;
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            firebaseReady = true;
+        } catch (e) { console.warn('Firebase init failed'); }
+        
+        // ===== MOCK DATA =====
+        const mockExams = {
+            'mock_1': {
+                id: 'mock_1',
+                title: 'Đề thi giữa kỳ - Lập trình Web',
+                course: 'Lập trình Web',
+                duration: 60,
+                totalQuestions: 10,
+                totalScore: 100,
+                description: 'Đề thi gồm 10 câu trắc nghiệm về HTML, CSS, JavaScript.',
+                status: 'active',
+                questions: [
+                    { id: 1, content: 'HTML là viết tắt của từ gì?', options: ['A', 'B', 'C', 'D'] },
+                    { id: 2, content: 'CSS dùng để làm gì?', options: ['A', 'B', 'C', 'D'] }
+                ]
+            },
+            'mock_2': {
+                id: 'mock_2',
+                title: 'Đề thi cuối kỳ - Cơ sở dữ liệu',
+                course: 'Cơ sở dữ liệu',
+                duration: 90,
+                totalQuestions: 15,
+                totalScore: 150,
+                description: 'Đề thi gồm 15 câu hỏi về SQL, Normalization, Transaction.',
+                status: 'active',
+                questions: [
+                    { id: 1, content: 'SQL là viết tắt của?', options: ['A', 'B', 'C', 'D'] }
+                ]
+            },
+            'mock_3': {
+                id: 'mock_3',
+                title: 'Bài tập thực hành - Python cơ bản',
+                course: 'Python',
+                duration: 45,
+                totalQuestions: 8,
+                totalScore: 80,
+                description: 'Bài tập về biến, vòng lặp, hàm và xử lý file.',
+                status: 'draft',
+                questions: [
+                    { id: 1, content: 'Python là ngôn ngữ gì?', options: ['A', 'B', 'C', 'D'] }
+                ]
+            }
+        };
+        
+        // ===== STATE =====
         let currentExam = null;
         let examId = null;
-
-        // ==================== HELPER: Lấy ID từ URL ====================
-        function getExamIdFromURL() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('id');
+        
+        // ===== HELPERS =====
+        function getExamId() {
+            return new URLSearchParams(window.location.search).get('id');
         }
-
-        // ==================== HELPER: Chuyển hướng an toàn ====================
+        
         function safeRedirect(url) {
-            if (!url || url.trim() === '') {
-                console.error('URL rỗng, không thể chuyển hướng');
-                return false;
-            }
-            try {
-                window.location.href = url;
-                return true;
-            } catch (e) {
-                console.error('Lỗi chuyển hướng:', e);
-                return false;
-            }
+            if (url && url.trim()) window.location.href = url;
         }
-
-        // ==================== MAIN LOGIC ====================
-        async function loadExamDetail() {
-            const loadingEl = document.getElementById('loading-message');
-            const errorEl = document.getElementById('error-message');
-            const errorDetail = document.getElementById('error-detail');
-            const contentEl = document.getElementById('exam-content');
-
+        
+        // ===== LOAD =====
+        async function loadExam() {
+            const loading = document.getElementById('loading-state');
+            const error = document.getElementById('error-state');
+            const content = document.getElementById('exam-content');
+            const errorMsg = document.getElementById('error-message');
+            
             try {
-                // Lấy ID từ URL
-                examId = getExamIdFromURL();
-                console.log('📌 Exam ID từ URL:', examId);
-
-                // Kiểm tra ID có hợp lệ không
-                if (!examId || examId.trim() === '') {
-                    errorDetail.innerHTML = 'Không tìm thấy mã đề thi trong URL. Vui lòng kiểm tra lại đường dẫn.';
-                    loadingEl.classList.add('hidden');
-                    errorEl.classList.remove('hidden');
+                examId = getExamId();
+                if (!examId) {
+                    errorMsg.textContent = 'Không tìm thấy mã đề thi trong URL.';
+                    loading.classList.add('hidden');
+                    error.classList.remove('hidden');
                     return;
                 }
-
-                // Lấy dữ liệu từ Firebase
-                const snapshot = await database.ref(`exams/${examId}`).once('value');
-                currentExam = snapshot.val();
-
+                
+                // Try Firebase
+                if (firebaseReady && database) {
+                    const snapshot = await database.ref(`exams/${examId}`).once('value');
+                    currentExam = snapshot.val();
+                    if (currentExam) {
+                        currentExam.id = examId;
+                    }
+                }
+                
+                // Fallback to mock
+                if (!currentExam && mockExams[examId]) {
+                    currentExam = JSON.parse(JSON.stringify(mockExams[examId]));
+                    currentExam.id = examId;
+                    console.log('📌 Using mock data');
+                }
+                
                 if (!currentExam) {
                     throw new Error(`Không tìm thấy đề thi với ID: "${examId}"`);
                 }
-
-                // Thêm ID vào object
-                currentExam.id = examId;
-
-                // Hiển thị nội dung
-                loadingEl.classList.add('hidden');
-                errorEl.classList.add('hidden');
-                contentEl.classList.remove('hidden');
-                renderExamDetail(currentExam);
-
-            } catch (error) {
-                console.error('❌ Lỗi tải đề thi:', error);
-                loadingEl.classList.add('hidden');
-                errorDetail.innerHTML = error.message || 'Không thể tải đề thi. Vui lòng thử lại.';
-                errorEl.classList.remove('hidden');
+                
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                renderExam(currentExam);
+                
+            } catch (e) {
+                console.error(e);
+                loading.classList.add('hidden');
+                errorMsg.textContent = e.message || 'Không thể tải đề thi.';
+                error.classList.remove('hidden');
             }
         }
-
-        function renderExamDetail(exam) {
-            document.getElementById('exam-title').textContent = exam.title || 'Đề thi không có tiêu đề';
-            document.getElementById('exam-course').textContent = exam.course || 'Chưa phân loại';
-            document.getElementById('exam-duration').textContent = `${exam.duration || 0} phút`;
-            
-            const totalQ = exam.totalQuestions || exam.questions?.length || 0;
-            document.getElementById('exam-questions').textContent = totalQ;
+        
+        function renderExam(exam) {
+            document.getElementById('exam-title').textContent = exam.title || 'Đề thi không tên';
+            document.getElementById('exam-course').textContent = `📚 ${exam.course || 'Chưa phân loại'}`;
+            document.getElementById('exam-duration').textContent = exam.duration || 0;
+            document.getElementById('exam-questions').textContent = exam.totalQuestions || exam.questions?.length || 0;
             document.getElementById('exam-total-score').textContent = exam.totalScore || 0;
-            document.getElementById('exam-description').textContent = exam.description || 'Không có mô tả cho đề thi này.';
-
-            // Status badge
+            document.getElementById('exam-description').textContent = exam.description || 'Không có mô tả.';
+            
+            // Status
+            const statusMap = {
+                active: ['active', '✅ Hoạt động'],
+                draft: ['draft', '📝 Bản nháp'],
+                inactive: ['inactive', '⏸️ Tạm dừng']
+            };
+            const [cls, txt] = statusMap[exam.status] || ['active', '✅ Hoạt động'];
             const statusEl = document.getElementById('exam-status');
-            if (exam.status === 'active') {
-                statusEl.className = 'status-badge active';
-                statusEl.textContent = '✅ Đang hoạt động';
-            } else if (exam.status === 'draft') {
-                statusEl.className = 'status-badge draft';
-                statusEl.textContent = '📝 Bản nháp';
-            } else {
-                statusEl.className = 'status-badge inactive';
-                statusEl.textContent = '⏸️ Tạm dừng';
-            }
-
-            // Render questions
-            const questionsList = document.getElementById('questions-list');
-            questionsList.innerHTML = '';
-
+            statusEl.className = `status-badge ${cls}`;
+            statusEl.textContent = txt;
+            
+            // Questions
+            const list = document.getElementById('questions-list');
+            list.innerHTML = '';
             if (exam.questions && exam.questions.length > 0) {
-                exam.questions.forEach((q, index) => {
+                exam.questions.forEach((q, i) => {
                     const div = document.createElement('div');
                     div.className = 'question-item';
-                    div.innerHTML = `
-                        <span class="q-number">Câu ${index + 1}:</span>
-                        <span class="q-text">${q.content || 'Nội dung câu hỏi'}</span>
-                    `;
-                    questionsList.appendChild(div);
+                    div.innerHTML = `<span class="q-num">Câu ${i+1}:</span> ${q.content || 'Nội dung câu hỏi'}`;
+                    list.appendChild(div);
                 });
             } else {
-                questionsList.innerHTML = '<p style="color: #a0aec0; text-align: center; padding: 20px;">Chưa có câu hỏi nào cho đề thi này.</p>';
+                list.innerHTML = '<p style="color:#a0aec0; padding:12px 0;">Chưa có câu hỏi nào.</p>';
             }
         }
-
-        // ==================== START EXAM ====================
+        
+        // ===== ACTIONS =====
         function startExam() {
-            if (!currentExam || !currentExam.id) {
-                alert('⚠️ Không thể bắt đầu bài thi. Dữ liệu đề thi không hợp lệ.');
-                return;
-            }
-
-            const examIdToUse = currentExam.id;
-            console.log('🚀 Bắt đầu làm bài với ID:', examIdToUse);
-
-            // Kiểm tra tiến trình đã lưu
-            const progressKey = `exam_progress_${examIdToUse}`;
-            const savedProgress = localStorage.getItem(progressKey);
-            
-            if (savedProgress) {
-                const confirmContinue = confirm('Bạn đã có tiến trình làm bài trước đó. Bạn muốn tiếp tục hay bắt đầu lại?');
-                if (confirmContinue) {
-                    // Tiếp tục với tiến trình cũ
-                    const targetUrl = `take-exam.html?id=${examIdToUse}&resume=true`;
-                    console.log('🔄 Tiếp tục bài thi:', targetUrl);
-                    safeRedirect(targetUrl);
-                    return;
-                } else {
-                    // Xóa tiến trình cũ và bắt đầu mới
-                    localStorage.removeItem(progressKey);
-                    localStorage.removeItem(`exam_time_${examIdToUse}`);
-                }
-            }
-
-            // Bắt đầu mới
-            const targetUrl = `take-exam.html?id=${examIdToUse}`;
-            console.log('🆕 Bắt đầu bài thi mới:', targetUrl);
-            safeRedirect(targetUrl);
-        }
-
-        // ==================== DELETE EXAM ====================
-        async function confirmDelete() {
-            if (!currentExam || !currentExam.id) {
-                alert('⚠️ Không thể xóa đề thi. Dữ liệu không hợp lệ.');
-                return;
-            }
-
-            if (confirm(`Bạn có chắc chắn muốn xóa đề thi "${currentExam.title}" không?`)) {
-                try {
-                    await database.ref(`exams/${currentExam.id}`).remove();
-                    localStorage.removeItem(`exam_progress_${currentExam.id}`);
+            if (currentExam && currentExam.id) {
+                const key = `exam_progress_${currentExam.id}`;
+                if (localStorage.getItem(key)) {
+                    if (confirm('Bạn có tiến trình làm bài cũ. Tiếp tục?')) {
+                        safeRedirect(`take-exam.html?id=${currentExam.id}&resume=true`);
+                        return;
+                    }
+                    localStorage.removeItem(key);
                     localStorage.removeItem(`exam_time_${currentExam.id}`);
-                    alert('✅ Đã xóa đề thi thành công!');
-                    safeRedirect('exams.html');
-                } catch (error) {
-                    console.error('❌ Lỗi xóa đề thi:', error);
-                    alert('❌ Không thể xóa đề thi. Vui lòng thử lại.');
                 }
+                safeRedirect(`take-exam.html?id=${currentExam.id}`);
+            } else {
+                alert('⚠️ Không thể bắt đầu bài thi.');
             }
         }
-
-        // ==================== KHỞI CHẠY ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 exam-detail.html đã tải');
-            loadExamDetail();
-        });
+        
+        async function confirmDelete() {
+            if (!currentExam || !confirm(`Xóa đề thi "${currentExam.title}"?`)) return;
+            
+            try {
+                if (firebaseReady && database) {
+                    await database.ref(`exams/${examId}`).remove();
+                }
+                localStorage.removeItem(`exam_progress_${examId}`);
+                localStorage.removeItem(`exam_time_${examId}`);
+                alert('✅ Đã xóa đề thi!');
+                safeRedirect('exams.html');
+            } catch (e) {
+                alert('❌ Không thể xóa đề thi.');
+            }
+        }
+        
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', loadExam);
     </script>
 </body>
 </html>
