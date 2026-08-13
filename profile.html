@@ -5,27 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ cá nhân - QuizSystem</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: #f0f2f5;
             color: #1a1a2e;
             line-height: 1.6;
         }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 24px 20px;
-        }
-        
+        .container { max-width: 900px; margin: 0 auto; padding: 24px 20px; }
         .header {
             display: flex;
             justify-content: space-between;
@@ -34,21 +26,9 @@
             gap: 16px;
             margin-bottom: 4px;
         }
-        
-        .header .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
+        .header .logo { font-size: 24px; font-weight: 700; color: #1a1a2e; }
         .header .logo span { color: #4f46e5; }
-        
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
+        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .btn {
             padding: 10px 24px;
             border: none;
@@ -62,49 +42,15 @@
             gap: 8px;
             text-decoration: none;
         }
-        
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
         .btn-secondary:hover { background: #cbd5e0; }
-        
-        .btn-outline {
-            background: transparent;
-            color: #4f46e5;
-            border: 2px solid #4f46e5;
-        }
+        .btn-outline { background: transparent; color: #4f46e5; border: 2px solid #4f46e5; }
         .btn-outline:hover { background: #4f46e5; color: white; }
-        
-        .btn-primary {
-            background: #4f46e5;
-            color: white;
-        }
+        .btn-primary { background: #4f46e5; color: white; }
         .btn-primary:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35); }
-        
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
+        .btn-danger { background: #ef4444; color: white; }
         .btn-danger:hover { background: #dc2626; }
-        
-        .btn-sm {
-            padding: 6px 16px;
-            font-size: 13px;
-        }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        .btn-success:hover { background: #059669; }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
+        .btn-sm { padding: 6px 16px; font-size: 13px; }
         .breadcrumb {
             font-size: 14px;
             color: #718096;
@@ -113,14 +59,7 @@
         .breadcrumb a { color: #4f46e5; text-decoration: none; }
         .breadcrumb a:hover { text-decoration: underline; }
         .breadcrumb span { color: #1a1a2e; font-weight: 600; }
-        
-        .page-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 24px;
-        }
-        
+        .page-title { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 24px; }
         .profile-header {
             background: white;
             border-radius: 16px;
@@ -132,25 +71,9 @@
             gap: 24px;
             flex-wrap: wrap;
         }
-        
-        .profile-header .back-btn {
-            color: #4f46e5;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .profile-header .back-btn { color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; }
         .profile-header .back-btn:hover { text-decoration: underline; }
-        
-        .profile-header .avatar-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex: 1;
-        }
-        
+        .profile-header .avatar-section { display: flex; align-items: center; gap: 20px; flex: 1; }
         .profile-header .avatar {
             width: 80px;
             height: 80px;
@@ -166,19 +89,8 @@
             overflow: hidden;
             border: 3px solid #e2e8f0;
         }
-        
-        .profile-header .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .profile-header .user-info h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        
+        .profile-header .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-header .user-info h2 { font-size: 20px; font-weight: 700; color: #1a1a2e; }
         .profile-header .user-info .role {
             font-size: 14px;
             font-weight: 600;
@@ -187,27 +99,12 @@
             display: inline-block;
             margin-top: 4px;
         }
-        
         .role-teacher { background: #dbeafe; color: #1e40af; }
         .role-student { background: #d1fae5; color: #065f46; }
         .role-admin { background: #fef3c7; color: #92400e; }
+        .profile-header .avatar-actions { display: flex; gap: 10px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+        .profile-header .avatar-actions .hint { font-size: 12px; color: #a0aec0; display: block; margin-top: 4px; }
         
-        .profile-header .avatar-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .profile-header .avatar-actions .hint {
-            font-size: 12px;
-            color: #a0aec0;
-            display: block;
-            margin-top: 4px;
-        }
-        
-        /* LOADING OVERLAY */
         .loading-overlay {
             position: fixed;
             inset: 0;
@@ -219,7 +116,6 @@
             z-index: 9999;
         }
         .loading-overlay.active { display: flex; }
-        
         .loading-box {
             background: white;
             border-radius: 20px;
@@ -228,12 +124,10 @@
             max-width: 400px;
             animation: popIn 0.3s ease;
         }
-        
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.9) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        
         .loading-box .spinner {
             width: 48px;
             height: 48px;
@@ -243,12 +137,9 @@
             animation: spin 0.8s linear infinite;
             margin: 0 auto 16px;
         }
-        
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         .loading-box h3 { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
         .loading-box p { font-size: 14px; color: #718096; }
-        
         .loading-box .progress-bar {
             width: 100%;
             height: 6px;
@@ -257,7 +148,6 @@
             margin-top: 16px;
             overflow: hidden;
         }
-        
         .loading-box .progress-bar .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #4f46e5, #7c3aed);
@@ -273,7 +163,6 @@
             border: 1px solid #edf2f7;
             margin-bottom: 16px;
         }
-        
         .card .card-title {
             font-size: 13px;
             font-weight: 700;
@@ -282,7 +171,6 @@
             letter-spacing: 0.5px;
             margin-bottom: 16px;
         }
-        
         .card .card-title .action-link {
             float: right;
             font-weight: 600;
@@ -293,7 +181,6 @@
             cursor: pointer;
         }
         .card .card-title .action-link:hover { text-decoration: underline; }
-        
         .form-row {
             display: flex;
             align-items: center;
@@ -303,30 +190,11 @@
             flex-wrap: wrap;
         }
         .form-row:last-child { border-bottom: none; }
-        
-        .form-row .label {
-            font-weight: 600;
-            color: #4a5568;
-            min-width: 120px;
-            font-size: 14px;
-        }
-        
-        .form-row .value {
-            flex: 1;
-            color: #1a1a2e;
-            font-size: 14px;
-        }
-        
-        .form-row .value .edit-link {
-            color: #4f46e5;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
+        .form-row .label { font-weight: 600; color: #4a5568; min-width: 120px; font-size: 14px; }
+        .form-row .value { flex: 1; color: #1a1a2e; font-size: 14px; }
+        .form-row .value .edit-link { color: #4f46e5; text-decoration: none; font-weight: 500; cursor: pointer; }
         .form-row .value .edit-link:hover { text-decoration: underline; }
-        
-        .form-row input,
-        .form-row select {
+        .form-row input, .form-row select {
             padding: 8px 14px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
@@ -336,29 +204,13 @@
             min-width: 180px;
             transition: border-color 0.2s;
         }
-        
-        .form-row input:focus,
-        .form-row select:focus {
+        .form-row input:focus, .form-row select:focus {
             outline: none;
             border-color: #4f46e5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
         }
-        
-        .form-row .gender-group {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
-        
-        .form-row .gender-group label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: #4a5568;
-            cursor: pointer;
-        }
-        
+        .form-row .gender-group { display: flex; gap: 16px; align-items: center; }
+        .form-row .gender-group label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #4a5568; cursor: pointer; }
         .form-row .gender-group input[type="radio"] {
             width: 16px;
             height: 16px;
@@ -367,10 +219,8 @@
             min-width: unset;
             flex: unset;
         }
-        
         .password-section { margin-top: 8px; }
         .password-section .form-row:last-child { border-bottom: none; }
-        
         .password-section .btn-change {
             background: #4f46e5;
             color: white;
@@ -383,7 +233,6 @@
             transition: all 0.2s;
         }
         .password-section .btn-change:hover { background: #4338ca; }
-        
         .action-buttons {
             display: flex;
             gap: 12px;
@@ -392,7 +241,6 @@
             margin-top: 8px;
             flex-wrap: wrap;
         }
-        
         .modal-overlay {
             display: none;
             position: fixed;
@@ -405,7 +253,6 @@
             padding: 20px;
         }
         .modal-overlay.active { display: flex; }
-        
         .modal {
             background: white;
             border-radius: 20px;
@@ -414,21 +261,13 @@
             width: 100%;
             animation: modalIn 0.3s ease;
         }
-        
         @keyframes modalIn {
             from { opacity: 0; transform: scale(0.95) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        
         .modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1a1a2e; }
         .modal .form-group { margin-bottom: 16px; }
-        .modal .form-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 13px;
-            color: #4a5568;
-            margin-bottom: 4px;
-        }
+        .modal .form-group label { display: block; font-weight: 600; font-size: 13px; color: #4a5568; margin-bottom: 4px; }
         .modal .form-group input {
             width: 100%;
             padding: 10px 14px;
@@ -443,7 +282,6 @@
             border-color: #4f46e5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
         }
-        
         .modal .form-actions {
             display: flex;
             gap: 12px;
@@ -452,7 +290,6 @@
             border-top: 1px solid #edf2f7;
             margin-top: 8px;
         }
-        
         .toast {
             position: fixed;
             bottom: 24px;
@@ -470,12 +307,10 @@
         .toast.success { background: #10b981; }
         .toast.error { background: #ef4444; }
         .toast.hidden { display: none; }
-        
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: stretch; text-align: center; }
             .header-actions { justify-content: center; flex-wrap: wrap; }
@@ -492,13 +327,11 @@
             .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
             .loading-box { padding: 30px 24px; margin: 20px; }
         }
-        
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
         <div class="header">
             <div class="logo">📚 <span>Quiz</span>System</div>
             <div class="header-actions">
@@ -507,16 +340,13 @@
             </div>
         </div>
         
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <a href="dashboard.html">Trang chủ</a> &gt; 
             <span>Hồ sơ cá nhân</span>
         </div>
         
-        <!-- PAGE TITLE -->
         <h1 class="page-title">👤 Hồ sơ cá nhân</h1>
         
-        <!-- PROFILE HEADER -->
         <div class="profile-header">
             <a href="dashboard.html" class="back-btn">← Quay lại</a>
             
@@ -542,18 +372,15 @@
             </div>
         </div>
         
-        <!-- CARD: CHUNG -->
         <div class="card">
             <div class="card-title">
                 CHUNG
                 <span class="action-link" onclick="openChangePassword()">Đổi mật khẩu</span>
             </div>
-            
             <div class="form-row">
                 <span class="label">HỌ VÀ TÊN</span>
                 <span class="value" id="full-name">Đang tải...</span>
             </div>
-            
             <div class="form-row">
                 <span class="label">SỐ ĐIỆN THOẠI</span>
                 <span class="value">
@@ -563,61 +390,44 @@
             </div>
         </div>
         
-        <!-- CARD: USERNAME & GIỚI TÍNH -->
         <div class="card">
             <div class="card-title">THÔNG TIN CÁ NHÂN</div>
-            
             <div class="form-row">
                 <span class="label">USERNAME</span>
                 <span class="value" id="username">Đang tải...</span>
             </div>
-            
             <div class="form-row">
                 <span class="label">Giới tính</span>
                 <div class="value">
                     <div class="gender-group">
-                        <label>
-                            <input type="radio" name="gender" value="male">
-                            Nam
-                        </label>
-                        <label>
-                            <input type="radio" name="gender" value="female">
-                            Nữ
-                        </label>
+                        <label><input type="radio" name="gender" value="male"> Nam</label>
+                        <label><input type="radio" name="gender" value="female"> Nữ</label>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- CARD: ĐỔI MẬT KHẨU -->
         <div class="card password-section">
             <div class="card-title">ĐỔI MẬT KHẨU</div>
-            
             <div class="form-row">
                 <span class="label">Mật khẩu mới</span>
                 <input type="password" id="new-password" placeholder="Nhập mật khẩu mới...">
             </div>
-            
             <div class="form-row">
                 <span class="label">Xác nhận</span>
                 <input type="password" id="confirm-password" placeholder="Xác nhận mật khẩu...">
             </div>
-            
             <div class="form-row" style="border-bottom: none; padding-bottom: 0;">
                 <span class="label"></span>
                 <button class="btn-change" onclick="changePassword()">Đổi mật khẩu</button>
             </div>
         </div>
         
-        <!-- ACTION BUTTONS -->
         <div class="action-buttons">
-            <button class="btn btn-primary" onclick="saveProfile()" id="save-btn">
-                💾 Lưu thay đổi
-            </button>
+            <button class="btn btn-primary" onclick="saveProfile()" id="save-btn">💾 Lưu thay đổi</button>
             <button class="btn btn-secondary" onclick="loadProfile()">↩️ Làm mới</button>
         </div>
         
-        <!-- FOOTER -->
         <div style="text-align:center; padding:32px 20px 12px; color:#a0aec0; font-size:13px; border-top:1px solid #edf2f7; margin-top:40px;">
             © 2026 <a href="#" style="color:#4f46e5; text-decoration:none;">QuizSystem</a> - Made with ❤️ by 
             <a href="#" style="color:#4f46e5; text-decoration:none;">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
@@ -660,7 +470,6 @@
         </div>
     </div>
     
-    <!-- TOAST -->
     <div id="toast" class="toast hidden"></div>
     
     <script>
@@ -677,10 +486,10 @@
         };
         
         // ==================== CLOUDINARY CONFIG ====================
-        // 🔥 ĐÃ SỬA: Dùng đúng tên preset của bạn
+        // 🔥 ĐÃ SỬA: Cloud Name đúng là y6ooh4tp
         const CLOUDINARY_CONFIG = {
-            cloudName: '865582956777463',
-            uploadPreset: 'quizsystem_avatar',  // ← Đúng tên preset
+            cloudName: 'y6ooh4tp',        // 🔥 Cloud Name đúng
+            uploadPreset: 'quizsystem_avatar',  // Upload Preset
             folder: 'avatars'
         };
         
@@ -731,7 +540,6 @@
         // ==================== CHECK AUTH ====================
         function checkAuth() {
             if (!firebaseReady || !auth) return;
-            
             auth.onAuthStateChanged(async user => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -749,18 +557,15 @@
                 showToast('⚠️ Chưa đăng nhập', 'error');
                 return;
             }
-            
             try {
                 const snapshot = await database.ref(`users/${currentUser.uid}`).once('value');
                 const userData = snapshot.val();
-                
                 if (userData) {
                     if (userData.profile) {
                         profileData = { ...userData.profile };
                     } else {
                         profileData = { ...userData };
                     }
-                    
                     let role = 'student';
                     if (profileData.role) {
                         role = profileData.role;
@@ -769,7 +574,6 @@
                     }
                     role = normalizeRole(role);
                     profileData.role = role;
-                    
                 } else {
                     profileData = {
                         fullName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
@@ -780,20 +584,16 @@
                         role: 'student',
                         createdAt: new Date().toISOString()
                     };
-                    
                     await database.ref(`users/${currentUser.uid}/profile`).set(profileData);
                     await database.ref(`users/${currentUser.uid}/role`).set('student');
                 }
-                
                 renderProfile(profileData);
-                
             } catch (error) {
                 console.error('❌ Lỗi tải profile:', error);
                 showToast('❌ Không thể tải thông tin', 'error');
             }
         }
         
-        // ==================== NORMALIZE ROLE ====================
         function normalizeRole(role) {
             if (!role) return 'student';
             const normalized = role.toLowerCase().trim();
@@ -803,7 +603,6 @@
             return 'student';
         }
         
-        // ==================== GET ROLE DISPLAY ====================
         function getRoleDisplay(role) {
             const roleMap = {
                 'teacher': { text: '👨‍🏫 Giáo viên', class: 'role-teacher' },
@@ -813,7 +612,6 @@
             return roleMap[role] || roleMap['student'];
         }
         
-        // ==================== RENDER PROFILE ====================
         function renderProfile(data) {
             const displayName = data.fullName || data.name || 'User';
             document.getElementById('display-name').textContent = displayName;
@@ -833,7 +631,6 @@
             
             const avatarText = document.getElementById('avatar-text');
             const avatarImage = document.getElementById('avatar-image');
-            
             if (data.avatar && data.avatar !== '') {
                 avatarImage.src = data.avatar;
                 avatarImage.style.display = 'block';
@@ -844,28 +641,23 @@
                 avatarText.style.display = 'block';
                 avatarImage.style.display = 'none';
             }
-            
             localStorage.setItem('userName', displayName);
             localStorage.setItem('userRole', role);
         }
         
-        // ==================== SAVE PROFILE ====================
         async function saveProfile() {
             if (!currentUser || !database) {
                 showToast('⚠️ Chưa đăng nhập', 'error');
                 return;
             }
-            
             const btn = document.getElementById('save-btn');
             btn.disabled = true;
             btn.innerHTML = '⏳ Đang lưu...';
-            
             try {
                 const fullName = document.getElementById('full-name').textContent;
                 const phone = document.getElementById('phone-number').textContent;
                 const username = document.getElementById('username').textContent;
                 const gender = document.querySelector('input[name="gender"]:checked')?.value || 'male';
-                
                 const updatedData = {
                     fullName: fullName,
                     phone: phone === '---' ? '' : phone,
@@ -873,15 +665,11 @@
                     gender: gender,
                     updatedAt: new Date().toISOString()
                 };
-                
                 await database.ref(`users/${currentUser.uid}/profile`).update(updatedData);
                 profileData = { ...profileData, ...updatedData };
-                
                 document.getElementById('display-name').textContent = fullName;
                 localStorage.setItem('userName', fullName);
-                
                 showToast('✅ Đã lưu thông tin thành công!', 'success');
-                
             } catch (error) {
                 console.error('❌ Lỗi lưu profile:', error);
                 showToast('❌ Không thể lưu thông tin', 'error');
@@ -898,25 +686,21 @@
             
             console.log('📌 File selected:', file.name, file.type, (file.size / 1024).toFixed(2), 'KB');
             
-            // Kiểm tra file
             if (file.size > 5 * 1024 * 1024) {
                 showToast('⚠️ File ảnh vượt quá 5MB', 'error');
                 event.target.value = '';
                 return;
             }
-            
             if (!file.type.startsWith('image/')) {
                 showToast('⚠️ Vui lòng chọn file ảnh', 'error');
                 event.target.value = '';
                 return;
             }
             
-            // Hiển thị loading
             showLoading('Đang upload ảnh lên Cloudinary...');
             updateProgress(10);
             
             try {
-                // Tạo FormData
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
@@ -929,12 +713,10 @@
                 
                 updateProgress(30);
                 
-                // Upload lên Cloudinary
                 const xhr = new XMLHttpRequest();
                 const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`;
                 xhr.open('POST', url);
                 
-                // Theo dõi tiến trình upload
                 xhr.upload.onprogress = function(e) {
                     if (e.lengthComputable) {
                         const percent = 30 + (e.loaded / e.total) * 60;
@@ -971,14 +753,12 @@
                 const imageUrl = response.secure_url;
                 console.log('✅ Upload thành công:', imageUrl);
                 
-                // Cập nhật avatar
                 const avatarImage = document.getElementById('avatar-image');
                 const avatarText = document.getElementById('avatar-text');
                 avatarImage.src = imageUrl;
                 avatarImage.style.display = 'block';
                 avatarText.style.display = 'none';
                 
-                // Lưu vào Firebase
                 if (currentUser && database) {
                     await database.ref(`users/${currentUser.uid}/profile/avatar`).set(imageUrl);
                     profileData.avatar = imageUrl;
@@ -988,7 +768,6 @@
                 updateProgress(100);
                 await new Promise(resolve => setTimeout(resolve, 300));
                 hideLoading();
-                
                 showToast('✅ Đã cập nhật ảnh đại diện!', 'success');
                 
             } catch (error) {
@@ -996,26 +775,20 @@
                 hideLoading();
                 showToast('❌ ' + error.message, 'error');
             }
-            
-            // Reset input
             event.target.value = '';
         }
         
         // ==================== REMOVE AVATAR ====================
         async function removeAvatar() {
             if (!confirm('Bạn có chắc muốn xóa ảnh đại diện?')) return;
-            
             const avatarImage = document.getElementById('avatar-image');
             const avatarText = document.getElementById('avatar-text');
-            
             avatarImage.style.display = 'none';
             avatarImage.src = '';
-            
             const name = document.getElementById('display-name').textContent || 'User';
             const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
             avatarText.textContent = initials;
             avatarText.style.display = 'block';
-            
             if (currentUser && database) {
                 try {
                     await database.ref(`users/${currentUser.uid}/profile/avatar`).remove();
@@ -1044,75 +817,57 @@
             document.getElementById('modal-new-password').value = '';
             document.getElementById('modal-confirm-password').value = '';
         }
-        
         function closePasswordModal() {
             document.getElementById('password-modal').classList.remove('active');
         }
-        
         async function submitChangePassword() {
             const oldPwd = document.getElementById('old-password').value;
             const newPwd = document.getElementById('modal-new-password').value;
             const confirmPwd = document.getElementById('modal-confirm-password').value;
-            
             if (!oldPwd || !newPwd || !confirmPwd) {
                 showToast('⚠️ Vui lòng điền đầy đủ thông tin', 'error');
                 return;
             }
-            
             if (newPwd.length < 6) {
                 showToast('⚠️ Mật khẩu phải có ít nhất 6 ký tự', 'error');
                 return;
             }
-            
             if (newPwd !== confirmPwd) {
                 showToast('⚠️ Mật khẩu xác nhận không khớp', 'error');
                 return;
             }
-            
             try {
                 if (auth && currentUser) {
-                    const credential = firebase.auth.EmailAuthProvider.credential(
-                        currentUser.email,
-                        oldPwd
-                    );
+                    const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, oldPwd);
                     await currentUser.reauthenticateWithCredential(credential);
                     await currentUser.updatePassword(newPwd);
-                    
                     showToast('✅ Đổi mật khẩu thành công!', 'success');
                     closePasswordModal();
                 }
             } catch (error) {
                 console.error('Password change error:', error);
                 let msg = '❌ Đổi mật khẩu thất bại';
-                if (error.code === 'auth/wrong-password') {
-                    msg = '❌ Mật khẩu cũ không đúng';
-                } else if (error.code === 'auth/too-many-requests') {
-                    msg = '❌ Quá nhiều lần thử, vui lòng thử lại sau';
-                }
+                if (error.code === 'auth/wrong-password') msg = '❌ Mật khẩu cũ không đúng';
+                else if (error.code === 'auth/too-many-requests') msg = '❌ Quá nhiều lần thử, vui lòng thử lại sau';
                 showToast(msg, 'error');
             }
         }
         
-        // ==================== CHANGE PASSWORD ====================
         async function changePassword() {
             const newPwd = document.getElementById('new-password').value;
             const confirmPwd = document.getElementById('confirm-password').value;
-            
             if (!newPwd || !confirmPwd) {
                 showToast('⚠️ Vui lòng nhập mật khẩu mới', 'error');
                 return;
             }
-            
             if (newPwd.length < 6) {
                 showToast('⚠️ Mật khẩu phải có ít nhất 6 ký tự', 'error');
                 return;
             }
-            
             if (newPwd !== confirmPwd) {
                 showToast('⚠️ Mật khẩu xác nhận không khớp', 'error');
                 return;
             }
-            
             try {
                 if (auth && currentUser) {
                     await currentUser.updatePassword(newPwd);
@@ -1126,18 +881,11 @@
             }
         }
         
-        // ==================== LOGOUT ====================
         async function handleLogout() {
             if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
-            
             try {
                 if (auth) await auth.signOut();
-                localStorage.removeItem('userId');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userRole');
-                localStorage.removeItem('userPhoto');
-                localStorage.removeItem('rememberMe');
+                localStorage.clear();
                 showToast('✅ Đã đăng xuất', 'success');
                 setTimeout(() => { window.location.href = 'index.html'; }, 500);
             } catch (error) {
@@ -1145,7 +893,6 @@
             }
         }
         
-        // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 profile.html đã tải');
             console.log('☁️ Cloudinary Config:', {
@@ -1154,7 +901,6 @@
                 folder: CLOUDINARY_CONFIG.folder
             });
             checkAuth();
-            
             document.getElementById('password-modal').addEventListener('click', function(e) {
                 if (e.target === this) closePasswordModal();
             });
