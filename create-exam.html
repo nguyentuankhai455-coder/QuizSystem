@@ -209,6 +209,7 @@
 
         <div class="editor-container">
 
+            <!-- ===== UPLOAD ===== -->
             <div class="upload-section">
                 <div class="upload-area" id="dropZone">
                     <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
@@ -227,10 +228,12 @@
                 </div>
             </div>
 
+            <!-- ===== TITLE ===== -->
             <div class="editor-title">
                 <input type="text" id="examTitle" placeholder="Nhập tên đề thi..." value="">
             </div>
 
+            <!-- ===== SETTINGS ===== -->
             <div class="editor-settings">
                 <div class="form-group">
                     <label>⏱️ Thời gian làm bài</label>
@@ -257,6 +260,7 @@
                 </div>
             </div>
 
+            <!-- ===== TEMPLATES ===== -->
             <div class="template-samples">
                 <span class="template-label">📋 Nội dung mẫu:</span>
                 <button class="template-btn" onclick="loadTemplate('mau1')">Mẫu 1</button>
@@ -266,6 +270,7 @@
                 <button class="template-btn" onclick="loadTemplate('mau5')">Mẫu 5 (Đúng-Sai)</button>
             </div>
 
+            <!-- ===== INPUT ===== -->
             <div class="editor-input-area">
                 <div class="input-header">
                     <label>📝 Nhập nội dung đề thi</label>
@@ -284,6 +289,7 @@
                 </div>
             </div>
 
+            <!-- ===== PREVIEW ===== -->
             <div class="editor-preview" id="previewSection">
                 <div class="preview-header">
                     <h4>🔍 Xem trước</h4>
@@ -297,6 +303,7 @@
                 </div>
             </div>
 
+            <!-- ===== FOOTER ===== -->
             <div class="editor-footer">
                 <div class="left-actions">
                     <button class="btn btn-primary" onclick="addQuestionManual()">
@@ -1000,7 +1007,20 @@
         }
 
         // ============================================================
-        // SAVE EXAM
+        // TẠO MÃ ĐỀ NGẪU NHIÊN (CỐ ĐỊNH)
+        // ============================================================
+
+        function generateExamCode() {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // ============================================================
+        // LẤY DỮ LIỆU TỪ FORM
         // ============================================================
 
         function getExamDataFromForm() {
@@ -1040,13 +1060,81 @@
                 duration: duration,
                 maxAttempts: maxAttempts ? parseInt(maxAttempts) : null,
                 type: type,
-                questions: parsedQuestions,
-                status: 'draft'
+                questions: parsedQuestions
             };
         }
 
         // ============================================================
-        // LƯU & TIẾP TỤC CÀI ĐẶT - KẾT NỐI VỚI EXAM-SETTINGS
+        // SAVE EXAM - CHỈ LƯU (QUAY LẠI EXAMS)
+        // ============================================================
+
+        async function saveExam() {
+            const examData = getExamDataFromForm();
+            if (!examData) return;
+
+            const missingCorrect = parsedQuestions.filter(q => q.correct === -1 || q.correct === undefined || q.correct === null);
+            if (missingCorrect.length > 0) {
+                if (!confirm(`⚠️ Có ${missingCorrect.length} câu chưa được chọn đáp án đúng.\n\nBạn có chắc chắn muốn lưu đề thi này?`)) {
+                    return;
+                }
+            }
+
+            showStatus('loading', '⏳ Đang lưu đề thi...');
+
+            try {
+                if (!currentUser || !currentUser.uid) {
+                    throw new Error('Bạn chưa đăng nhập!');
+                }
+
+                // ✅ TẠO MÃ ĐỀ CỐ ĐỊNH
+                const examCode = generateExamCode();
+
+                if (currentEditingExamId) {
+                    await db.collection('exams').doc(currentEditingExamId).update({
+                        ...examData,
+                        code: examCode,
+                        updatedAt: new Date().toLocaleString()
+                    });
+                    showStatus('success', '✅ Đã cập nhật đề thi thành công!');
+                } else {
+                    await db.collection('exams').add({
+                        ...examData,
+                        code: examCode,
+                        createdBy: currentUser.uid,
+                        createdByEmail: currentUser.email,
+                        createdAt: new Date().toLocaleString(),
+                        status: 'draft'
+                    });
+                    showStatus('success', '✅ Đã lưu đề thi thành công!');
+                }
+
+                const oldBtn = document.querySelector('.btn-update-exam');
+                if (oldBtn) oldBtn.remove();
+                currentEditingExamId = null;
+
+                document.getElementById('examTitle').value = '';
+                document.getElementById('examInput').value = '';
+                parsedQuestions = [];
+                renderPreview();
+
+                setTimeout(() => {
+                    window.location.href = 'exams.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Lỗi lưu đề:', error);
+                let errorMessage = 'Không thể lưu đề thi. Vui lòng thử lại!';
+                if (error.code === 'permission-denied') {
+                    errorMessage = '❌ Bạn không có quyền ghi dữ liệu. Vui lòng kiểm tra Firestore Rules!';
+                } else if (error.code === 'unauthenticated') {
+                    errorMessage = '❌ Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!';
+                }
+                showStatus('error', '⚠️ ' + errorMessage);
+            }
+        }
+
+        // ============================================================
+        // SAVE AND CONTINUE - LƯU + CHUYỂN SANG CÀI ĐẶT
         // ============================================================
 
         async function saveAndContinue() {
@@ -1068,10 +1156,12 @@
                 }
 
                 let examId;
+                const examCode = generateExamCode(); // ✅ TẠO MÃ ĐỀ CỐ ĐỊNH
 
                 if (currentEditingExamId) {
                     await db.collection('exams').doc(currentEditingExamId).update({
                         ...examData,
+                        code: examCode,
                         updatedAt: new Date().toLocaleString()
                     });
                     examId = currentEditingExamId;
@@ -1079,86 +1169,23 @@
                 } else {
                     const docRef = await db.collection('exams').add({
                         ...examData,
+                        code: examCode,
                         createdBy: currentUser.uid,
                         createdByEmail: currentUser.email,
-                        createdAt: new Date().toLocaleString()
+                        createdAt: new Date().toLocaleString(),
+                        status: 'draft'
                     });
                     examId = docRef.id;
                     showStatus('success', '✅ Đã lưu đề thi thành công!');
                 }
 
-                // Xóa nút cập nhật nếu có
                 const oldBtn = document.querySelector('.btn-update-exam');
                 if (oldBtn) oldBtn.remove();
                 currentEditingExamId = null;
 
-                // Chuyển sang trang cài đặt với examId
                 setTimeout(() => {
                     window.location.href = 'exam-settings.html?id=' + examId;
                 }, 1500);
-
-            } catch (error) {
-                console.error('Lỗi lưu đề:', error);
-                let errorMessage = 'Không thể lưu đề thi. Vui lòng thử lại!';
-                if (error.code === 'permission-denied') {
-                    errorMessage = '❌ Bạn không có quyền ghi dữ liệu. Vui lòng kiểm tra Firestore Rules!';
-                } else if (error.code === 'unauthenticated') {
-                    errorMessage = '❌ Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!';
-                }
-                showStatus('error', '⚠️ ' + errorMessage);
-            }
-        }
-
-        // ============================================================
-        // CHỈ LƯU (KHÔNG CHUYỂN TRANG)
-        // ============================================================
-
-        async function saveExam() {
-            const examData = getExamDataFromForm();
-            if (!examData) return;
-
-            const missingCorrect = parsedQuestions.filter(q => q.correct === -1 || q.correct === undefined || q.correct === null);
-            if (missingCorrect.length > 0) {
-                if (!confirm(`⚠️ Có ${missingCorrect.length} câu chưa được chọn đáp án đúng.\n\nBạn có chắc chắn muốn lưu đề thi này?`)) {
-                    return;
-                }
-            }
-
-            showStatus('loading', '⏳ Đang lưu đề thi...');
-
-            try {
-                if (!currentUser || !currentUser.uid) {
-                    throw new Error('Bạn chưa đăng nhập!');
-                }
-
-                if (currentEditingExamId) {
-                    await db.collection('exams').doc(currentEditingExamId).update({
-                        ...examData,
-                        updatedAt: new Date().toLocaleString()
-                    });
-                    showStatus('success', '✅ Đã cập nhật đề thi thành công!');
-                } else {
-                    await db.collection('exams').add({
-                        ...examData,
-                        createdBy: currentUser.uid,
-                        createdByEmail: currentUser.email,
-                        createdAt: new Date().toLocaleString()
-                    });
-                    showStatus('success', '✅ Đã lưu đề thi thành công!');
-                }
-
-                const oldBtn = document.querySelector('.btn-update-exam');
-                if (oldBtn) oldBtn.remove();
-                currentEditingExamId = null;
-
-                document.getElementById('examTitle').value = '';
-                document.getElementById('examInput').value = '';
-                parsedQuestions = [];
-                renderPreview();
-
-                setTimeout(() => {
-                    window.location.href = 'exams.html';
-                }, 2000);
 
             } catch (error) {
                 console.error('Lỗi lưu đề:', error);
