@@ -475,22 +475,19 @@
             <span class="current" id="breadcrumbTitle">Chi tiết đề thi</span>
         </div>
 
-        <!-- Loading -->
         <div id="loadingState" class="loading-spinner">
             <i class="fas fa-spinner"></i>
             <p style="margin-top:8px;">Đang tải đề thi...</p>
         </div>
 
-        <!-- Nội dung chính -->
         <div id="mainContent" style="display:none;">
-
             <div id="warningContainer"></div>
 
             <div class="exam-card">
                 <div class="exam-header">
                     <div class="exam-title" id="examTitle">ĐỀ TỔNG</div>
                     <div class="exam-code">
-                        Mã đề thi: <span id="examCode">ghviv3</span>
+                        Mã đề thi: <span id="examCode">------</span>
                     </div>
                 </div>
 
@@ -697,14 +694,17 @@
         }
 
         // ============================================================
-        // RENDER
+        // RENDER - MÃ ĐỀ LẤY TỪ FIRESTORE
         // ============================================================
 
         function renderExamDetail() {
             if (!examData) return;
 
             document.getElementById('examTitle').textContent = examData.title || 'Đề thi';
-            document.getElementById('examCode').textContent = examData.code || generateExamCode();
+            
+            // ✅ MÃ ĐỀ CỐ ĐỊNH - LẤY TỪ FIRESTORE
+            document.getElementById('examCode').textContent = examData.code || 'Chưa có mã';
+            
             document.getElementById('breadcrumbTitle').textContent = examData.title || 'Chi tiết đề thi';
 
             const durationEl = document.getElementById('examDuration');
@@ -823,20 +823,7 @@
         }
 
         // ============================================================
-        // GENERATE CODE
-        // ============================================================
-
-        function generateExamCode() {
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let code = '';
-            for (let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
-        // ============================================================
-        // START EXAM - CHUYỂN SANG TAKE-EXAM.HTML
+        // START EXAM - CHUYỂN SANG TAKE-EXAM.HTML VỚI ID
         // ============================================================
 
         function startExam() {
@@ -852,7 +839,6 @@
                 return;
             }
 
-            // Kiểm tra số lần đã làm
             const studentAttempts = getStudentAttempts(examData.id);
             const attemptCount = studentAttempts.length;
             const maxAttempts = examData.maxAttempts;
@@ -862,7 +848,6 @@
                 return;
             }
 
-            // Tạo thông báo
             let confirmMsg = `🚀 Bạn sắp bắt đầu làm bài: ${examData.title}\n\n` +
                 `📝 Số câu hỏi: ${questionCount}\n` +
                 `⏱️ Thời gian: ${examData.duration ? examData.duration + ' phút' : 'Không giới hạn'}\n`;
