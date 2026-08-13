@@ -43,10 +43,7 @@
             font-weight: 700;
             color: #1a1a2e;
         }
-        
-        .header .logo span {
-            color: #4f46e5;
-        }
+        .header .logo span { color: #4f46e5; }
         
         .header-actions {
             display: flex;
@@ -129,18 +126,9 @@
             color: #718096;
             margin-bottom: 20px;
         }
-        
-        .breadcrumb a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        .breadcrumb span {
-            color: #1a1a2e;
-            font-weight: 600;
-        }
+        .breadcrumb a { color: #4f46e5; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb span { color: #1a1a2e; font-weight: 600; }
         
         .page-title {
             font-size: 24px;
@@ -170,9 +158,7 @@
             align-items: center;
             gap: 6px;
         }
-        .profile-header .back-btn:hover {
-            text-decoration: underline;
-        }
+        .profile-header .back-btn:hover { text-decoration: underline; }
         
         .profile-header .avatar-section {
             display: flex;
@@ -273,9 +259,7 @@
             text-decoration: none;
             cursor: pointer;
         }
-        .card .card-title .action-link:hover {
-            text-decoration: underline;
-        }
+        .card .card-title .action-link:hover { text-decoration: underline; }
         
         .form-row {
             display: flex;
@@ -309,9 +293,7 @@
             font-weight: 500;
             cursor: pointer;
         }
-        .form-row .value .edit-link:hover {
-            text-decoration: underline;
-        }
+        .form-row .value .edit-link:hover { text-decoration: underline; }
         
         .form-row input,
         .form-row select {
@@ -398,9 +380,7 @@
             align-items: center;
             padding: 20px;
         }
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
         
         .modal {
             background: white;
@@ -412,14 +392,8 @@
         }
         
         @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
         
         .modal h3 {
@@ -482,72 +456,27 @@
         .toast.hidden { display: none; }
         
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-            }
-            .header-actions {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            .profile-header {
-                flex-direction: column;
-                text-align: center;
-                padding: 20px;
-            }
-            .profile-header .avatar-section {
-                flex-direction: column;
-            }
-            .profile-header .avatar-actions {
-                justify-content: center;
-            }
-            .card {
-                padding: 20px;
-            }
-            .form-row {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 6px;
-            }
-            .form-row .label {
-                min-width: unset;
-            }
-            .form-row .gender-group {
-                justify-content: center;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
-            .action-buttons .btn {
-                justify-content: center;
-            }
-            .modal {
-                padding: 20px;
-                margin: 10px;
-            }
-            .toast {
-                bottom: 12px;
-                right: 12px;
-                left: 12px;
-                max-width: none;
-            }
+            .header { flex-direction: column; align-items: stretch; text-align: center; }
+            .header-actions { justify-content: center; flex-wrap: wrap; }
+            .profile-header { flex-direction: column; text-align: center; padding: 20px; }
+            .profile-header .avatar-section { flex-direction: column; }
+            .profile-header .avatar-actions { justify-content: center; }
+            .card { padding: 20px; }
+            .form-row { flex-direction: column; align-items: stretch; gap: 6px; }
+            .form-row .label { min-width: unset; }
+            .form-row .gender-group { justify-content: center; }
+            .action-buttons { flex-direction: column; }
+            .action-buttons .btn { justify-content: center; }
+            .modal { padding: 20px; margin: 10px; }
+            .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
         }
         
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -718,9 +647,10 @@
         };
         
         // ==================== CLOUDINARY CONFIG ====================
+        // 🔥 ĐÃ CẬP NHẬT VỚI THÔNG TIN CỦA BẠN
         const CLOUDINARY_CONFIG = {
-            cloudName: 'your-cloud-name',
-            uploadPreset: 'quizsystem-preset',
+            cloudName: '865582956777463',  // Cloud Name của bạn
+            uploadPreset: 'quizsystem',     // Tạo trên Cloudinary
             folder: 'avatars'
         };
         
@@ -777,44 +707,29 @@
             }
             
             try {
-                // Lấy toàn bộ dữ liệu user từ Firebase
                 const snapshot = await database.ref(`users/${currentUser.uid}`).once('value');
                 const userData = snapshot.val();
                 
                 console.log('📌 Dữ liệu từ Firebase:', userData);
                 
                 if (userData) {
-                    // Lấy profile (có thể nằm trong node profile hoặc trực tiếp)
                     if (userData.profile) {
                         profileData = { ...userData.profile };
                     } else {
                         profileData = { ...userData };
                     }
                     
-                    // Lấy role - QUAN TRỌNG: Kiểm tra nhiều vị trí
-                    let role = 'student'; // Mặc định
-                    
-                    // Kiểm tra role trong node profile
+                    // Lấy role
+                    let role = 'student';
                     if (profileData.role) {
                         role = profileData.role;
-                    }
-                    // Kiểm tra role trong node riêng
-                    else if (userData.role) {
+                    } else if (userData.role) {
                         role = userData.role;
                     }
-                    // Kiểm tra role trong profileData (từ cấu trúc cũ)
-                    else if (profileData.role) {
-                        role = profileData.role;
-                    }
-                    
-                    // Chuẩn hóa role (xử lý cả tiếng Việt và tiếng Anh)
                     role = normalizeRole(role);
                     profileData.role = role;
                     
-                    console.log('📌 Role đã xác định:', role);
-                    
                 } else {
-                    // Tạo profile mặc định
                     profileData = {
                         fullName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
                         phone: '',
@@ -840,60 +755,37 @@
         // ==================== NORMALIZE ROLE ====================
         function normalizeRole(role) {
             if (!role) return 'student';
-            
-            // Chuẩn hóa về chữ thường và loại bỏ dấu
             const normalized = role.toLowerCase().trim();
-            
-            // Xử lý tiếng Việt có dấu
-            if (normalized.includes('giáo viên') || normalized.includes('teacher')) {
-                return 'teacher';
-            }
-            if (normalized.includes('quản trị') || normalized.includes('admin')) {
-                return 'admin';
-            }
-            if (normalized.includes('học sinh') || normalized.includes('student')) {
-                return 'student';
-            }
-            
-            // Fallback
+            if (normalized.includes('giáo viên') || normalized.includes('teacher')) return 'teacher';
+            if (normalized.includes('quản trị') || normalized.includes('admin')) return 'admin';
+            if (normalized.includes('học sinh') || normalized.includes('student')) return 'student';
             return 'student';
         }
         
         // ==================== GET ROLE DISPLAY ====================
         function getRoleDisplay(role) {
-            const normalized = normalizeRole(role);
-            
             const roleMap = {
                 'teacher': { text: '👨‍🏫 Giáo viên', class: 'role-teacher' },
                 'admin': { text: '👑 Quản trị viên', class: 'role-admin' },
                 'student': { text: '👨‍🎓 Học sinh', class: 'role-student' }
             };
-            
-            return roleMap[normalized] || roleMap['student'];
+            return roleMap[role] || roleMap['student'];
         }
         
         // ==================== RENDER PROFILE ====================
         function renderProfile(data) {
-            // Tên hiển thị
             const displayName = data.fullName || data.name || 'User';
             document.getElementById('display-name').textContent = displayName;
             document.getElementById('full-name').textContent = displayName;
-            
-            // Username
             document.getElementById('username').textContent = data.username || 'username';
-            
-            // Phone
             document.getElementById('phone-number').textContent = data.phone || '---';
             
-            // Role - PHÂN QUYỀN CHÍNH XÁC
+            // Role
             const roleEl = document.getElementById('display-role');
             const role = data.role || 'student';
-            
             const roleInfo = getRoleDisplay(role);
             roleEl.className = `role ${roleInfo.class}`;
             roleEl.textContent = roleInfo.text;
-            
-            console.log('📌 Hiển thị role:', roleInfo.text);
             
             // Gender
             if (data.gender) {
@@ -915,12 +807,11 @@
                 avatarImage.style.display = 'none';
             }
             
-            // Lưu vào localStorage để đồng bộ
             localStorage.setItem('userName', displayName);
             localStorage.setItem('userRole', role);
         }
         
-        // ==================== SAVE PROFILE TO FIREBASE ====================
+        // ==================== SAVE PROFILE ====================
         async function saveProfile() {
             if (!currentUser || !database) {
                 showToast('⚠️ Chưa đăng nhập', 'error');
@@ -946,8 +837,6 @@
                 };
                 
                 await database.ref(`users/${currentUser.uid}/profile`).update(updatedData);
-                
-                // Giữ nguyên role cũ
                 profileData = { ...profileData, ...updatedData };
                 
                 document.getElementById('display-name').textContent = fullName;
@@ -966,6 +855,7 @@
         
         // ==================== CLOUDINARY UPLOAD ====================
         function openCloudinaryUpload() {
+            // Kiểm tra cấu hình Cloudinary
             if (!CLOUDINARY_CONFIG.cloudName || CLOUDINARY_CONFIG.cloudName === 'your-cloud-name') {
                 showToast('⚠️ Vui lòng cấu hình Cloudinary trong code', 'error');
                 return;
@@ -976,13 +866,31 @@
                 return;
             }
             
+            // Khởi tạo Cloudinary Widget
             cloudinaryWidget = cloudinary.createUploadWidget({
                 cloudName: CLOUDINARY_CONFIG.cloudName,
                 uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
                 folder: CLOUDINARY_CONFIG.folder,
-                maxFileSize: 5000000,
+                maxFileSize: 5000000, // 5MB
                 multiple: false,
-                clientAllowedFormats: ['image/*']
+                clientAllowedFormats: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
+                styles: {
+                    palette: {
+                        window: '#FFFFFF',
+                        windowBorder: '#E2E8F0',
+                        tabIcon: '#4F46E5',
+                        menuIcons: '#4F46E5',
+                        textDark: '#1A1A2E',
+                        textLight: '#718096',
+                        link: '#4F46E5',
+                        action: '#4F46E5',
+                        inactiveTabIcon: '#A0AEC0',
+                        error: '#EF4444',
+                        inProgress: '#F59E0B',
+                        complete: '#10B981',
+                        sourceBg: '#F8FAFC'
+                    }
+                }
             }, (error, result) => {
                 if (error) {
                     console.error('Cloudinary error:', error);
@@ -994,6 +902,7 @@
                     const imageUrl = result.info.secure_url;
                     console.log('✅ Upload thành công:', imageUrl);
                     
+                    // Cập nhật avatar
                     const avatarImage = document.getElementById('avatar-image');
                     const avatarText = document.getElementById('avatar-text');
                     avatarImage.src = imageUrl;
@@ -1002,10 +911,14 @@
                     
                     profileData.avatar = imageUrl;
                     
+                    // Lưu lên Firebase
                     if (currentUser && database) {
                         database.ref(`users/${currentUser.uid}/profile/avatar`).set(imageUrl)
                             .then(() => showToast('✅ Đã cập nhật ảnh đại diện', 'success'))
-                            .catch(err => showToast('❌ Không thể lưu ảnh', 'error'));
+                            .catch(err => {
+                                console.error('❌ Lỗi lưu ảnh:', err);
+                                showToast('❌ Không thể lưu ảnh', 'error');
+                            });
                     }
                 }
             });
