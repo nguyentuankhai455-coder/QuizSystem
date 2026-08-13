@@ -211,10 +211,10 @@
         .profile-header .user-info .role {
             font-size: 14px;
             font-weight: 600;
-            padding: 2px 14px;
+            padding: 4px 16px;
             border-radius: 20px;
             display: inline-block;
-            margin-top: 2px;
+            margin-top: 4px;
         }
         
         .role-teacher {
@@ -492,19 +492,6 @@
             }
         }
         
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #e2e8f0;
-            border-top-color: #4f46e5;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -732,8 +719,8 @@
         
         // ==================== CLOUDINARY CONFIG ====================
         const CLOUDINARY_CONFIG = {
-            cloudName: 'your-cloud-name', // 🔥 THAY THẾ BẰNG CLOUD NAME CỦA BẠN
-            uploadPreset: 'quizsystem-preset', // 🔥 THAY THẾ BẰNG UPLOAD PRESET
+            cloudName: 'your-cloud-name',
+            uploadPreset: 'quizsystem-preset',
             folder: 'avatars'
         };
         
@@ -790,35 +777,59 @@
             }
             
             try {
-                // Lấy profile từ Firebase
-                const snapshot = await database.ref(`users/${currentUser.uid}/profile`).once('value');
-                const data = snapshot.val();
+                // Lấy toàn bộ dữ liệu user từ Firebase
+                const snapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+                const userData = snapshot.val();
                 
-                // Lấy role từ Firebase (nếu có)
-                const roleSnapshot = await database.ref(`users/${currentUser.uid}/role`).once('value');
-                const userRole = roleSnapshot.val() || 'student';
+                console.log('📌 Dữ liệu từ Firebase:', userData);
                 
-                if (data) {
-                    profileData = { ...data, role: userRole };
+                if (userData) {
+                    // Lấy profile (có thể nằm trong node profile hoặc trực tiếp)
+                    if (userData.profile) {
+                        profileData = { ...userData.profile };
+                    } else {
+                        profileData = { ...userData };
+                    }
+                    
+                    // Lấy role - QUAN TRỌNG: Kiểm tra nhiều vị trí
+                    let role = 'student'; // Mặc định
+                    
+                    // Kiểm tra role trong node profile
+                    if (profileData.role) {
+                        role = profileData.role;
+                    }
+                    // Kiểm tra role trong node riêng
+                    else if (userData.role) {
+                        role = userData.role;
+                    }
+                    // Kiểm tra role trong profileData (từ cấu trúc cũ)
+                    else if (profileData.role) {
+                        role = profileData.role;
+                    }
+                    
+                    // Chuẩn hóa role (xử lý cả tiếng Việt và tiếng Anh)
+                    role = normalizeRole(role);
+                    profileData.role = role;
+                    
+                    console.log('📌 Role đã xác định:', role);
+                    
                 } else {
-                    // Tạo profile mặc định với role
+                    // Tạo profile mặc định
                     profileData = {
                         fullName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
                         phone: '',
                         username: currentUser.email?.split('@')[0] || 'username',
                         gender: 'male',
                         avatar: '',
-                        role: userRole,
+                        role: 'student',
                         createdAt: new Date().toISOString()
                     };
                     
-                    // Lưu lên Firebase
                     await database.ref(`users/${currentUser.uid}/profile`).set(profileData);
-                    await database.ref(`users/${currentUser.uid}/role`).set(userRole);
+                    await database.ref(`users/${currentUser.uid}/role`).set('student');
                 }
                 
                 renderProfile(profileData);
-                showToast('✅ Đã tải thông tin', 'success');
                 
             } catch (error) {
                 console.error('❌ Lỗi tải profile:', error);
@@ -826,10 +837,45 @@
             }
         }
         
+        // ==================== NORMALIZE ROLE ====================
+        function normalizeRole(role) {
+            if (!role) return 'student';
+            
+            // Chuẩn hóa về chữ thường và loại bỏ dấu
+            const normalized = role.toLowerCase().trim();
+            
+            // Xử lý tiếng Việt có dấu
+            if (normalized.includes('giáo viên') || normalized.includes('teacher')) {
+                return 'teacher';
+            }
+            if (normalized.includes('quản trị') || normalized.includes('admin')) {
+                return 'admin';
+            }
+            if (normalized.includes('học sinh') || normalized.includes('student')) {
+                return 'student';
+            }
+            
+            // Fallback
+            return 'student';
+        }
+        
+        // ==================== GET ROLE DISPLAY ====================
+        function getRoleDisplay(role) {
+            const normalized = normalizeRole(role);
+            
+            const roleMap = {
+                'teacher': { text: '👨‍🏫 Giáo viên', class: 'role-teacher' },
+                'admin': { text: '👑 Quản trị viên', class: 'role-admin' },
+                'student': { text: '👨‍🎓 Học sinh', class: 'role-student' }
+            };
+            
+            return roleMap[normalized] || roleMap['student'];
+        }
+        
         // ==================== RENDER PROFILE ====================
         function renderProfile(data) {
             // Tên hiển thị
-            const displayName = data.fullName || 'User';
+            const displayName = data.fullName || data.name || 'User';
             document.getElementById('display-name').textContent = displayName;
             document.getElementById('full-name').textContent = displayName;
             
@@ -843,20 +889,11 @@
             const roleEl = document.getElementById('display-role');
             const role = data.role || 'student';
             
-            // Xóa tất cả class role cũ
-            roleEl.className = 'role';
+            const roleInfo = getRoleDisplay(role);
+            roleEl.className = `role ${roleInfo.class}`;
+            roleEl.textContent = roleInfo.text;
             
-            // Thêm class và text phù hợp
-            if (role === 'teacher') {
-                roleEl.classList.add('role-teacher');
-                roleEl.textContent = '👨‍🏫 Giáo viên';
-            } else if (role === 'admin') {
-                roleEl.classList.add('role-admin');
-                roleEl.textContent = '👑 Quản trị viên';
-            } else {
-                roleEl.classList.add('role-student');
-                roleEl.textContent = '👨‍🎓 Học sinh';
-            }
+            console.log('📌 Hiển thị role:', roleInfo.text);
             
             // Gender
             if (data.gender) {
@@ -908,13 +945,11 @@
                     updatedAt: new Date().toISOString()
                 };
                 
-                // Lưu profile
                 await database.ref(`users/${currentUser.uid}/profile`).update(updatedData);
                 
-                // Giữ nguyên role, không ghi đè
+                // Giữ nguyên role cũ
                 profileData = { ...profileData, ...updatedData };
                 
-                // Cập nhật tên hiển thị
                 document.getElementById('display-name').textContent = fullName;
                 localStorage.setItem('userName', fullName);
                 
@@ -947,24 +982,7 @@
                 folder: CLOUDINARY_CONFIG.folder,
                 maxFileSize: 5000000,
                 multiple: false,
-                clientAllowedFormats: ['image/*'],
-                styles: {
-                    palette: {
-                        window: '#FFFFFF',
-                        windowBorder: '#E2E8F0',
-                        tabIcon: '#4F46E5',
-                        menuIcons: '#4F46E5',
-                        textDark: '#1A1A2E',
-                        textLight: '#718096',
-                        link: '#4F46E5',
-                        action: '#4F46E5',
-                        inactiveTabIcon: '#A0AEC0',
-                        error: '#EF4444',
-                        inProgress: '#F59E0B',
-                        complete: '#10B981',
-                        sourceBg: '#F8FAFC'
-                    }
-                }
+                clientAllowedFormats: ['image/*']
             }, (error, result) => {
                 if (error) {
                     console.error('Cloudinary error:', error);
