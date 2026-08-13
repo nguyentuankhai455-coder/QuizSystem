@@ -10,9 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- Cloudinary SDK -->
-    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -70,37 +67,26 @@
             background: #e2e8f0;
             color: #4a5568;
         }
-        .btn-secondary:hover {
-            background: #cbd5e0;
-        }
+        .btn-secondary:hover { background: #cbd5e0; }
         
         .btn-outline {
             background: transparent;
             color: #4f46e5;
             border: 2px solid #4f46e5;
         }
-        .btn-outline:hover {
-            background: #4f46e5;
-            color: white;
-        }
+        .btn-outline:hover { background: #4f46e5; color: white; }
         
         .btn-primary {
             background: #4f46e5;
             color: white;
         }
-        .btn-primary:hover {
-            background: #4338ca;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
-        }
+        .btn-primary:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35); }
         
         .btn-danger {
             background: #ef4444;
             color: white;
         }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
+        .btn-danger:hover { background: #dc2626; }
         
         .btn-sm {
             padding: 6px 16px;
@@ -111,9 +97,7 @@
             background: #10b981;
             color: white;
         }
-        .btn-success:hover {
-            background: #059669;
-        }
+        .btn-success:hover { background: #059669; }
         
         .btn:disabled {
             opacity: 0.6;
@@ -203,20 +187,9 @@
             margin-top: 4px;
         }
         
-        .role-teacher {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .role-student {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .role-admin {
-            background: #fef3c7;
-            color: #92400e;
-        }
+        .role-teacher { background: #dbeafe; color: #1e40af; }
+        .role-student { background: #d1fae5; color: #065f46; }
+        .role-admin { background: #fef3c7; color: #92400e; }
         
         .profile-header .avatar-actions {
             display: flex;
@@ -233,6 +206,80 @@
             margin-top: 4px;
         }
         
+        /* ===== LOADING OVERLAY ===== */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 48px;
+            text-align: center;
+            max-width: 400px;
+            animation: popIn 0.3s ease;
+        }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .loading-box .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-box h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+        
+        .loading-box p {
+            font-size: 14px;
+            color: #718096;
+        }
+        
+        .loading-box .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        
+        .loading-box .progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* ===== CARDS ===== */
         .card {
             background: white;
             border-radius: 16px;
@@ -270,9 +317,7 @@
             flex-wrap: wrap;
         }
         
-        .form-row:last-child {
-            border-bottom: none;
-        }
+        .form-row:last-child { border-bottom: none; }
         
         .form-row .label {
             font-weight: 600;
@@ -338,12 +383,8 @@
             flex: unset;
         }
         
-        .password-section {
-            margin-top: 8px;
-        }
-        .password-section .form-row:last-child {
-            border-bottom: none;
-        }
+        .password-section { margin-top: 8px; }
+        .password-section .form-row:last-child { border-bottom: none; }
         
         .password-section .btn-change {
             background: #4f46e5;
@@ -356,9 +397,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .password-section .btn-change:hover {
-            background: #4338ca;
-        }
+        .password-section .btn-change:hover { background: #4338ca; }
         
         .action-buttons {
             display: flex;
@@ -403,9 +442,7 @@
             color: #1a1a2e;
         }
         
-        .modal .form-group {
-            margin-bottom: 16px;
-        }
+        .modal .form-group { margin-bottom: 16px; }
         .modal .form-group label {
             display: block;
             font-weight: 600;
@@ -474,6 +511,7 @@
             .action-buttons .btn { justify-content: center; }
             .modal { padding: 20px; margin: 10px; }
             .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
+            .loading-box { padding: 30px 24px; margin: 20px; }
         }
         
         .hidden { display: none !important; }
@@ -514,7 +552,9 @@
                         <span class="role role-student" id="display-role">👨‍🎓 Học sinh</span>
                     </div>
                     <div class="avatar-actions">
-                        <button class="btn btn-secondary btn-sm" id="upload-btn" onclick="openCloudinaryUpload()">
+                        <!-- Ẩn input file và gọi bằng click -->
+                        <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+                        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('avatar-file-input').click()">
                             📤 Tải lên
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="removeAvatar()">🗑️ Xóa</button>
@@ -607,6 +647,18 @@
         </div>
     </div>
     
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-box">
+            <div class="spinner"></div>
+            <h3>⏳ Đang tải lên...</h3>
+            <p id="loading-text">Đang upload ảnh lên Cloudinary</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="upload-progress"></div>
+            </div>
+        </div>
+    </div>
+    
     <!-- MODAL: ĐỔI MẬT KHẨU -->
     <div class="modal-overlay" id="password-modal">
         <div class="modal">
@@ -647,11 +699,11 @@
         };
         
         // ==================== CLOUDINARY CONFIG ====================
-        // 🔥 ĐÃ CẬP NHẬT VỚI THÔNG TIN CỦA BẠN
         const CLOUDINARY_CONFIG = {
-            cloudName: '865582956777463',  // Cloud Name của bạn
-            uploadPreset: 'quizsystem',     // Tạo trên Cloudinary
-            folder: 'avatars'
+            cloudName: '865582956777463',
+            uploadPreset: 'quizsystem',
+            folder: 'avatars',
+            apiKey: '9SHw7aKSrGqrQ7bnovkqpX3avCw'
         };
         
         let auth = null;
@@ -659,7 +711,6 @@
         let firebaseReady = false;
         let currentUser = null;
         let profileData = {};
-        let cloudinaryWidget = null;
         
         // ==================== INIT FIREBASE ====================
         try {
@@ -683,6 +734,22 @@
             el._timer = setTimeout(() => el.classList.add('hidden'), 4000);
         }
         
+        // ==================== LOADING OVERLAY ====================
+        function showLoading(text = 'Đang upload ảnh lên Cloudinary') {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('upload-progress').style.width = '0%';
+            document.getElementById('loading-overlay').classList.add('active');
+        }
+        
+        function updateProgress(percent) {
+            document.getElementById('upload-progress').style.width = Math.min(percent, 100) + '%';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.remove('active');
+            document.getElementById('upload-progress').style.width = '0%';
+        }
+        
         // ==================== CHECK AUTH ====================
         function checkAuth() {
             if (!firebaseReady || !auth) return;
@@ -694,12 +761,11 @@
                 }
                 currentUser = user;
                 console.log('✅ User logged in:', user.email);
-                console.log('📌 UID:', user.uid);
                 await loadProfile();
             });
         }
         
-        // ==================== LOAD PROFILE FROM FIREBASE ====================
+        // ==================== LOAD PROFILE ====================
         async function loadProfile() {
             if (!currentUser || !database) {
                 showToast('⚠️ Chưa đăng nhập', 'error');
@@ -710,8 +776,6 @@
                 const snapshot = await database.ref(`users/${currentUser.uid}`).once('value');
                 const userData = snapshot.val();
                 
-                console.log('📌 Dữ liệu từ Firebase:', userData);
-                
                 if (userData) {
                     if (userData.profile) {
                         profileData = { ...userData.profile };
@@ -719,7 +783,6 @@
                         profileData = { ...userData };
                     }
                     
-                    // Lấy role
                     let role = 'student';
                     if (profileData.role) {
                         role = profileData.role;
@@ -780,19 +843,16 @@
             document.getElementById('username').textContent = data.username || 'username';
             document.getElementById('phone-number').textContent = data.phone || '---';
             
-            // Role
             const roleEl = document.getElementById('display-role');
             const role = data.role || 'student';
             const roleInfo = getRoleDisplay(role);
             roleEl.className = `role ${roleInfo.class}`;
             roleEl.textContent = roleInfo.text;
             
-            // Gender
             if (data.gender) {
                 document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
             }
             
-            // Avatar
             const avatarText = document.getElementById('avatar-text');
             const avatarImage = document.getElementById('avatar-image');
             
@@ -853,77 +913,95 @@
             }
         }
         
-        // ==================== CLOUDINARY UPLOAD ====================
-        function openCloudinaryUpload() {
-            // Kiểm tra cấu hình Cloudinary
-            if (!CLOUDINARY_CONFIG.cloudName || CLOUDINARY_CONFIG.cloudName === 'your-cloud-name') {
-                showToast('⚠️ Vui lòng cấu hình Cloudinary trong code', 'error');
+        // ==================== UPLOAD AVATAR ====================
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Kiểm tra file
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('⚠️ File ảnh vượt quá 5MB', 'error');
+                event.target.value = '';
                 return;
             }
             
-            if (cloudinaryWidget) {
-                cloudinaryWidget.open();
+            if (!file.type.startsWith('image/')) {
+                showToast('⚠️ Vui lòng chọn file ảnh', 'error');
+                event.target.value = '';
                 return;
             }
             
-            // Khởi tạo Cloudinary Widget
-            cloudinaryWidget = cloudinary.createUploadWidget({
-                cloudName: CLOUDINARY_CONFIG.cloudName,
-                uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
-                folder: CLOUDINARY_CONFIG.folder,
-                maxFileSize: 5000000, // 5MB
-                multiple: false,
-                clientAllowedFormats: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
-                styles: {
-                    palette: {
-                        window: '#FFFFFF',
-                        windowBorder: '#E2E8F0',
-                        tabIcon: '#4F46E5',
-                        menuIcons: '#4F46E5',
-                        textDark: '#1A1A2E',
-                        textLight: '#718096',
-                        link: '#4F46E5',
-                        action: '#4F46E5',
-                        inactiveTabIcon: '#A0AEC0',
-                        error: '#EF4444',
-                        inProgress: '#F59E0B',
-                        complete: '#10B981',
-                        sourceBg: '#F8FAFC'
+            // Hiển thị loading
+            showLoading('Đang upload ảnh lên Cloudinary...');
+            updateProgress(10);
+            
+            try {
+                // Tạo FormData
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
+                formData.append('folder', CLOUDINARY_CONFIG.folder);
+                
+                updateProgress(30);
+                
+                // Upload lên Cloudinary
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`);
+                
+                // Theo dõi tiến trình upload
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const percent = 30 + (e.loaded / e.total) * 60;
+                        updateProgress(percent);
                     }
-                }
-            }, (error, result) => {
-                if (error) {
-                    console.error('Cloudinary error:', error);
-                    showToast('❌ Lỗi upload ảnh', 'error');
-                    return;
+                };
+                
+                const response = await new Promise((resolve, reject) => {
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            resolve(JSON.parse(xhr.responseText));
+                        } else {
+                            reject(new Error('Upload failed: ' + xhr.status));
+                        }
+                    };
+                    xhr.onerror = function() {
+                        reject(new Error('Network error'));
+                    };
+                    xhr.send(formData);
+                });
+                
+                updateProgress(95);
+                
+                const imageUrl = response.secure_url;
+                console.log('✅ Upload thành công:', imageUrl);
+                
+                // Cập nhật avatar
+                const avatarImage = document.getElementById('avatar-image');
+                const avatarText = document.getElementById('avatar-text');
+                avatarImage.src = imageUrl;
+                avatarImage.style.display = 'block';
+                avatarText.style.display = 'none';
+                
+                // Lưu vào Firebase
+                if (currentUser && database) {
+                    await database.ref(`users/${currentUser.uid}/profile/avatar`).set(imageUrl);
+                    profileData.avatar = imageUrl;
                 }
                 
-                if (result.event === 'success') {
-                    const imageUrl = result.info.secure_url;
-                    console.log('✅ Upload thành công:', imageUrl);
-                    
-                    // Cập nhật avatar
-                    const avatarImage = document.getElementById('avatar-image');
-                    const avatarText = document.getElementById('avatar-text');
-                    avatarImage.src = imageUrl;
-                    avatarImage.style.display = 'block';
-                    avatarText.style.display = 'none';
-                    
-                    profileData.avatar = imageUrl;
-                    
-                    // Lưu lên Firebase
-                    if (currentUser && database) {
-                        database.ref(`users/${currentUser.uid}/profile/avatar`).set(imageUrl)
-                            .then(() => showToast('✅ Đã cập nhật ảnh đại diện', 'success'))
-                            .catch(err => {
-                                console.error('❌ Lỗi lưu ảnh:', err);
-                                showToast('❌ Không thể lưu ảnh', 'error');
-                            });
-                    }
-                }
-            });
+                updateProgress(100);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                hideLoading();
+                
+                showToast('✅ Đã cập nhật ảnh đại diện!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Upload error:', error);
+                hideLoading();
+                showToast('❌ Không thể upload ảnh. Vui lòng thử lại.', 'error');
+            }
             
-            cloudinaryWidget.open();
+            // Reset input
+            event.target.value = '';
         }
         
         // ==================== REMOVE AVATAR ====================
@@ -1018,7 +1096,7 @@
             }
         }
         
-        // ==================== CHANGE PASSWORD (from card) ====================
+        // ==================== CHANGE PASSWORD ====================
         async function changePassword() {
             const newPwd = document.getElementById('new-password').value;
             const confirmPwd = document.getElementById('confirm-password').value;
