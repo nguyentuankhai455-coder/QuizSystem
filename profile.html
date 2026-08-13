@@ -164,6 +164,7 @@
             font-weight: 700;
             flex-shrink: 0;
             overflow: hidden;
+            border: 3px solid #e2e8f0;
         }
         
         .profile-header .avatar img {
@@ -206,7 +207,7 @@
             margin-top: 4px;
         }
         
-        /* ===== LOADING OVERLAY ===== */
+        /* LOADING OVERLAY */
         .loading-overlay {
             position: fixed;
             inset: 0;
@@ -217,10 +218,7 @@
             align-items: center;
             z-index: 9999;
         }
-        
-        .loading-overlay.active {
-            display: flex;
-        }
+        .loading-overlay.active { display: flex; }
         
         .loading-box {
             background: white;
@@ -246,21 +244,10 @@
             margin: 0 auto 16px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        .loading-box h3 {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 4px;
-        }
-        
-        .loading-box p {
-            font-size: 14px;
-            color: #718096;
-        }
+        .loading-box h3 { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .loading-box p { font-size: 14px; color: #718096; }
         
         .loading-box .progress-bar {
             width: 100%;
@@ -279,7 +266,6 @@
             transition: width 0.3s ease;
         }
         
-        /* ===== CARDS ===== */
         .card {
             background: white;
             border-radius: 16px;
@@ -316,7 +302,6 @@
             gap: 16px;
             flex-wrap: wrap;
         }
-        
         .form-row:last-child { border-bottom: none; }
         
         .form-row .label {
@@ -435,13 +420,7 @@
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
         
-        .modal h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #1a1a2e;
-        }
-        
+        .modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1a1a2e; }
         .modal .form-group { margin-bottom: 16px; }
         .modal .form-group label {
             display: block;
@@ -552,7 +531,6 @@
                         <span class="role role-student" id="display-role">👨‍🎓 Học sinh</span>
                     </div>
                     <div class="avatar-actions">
-                        <!-- Ẩn input file và gọi bằng click -->
                         <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
                         <button class="btn btn-secondary btn-sm" onclick="document.getElementById('avatar-file-input').click()">
                             📤 Tải lên
@@ -699,11 +677,11 @@
         };
         
         // ==================== CLOUDINARY CONFIG ====================
+        // 🔥 ĐÃ SỬA: Dùng đúng tên preset của bạn
         const CLOUDINARY_CONFIG = {
             cloudName: '865582956777463',
-            uploadPreset: 'quizsystem',
-            folder: 'avatars',
-            apiKey: '9SHw7aKSrGqrQ7bnovkqpX3avCw'
+            uploadPreset: 'quizsystem_avatar',  // ← Đúng tên preset
+            folder: 'avatars'
         };
         
         let auth = null;
@@ -735,7 +713,7 @@
         }
         
         // ==================== LOADING OVERLAY ====================
-        function showLoading(text = 'Đang upload ảnh lên Cloudinary') {
+        function showLoading(text = 'Đang upload ảnh lên Cloudinary...') {
             document.getElementById('loading-text').textContent = text;
             document.getElementById('upload-progress').style.width = '0%';
             document.getElementById('loading-overlay').classList.add('active');
@@ -918,6 +896,8 @@
             const file = event.target.files[0];
             if (!file) return;
             
+            console.log('📌 File selected:', file.name, file.type, (file.size / 1024).toFixed(2), 'KB');
+            
             // Kiểm tra file
             if (file.size > 5 * 1024 * 1024) {
                 showToast('⚠️ File ảnh vượt quá 5MB', 'error');
@@ -942,11 +922,17 @@
                 formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
                 formData.append('folder', CLOUDINARY_CONFIG.folder);
                 
+                console.log('📤 Uploading to Cloudinary...');
+                console.log('   Cloud Name:', CLOUDINARY_CONFIG.cloudName);
+                console.log('   Upload Preset:', CLOUDINARY_CONFIG.uploadPreset);
+                console.log('   Folder:', CLOUDINARY_CONFIG.folder);
+                
                 updateProgress(30);
                 
                 // Upload lên Cloudinary
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`);
+                const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`;
+                xhr.open('POST', url);
                 
                 // Theo dõi tiến trình upload
                 xhr.upload.onprogress = function(e) {
@@ -958,14 +944,24 @@
                 
                 const response = await new Promise((resolve, reject) => {
                     xhr.onload = function() {
+                        console.log('📥 Response status:', xhr.status);
                         if (xhr.status === 200) {
-                            resolve(JSON.parse(xhr.responseText));
+                            try {
+                                resolve(JSON.parse(xhr.responseText));
+                            } catch (e) {
+                                reject(new Error('Invalid JSON response'));
+                            }
                         } else {
-                            reject(new Error('Upload failed: ' + xhr.status));
+                            let errorMsg = 'Upload failed: ' + xhr.status;
+                            try {
+                                const err = JSON.parse(xhr.responseText);
+                                errorMsg = err.error?.message || errorMsg;
+                            } catch (e) {}
+                            reject(new Error(errorMsg));
                         }
                     };
                     xhr.onerror = function() {
-                        reject(new Error('Network error'));
+                        reject(new Error('Network error - không thể kết nối Cloudinary'));
                     };
                     xhr.send(formData);
                 });
@@ -986,6 +982,7 @@
                 if (currentUser && database) {
                     await database.ref(`users/${currentUser.uid}/profile/avatar`).set(imageUrl);
                     profileData.avatar = imageUrl;
+                    console.log('✅ Đã lưu URL vào Firebase');
                 }
                 
                 updateProgress(100);
@@ -997,7 +994,7 @@
             } catch (error) {
                 console.error('❌ Upload error:', error);
                 hideLoading();
-                showToast('❌ Không thể upload ảnh. Vui lòng thử lại.', 'error');
+                showToast('❌ ' + error.message, 'error');
             }
             
             // Reset input
@@ -1151,6 +1148,11 @@
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 profile.html đã tải');
+            console.log('☁️ Cloudinary Config:', {
+                cloudName: CLOUDINARY_CONFIG.cloudName,
+                uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
+                folder: CLOUDINARY_CONFIG.folder
+            });
             checkAuth();
             
             document.getElementById('password-modal').addEventListener('click', function(e) {
