@@ -5,32 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - QuizSystem</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f0f2f5;
             color: #1a1a2e;
             line-height: 1.6;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px 20px;
-        }
-        
-        /* ===== HEADER ===== */
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
         .header {
             display: flex;
             justify-content: space-between;
@@ -39,23 +25,9 @@
             gap: 16px;
             margin-bottom: 8px;
         }
-        
-        .header .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        
-        .header .logo span {
-            color: #4f46e5;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        
+        .header .logo { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+        .header .logo span { color: #4f46e5; }
+        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .btn {
             padding: 10px 24px;
             border: none;
@@ -69,71 +41,22 @@
             gap: 8px;
             text-decoration: none;
         }
-        
-        .btn-primary {
-            background: #4f46e5;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #4338ca;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            color: #4f46e5;
-            border: 2px solid #4f46e5;
-        }
-        
-        .btn-outline:hover {
-            background: #4f46e5;
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        
-        .btn-secondary:hover {
-            background: #cbd5e0;
-        }
-        
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-secondary:hover { background: #cbd5e0; }
         .btn-danger-outline {
             background: transparent;
             color: #ef4444;
             border: 2px solid #ef4444;
         }
-        
-        .btn-danger-outline:hover {
-            background: #ef4444;
-            color: white;
-        }
-        
-        /* ===== BREADCRUMB ===== */
+        .btn-danger-outline:hover { background: #ef4444; color: white; }
         .breadcrumb {
             font-size: 14px;
             color: #718096;
             margin-bottom: 20px;
         }
-        
-        .breadcrumb a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
-        .breadcrumb span {
-            color: #1a1a2e;
-            font-weight: 600;
-        }
-        
-        /* ===== WELCOME ===== */
+        .breadcrumb a { color: #4f46e5; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb span { color: #1a1a2e; font-weight: 600; }
         .welcome-card {
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
@@ -141,30 +64,15 @@
             padding: 32px 36px;
             margin-bottom: 32px;
         }
-        
-        .welcome-card h1 {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        
-        .welcome-card h1 span {
-            font-weight: 400;
-        }
-        
-        .welcome-card p {
-            opacity: 0.85;
-            font-size: 15px;
-        }
-        
-        /* ===== GRID ===== */
+        .welcome-card h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+        .welcome-card h1 span { font-weight: 400; }
+        .welcome-card p { opacity: 0.85; font-size: 15px; }
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
             margin-bottom: 32px;
         }
-        
         .grid-title {
             font-size: 18px;
             font-weight: 700;
@@ -172,7 +80,6 @@
             margin-bottom: 16px;
             grid-column: 1 / -1;
         }
-        
         .card {
             background: white;
             border-radius: 16px;
@@ -184,32 +91,14 @@
             color: inherit;
             display: block;
         }
-        
         .card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
             border-color: #4f46e5;
         }
-        
-        .card .icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-            display: block;
-        }
-        
-        .card h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 4px;
-        }
-        
-        .card .desc {
-            font-size: 14px;
-            color: #718096;
-            margin-bottom: 12px;
-        }
-        
+        .card .icon { font-size: 32px; margin-bottom: 12px; display: block; }
+        .card h3 { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .card .desc { font-size: 14px; color: #718096; margin-bottom: 12px; }
         .card .badge {
             display: inline-block;
             background: #eef2ff;
@@ -219,13 +108,7 @@
             font-size: 20px;
             font-weight: 700;
         }
-        
-        .card .badge.zero {
-            background: #f8fafc;
-            color: #a0aec0;
-        }
-        
-        /* ===== TOAST ===== */
+        .card .badge.zero { background: #f8fafc; color: #a0aec0; }
         .toast {
             position: fixed;
             bottom: 24px;
@@ -240,31 +123,13 @@
             font-size: 14px;
             max-width: 400px;
         }
-        
-        .toast.success {
-            background: #10b981;
-        }
-        
-        .toast.error {
-            background: #ef4444;
-        }
-        
-        .toast.hidden {
-            display: none;
-        }
-        
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        .toast.hidden { display: none; }
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* ===== FOOTER ===== */
         .footer {
             text-align: center;
             padding: 32px 20px 12px;
@@ -273,55 +138,21 @@
             border-top: 1px solid #edf2f7;
             margin-top: 12px;
         }
-        
-        .footer a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        /* ===== RESPONSIVE ===== */
+        .footer a { color: #4f46e5; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
         @media (max-width: 640px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-            }
-            .header-actions {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            .welcome-card {
-                padding: 24px 20px;
-                text-align: center;
-            }
-            .welcome-card h1 {
-                font-size: 20px;
-            }
-            .grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .toast {
-                bottom: 12px;
-                right: 12px;
-                left: 12px;
-                max-width: none;
-            }
+            .header { flex-direction: column; align-items: stretch; text-align: center; }
+            .header-actions { justify-content: center; flex-wrap: wrap; }
+            .welcome-card { padding: 24px 20px; text-align: center; }
+            .welcome-card h1 { font-size: 20px; }
+            .grid { grid-template-columns: 1fr 1fr; }
+            .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
         }
-        
-        @media (max-width: 480px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
         <div class="header">
             <div class="logo">📚 <span>Quiz</span>System</div>
             <div class="header-actions">
@@ -330,19 +161,16 @@
             </div>
         </div>
         
-        <!-- BREADCRUMB -->
         <div class="breadcrumb">
             <a href="dashboard.html">Trang chủ</a> &gt; 
             <span>Tổng quan</span>
         </div>
         
-        <!-- WELCOME -->
         <div class="welcome-card">
-            <h1>👋 Chào mừng trở lại, <span id="user-name">tuần khải nguyễn</span></h1>
+            <h1>👋 Chào mừng trở lại, <span id="user-name">User</span></h1>
             <p>Quản lý hệ thống giáo dục của bạn một cách hiệu quả</p>
         </div>
         
-        <!-- GRID 1: Học tập -->
         <div class="grid">
             <div class="grid-title">📖 Học tập</div>
             
@@ -375,7 +203,6 @@
             </a>
         </div>
         
-        <!-- GRID 2: Đang phát triển -->
         <div class="grid">
             <div class="grid-title">🚀 Đang phát triển</div>
             
@@ -394,19 +221,16 @@
             </a>
         </div>
         
-        <!-- FOOTER -->
         <div class="footer">
-            © 2026 <a href="https://www.quizsystem.com">QuizSystem</a> - Made with ❤️ by 
+            © 2026 <a href="#">QuizSystem</a> - Made with ❤️ by 
             <a href="#">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
             <strong>v2.0.0</strong>
         </div>
     </div>
     
-    <!-- TOAST -->
     <div id="toast" class="toast hidden"></div>
     
     <script>
-        // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
             apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
             authDomain: "quizsystem-1d1c2.firebaseapp.com",
@@ -430,7 +254,6 @@
             console.warn('⚠️ Firebase init failed:', e.message);
         }
         
-        // ===== TOAST =====
         function showToast(msg, type = 'success') {
             const el = document.getElementById('toast');
             el.textContent = msg;
@@ -440,19 +263,13 @@
             el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
         }
         
-        // ===== CHECK AUTH STATE =====
         function checkAuthState() {
             if (!firebaseReady || !auth) return;
-            
             auth.onAuthStateChanged(user => {
                 if (!user) {
-                    // Chưa đăng nhập -> chuyển về index
-                    console.log('🔒 Chưa đăng nhập, chuyển về trang đăng nhập');
                     window.location.href = 'index.html';
                     return;
                 }
-                
-                // Đã đăng nhập -> hiển thị tên
                 const userName = localStorage.getItem('userName') || 
                                  user.displayName || 
                                  user.email?.split('@')[0] || 
@@ -462,65 +279,42 @@
             });
         }
         
-        // ===== LOGOUT =====
         async function handleLogout() {
-            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-                return;
-            }
-            
+            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
             try {
-                // Đăng xuất Firebase
                 if (firebaseReady && auth) {
                     await auth.signOut();
                 }
-                
-                // Xóa dữ liệu localStorage
                 localStorage.removeItem('userId');
                 localStorage.removeItem('userEmail');
                 localStorage.removeItem('userName');
                 localStorage.removeItem('userPhoto');
                 localStorage.removeItem('rememberMe');
                 localStorage.removeItem('examCount');
-                
                 showToast('✅ Đã đăng xuất thành công!', 'success');
-                
-                // Chuyển về trang đăng nhập
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 500);
-                
+                setTimeout(() => { window.location.href = 'index.html'; }, 500);
             } catch (error) {
                 console.error('❌ Lỗi đăng xuất:', error);
                 showToast('❌ Đăng xuất thất bại. Vui lòng thử lại.', 'error');
             }
         }
         
-        // ===== LOAD EXAM COUNT =====
         function loadExamCount() {
             const count = localStorage.getItem('examCount');
             const badge = document.getElementById('exam-count-badge');
             if (badge) {
                 const num = parseInt(count) || 0;
                 badge.textContent = num;
-                if (num > 0) {
-                    badge.className = 'badge';
-                } else {
-                    badge.className = 'badge zero';
-                }
+                badge.className = num > 0 ? 'badge' : 'badge zero';
             }
         }
         
-        // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 dashboard.html đã tải');
             checkAuthState();
             loadExamCount();
-            
-            // Lắng nghe sự thay đổi số lượng đề thi
             window.addEventListener('storage', function(e) {
-                if (e.key === 'examCount') {
-                    loadExamCount();
-                }
+                if (e.key === 'examCount') loadExamCount();
             });
         });
     </script>
