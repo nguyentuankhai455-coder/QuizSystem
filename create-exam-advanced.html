@@ -3,1202 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soạn đề thi - QuizSystem</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <title>QuizSystem - Tạm dừng hoạt động</title>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: #f0f2f5;
             color: #1a1a2e;
             line-height: 1.6;
-        }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        
-        .header {
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 8px;
-        }
-        .header .logo { font-size: 24px; font-weight: 700; color: #1a1a2e; }
-        .header .logo span { color: #4f46e5; }
-        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        
-        .btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        .btn-secondary { background: #e2e8f0; color: #4a5568; }
-        .btn-secondary:hover { background: #cbd5e0; }
-        .btn-primary { background: #4f46e5; color: white; }
-        .btn-primary:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35); }
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
-        .btn-danger { background: #ef4444; color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-outline { background: transparent; color: #4f46e5; border: 2px solid #4f46e5; }
-        .btn-outline:hover { background: #4f46e5; color: white; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 8px; }
-        .btn-warning { background: #f59e0b; color: white; }
-        .btn-warning:hover { background: #d97706; }
-        
-        .breadcrumb {
-            font-size: 14px;
-            color: #718096;
-            margin-bottom: 20px;
-        }
-        .breadcrumb a { color: #4f46e5; text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .breadcrumb span { color: #1a1a2e; font-weight: 600; }
-        
-        .mode-switch {
-            display: flex;
-            gap: 0;
-            background: white;
-            border-radius: 12px;
-            padding: 4px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 20px;
-            width: fit-content;
-        }
-        .mode-switch .mode-btn {
-            padding: 10px 32px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: transparent;
-            color: #718096;
-        }
-        .mode-switch .mode-btn.active {
-            background: #4f46e5;
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
-        .mode-switch .mode-btn:hover:not(.active) {
-            background: #f0f2f5;
-        }
-        
-        .main-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-        
-        .panel {
-            background: white;
-            border-radius: 16px;
-            border: 1px solid #edf2f7;
-            overflow: hidden;
-        }
-        .panel-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #edf2f7;
-            font-weight: 700;
-            font-size: 16px;
-            color: #1a1a2e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            background: #fafbfc;
-        }
-        .panel-body {
-            padding: 20px;
-            max-height: 650px;
-            overflow-y: auto;
-        }
-        
-        /* ===== LEFT PANEL - SOẠN ĐỀ ===== */
-        .question-editor {
-            margin-bottom: 20px;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        .question-editor:last-child {
-            margin-bottom: 0;
-        }
-        .question-editor .q-label {
-            font-weight: 700;
-            color: #4f46e5;
-            margin-bottom: 8px;
-            display: block;
-            font-size: 15px;
-        }
-        .question-editor .q-content {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 44px;
-            transition: border-color 0.2s;
-            background: white;
-            margin-bottom: 10px;
-        }
-        .question-editor .q-content:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-        }
-        .question-editor .option-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: background 0.2s;
-            cursor: pointer;
-            margin-bottom: 2px;
-        }
-        .question-editor .option-row:hover {
-            background: #edf2f7;
-        }
-        .question-editor .option-row .opt-label {
-            font-weight: 700;
-            color: #4a5568;
-            min-width: 24px;
-            font-size: 14px;
-        }
-        .question-editor .option-row .opt-input {
-            flex: 1;
-            padding: 6px 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-            background: white;
-            transition: all 0.2s;
-        }
-        .question-editor .option-row .opt-input:focus {
-            outline: none;
-            border-color: #4f46e5;
-        }
-        .question-editor .option-row .opt-input.correct {
-            border-color: #10b981;
-            background: #f0fdf4;
-            font-weight: 700;
-            color: #065f46;
-        }
-        .question-editor .option-row .opt-check {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 2px solid #e2e8f0;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: #a0aec0;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .question-editor .option-row .opt-check.active {
-            background: #10b981;
-            border-color: #10b981;
-            color: white;
-        }
-        .question-editor .option-row .opt-check:hover {
-            border-color: #4f46e5;
-        }
-        .question-editor .q-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            flex-wrap: wrap;
             align-items: center;
-        }
-        .question-editor .q-actions .hint {
-            font-size: 12px;
-            color: #a0aec0;
-            flex: 1;
         }
         
-        /* ===== RIGHT PANEL - PREVIEW ===== */
-        .preview-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.2s;
-        }
-        .preview-item:hover {
-            background: #f8fafc;
-        }
-        .preview-item:last-child { border-bottom: none; }
-        .preview-item .p-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .preview-item .p-header .p-num {
-            font-weight: 700;
-            color: #4f46e5;
-            font-size: 15px;
-        }
-        .preview-item .p-header .p-status {
-            font-size: 12px;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .preview-item .p-header .p-status.done {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .preview-item .p-header .p-status.pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .preview-item .p-content {
-            margin-top: 6px;
-            font-size: 14px;
-            color: #2d3748;
-        }
-        .preview-item .p-options {
-            margin-top: 6px;
-            font-size: 14px;
-            color: #4a5568;
-        }
-        .preview-item .p-options .opt {
-            padding: 3px 0;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .preview-item .p-options .opt .mark {
-            font-weight: 700;
-            min-width: 20px;
-        }
-        .preview-item .p-options .opt.correct {
-            color: #10b981;
-            font-weight: 700;
-        }
-        .preview-item .p-options .opt .star {
-            color: #10b981;
-            font-weight: 700;
-            margin-left: 4px;
-        }
-        
-        /* ===== CONFIG SECTION ===== */
-        .config-wrapper {
-            margin-top: 24px;
-            background: white;
-            border-radius: 16px;
-            border: 1px solid #edf2f7;
-            overflow: hidden;
-            display: none;
-        }
-        .config-wrapper.active {
-            display: block;
-        }
-        .config-wrapper .panel-header {
-            border-bottom: 1px solid #edf2f7;
-            padding: 16px 20px;
-            font-weight: 700;
-            font-size: 16px;
-            color: #1a1a2e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            background: #fafbfc;
-        }
-        .config-wrapper .panel-body {
+        .container {
+            max-width: 600px;
+            width: 100%;
             padding: 20px;
-            max-height: none;
-            overflow-y: visible;
         }
         
-        .config-section {
-            padding: 16px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .config-section:last-child { border-bottom: none; }
-        .config-section .config-title {
-            font-weight: 600;
-            color: #1a1a2e;
-            margin-bottom: 10px;
-            font-size: 15px;
-        }
-        .config-section .config-row {
+        /* ===== OVERLAY ===== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
             display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* ===== POPUP ===== */
+        .popup {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .popup .icon {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .popup h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
             margin-bottom: 8px;
         }
-        .config-section .config-row .config-item {
-            flex: 1;
-            min-width: 150px;
+        
+        .popup h1 span {
+            color: #4f46e5;
         }
-        .config-section .config-row .config-item label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
+        
+        .popup .subtitle {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 12px;
+        }
+        
+        .popup .message {
+            font-size: 16px;
             color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        
+        .popup .message strong {
+            color: #1a1a2e;
+        }
+        
+        .popup .time-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border: 2px solid #edf2f7;
+        }
+        
+        .popup .time-box .label {
+            font-size: 13px;
+            color: #a0aec0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .popup .time-box .time {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ef4444;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .popup .time-box .date {
+            font-size: 16px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        .popup .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .popup .features .feature {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 8px;
+            border: 1px solid #edf2f7;
+        }
+        
+        .popup .features .feature .f-icon {
+            font-size: 24px;
+            display: block;
             margin-bottom: 4px;
         }
-        .config-section .config-row .config-item input,
-        .config-section .config-row .config-item select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            background: #f8fafc;
-            transition: border-color 0.2s;
-        }
-        .config-section .config-row .config-item input:focus,
-        .config-section .config-row .config-item select:focus {
-            outline: none;
-            border-color: #4f46e5;
-            background: white;
-        }
-        .config-section .checkbox-group {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-        .config-section .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: #4a5568;
-            cursor: pointer;
-        }
-        .config-section .checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: #4f46e5;
-            cursor: pointer;
+        
+        .popup .features .feature .f-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
         }
         
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #1a1a2e;
-            color: white;
-            padding: 14px 24px;
+        .popup .btn {
+            padding: 14px 40px;
+            border: none;
             border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
-            animation: slideUp 0.3s ease;
-            font-size: 14px;
-            max-width: 400px;
-        }
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
-        .toast.hidden { display: none; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            margin-top: 8px;
+            box-shadow: 0 8px 30px rgba(79, 70, 229, 0.35);
         }
         
-        .footer {
-            text-align: center;
-            padding: 32px 20px 12px;
-            color: #a0aec0;
+        .popup .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(79, 70, 229, 0.45);
+        }
+        
+        .popup .footer-text {
             font-size: 13px;
-            border-top: 1px solid #edf2f7;
-            margin-top: 40px;
-        }
-        .footer a { color: #4f46e5; text-decoration: none; }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
             color: #a0aec0;
+            margin-top: 20px;
         }
-        .empty-state .icon { font-size: 40px; display: block; margin-bottom: 10px; }
         
-        .hidden { display: none !important; }
-        
-        @media (max-width: 1024px) {
-            .main-layout { grid-template-columns: 1fr; }
+        .popup .footer-text a {
+            color: #4f46e5;
+            text-decoration: none;
         }
+        .popup .footer-text a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
-            .header { flex-direction: column; text-align: center; }
-            .header-actions { justify-content: center; }
-            .mode-switch { width: 100%; }
-            .mode-switch .mode-btn { flex: 1; text-align: center; padding: 10px 16px; font-size: 13px; }
-            .panel-body { max-height: 400px; }
+            .popup {
+                padding: 32px 24px;
+                margin: 16px;
+                border-radius: 20px;
+            }
+            .popup .icon { font-size: 56px; }
+            .popup h1 { font-size: 24px; }
+            .popup .time-box .time { font-size: 22px; }
+            .popup .features {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .popup .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .popup .features { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="logo">📚 <span>Quiz</span>System</div>
-            <div class="header-actions">
-                <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
-                <a href="exams.html" class="btn btn-secondary">📝 Đề thi</a>
-                <button class="btn btn-outline" onclick="handleLogout()">🚪 Đăng xuất</button>
-            </div>
-        </div>
-        
-        <!-- BREADCRUMB -->
-        <div class="breadcrumb">
-            <a href="dashboard.html">Trang chủ</a> &gt; 
-            <a href="exams.html">Quản lý đề thi</a> &gt; 
-            <span>Soạn đề thi</span>
-        </div>
-        
-        <!-- MODE SWITCH -->
-        <div class="mode-switch">
-            <button class="mode-btn active" data-mode="exam" onclick="switchMode('exam')">📝 Kiểm tra</button>
-            <button class="mode-btn" data-mode="practice" onclick="switchMode('practice')">📖 Luyện tập</button>
-        </div>
-        
-        <!-- MAIN LAYOUT -->
-        <div class="main-layout">
-            <!-- LEFT PANEL: SOẠN ĐỀ -->
-            <div class="panel">
-                <div class="panel-header">
-                    <span>✏️ Soạn câu hỏi</span>
-                    <div>
-                        <button class="btn btn-success btn-sm" onclick="addQuestion()">➕ Thêm câu</button>
-                        <button class="btn btn-secondary btn-sm" onclick="clearAll()">🗑️ Xóa tất cả</button>
+        <!-- OVERLAY -->
+        <div class="overlay" id="popupOverlay">
+            <div class="popup">
+                <span class="icon">🚀</span>
+                
+                <h1>📚 <span>Quiz</span>System</h1>
+                <div class="subtitle">✨ Hành trình kết thúc ✨</div>
+                
+                <p class="message">
+                    <strong>Cảm ơn bạn đã đồng hành cùng chúng tôi</strong> trong suốt hành trình phát triển 
+                    hệ thống <strong>QuizSystem</strong>.
+                </p>
+                
+                <div class="time-box">
+                    <div class="label">⏰ Thời điểm ngừng hoạt động</div>
+                    <div class="time">00:00</div>
+                    <div class="date">14.08.2026</div>
+                </div>
+                
+                <p class="message">
+                    Web sẽ <strong>không cập nhật</strong> và <strong>ngừng hoạt động</strong> kể từ thời điểm trên. 
+                    Đây là cột mốc kết thúc một chặng đường đáng nhớ.
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <span class="f-icon">💻</span>
+                        <span class="f-label">Dự án đã hoàn thành</span>
                     </div>
-                </div>
-                <div class="panel-body" id="editor-panel">
-                    <!-- Questions will be rendered here -->
-                </div>
-            </div>
-            
-            <!-- RIGHT PANEL: PREVIEW -->
-            <div class="panel">
-                <div class="panel-header">
-                    <span>👁️ Xem trước</span>
-                    <span style="font-weight:400; font-size:13px; color:#718096;" id="question-count">0 câu hỏi</span>
-                </div>
-                <div class="panel-body" id="preview-panel">
-                    <div class="empty-state">
-                        <span class="icon">📝</span>
-                        <p>Chưa có câu hỏi nào. Hãy thêm câu hỏi ở bên trái.</p>
+                    <div class="feature">
+                        <span class="f-icon">❤️</span>
+                        <span class="f-label">Cảm ơn người dùng</span>
                     </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ACTION BUTTONS (GIỮA SOẠN ĐỀ VÀ CẤU HÌNH) -->
-        <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; justify-content: center;">
-            <button class="btn btn-primary" onclick="saveAndShowConfig()" style="padding: 14px 40px; font-size: 16px;">
-                💾 Lưu và tiếp tục cấu hình
-            </button>
-            <button class="btn btn-success" onclick="publishExam()" style="padding: 14px 40px; font-size: 16px;">
-                🚀 Xuất bản ngay
-            </button>
-        </div>
-        
-        <!-- ===== CONFIG WRAPPER (ẨN, CHỈ HIỆN SAU KHI LƯU) ===== -->
-        <div class="config-wrapper" id="config-wrapper">
-            <div class="panel-header">
-                <span>⚙️ Cấu hình đề thi</span>
-                <span style="font-weight:400; font-size:13px; color:#10b981;" id="config-status">✅ Đã lưu đề thi</span>
-            </div>
-            <div class="panel-body">
-                <!-- THÔNG TIN CƠ BẢN -->
-                <div class="config-section">
-                    <div class="config-title">📋 Thông tin chung</div>
-                    <div class="config-row">
-                        <div class="config-item">
-                            <label>Tên đề thi</label>
-                            <input type="text" id="exam-title" placeholder="Nhập tên đề thi..." value="Đề cương giữa HKII">
-                        </div>
-                        <div class="config-item">
-                            <label>Khối học</label>
-                            <select id="exam-grade">
-                                <option value="other">Khác</option>
-                                <option value="6">Khối 6</option>
-                                <option value="7">Khối 7</option>
-                                <option value="8">Khối 8</option>
-                                <option value="9">Khối 9</option>
-                                <option value="10">Khối 10</option>
-                                <option value="11">Khối 11</option>
-                                <option value="12">Khối 12</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Môn học</label>
-                            <select id="exam-subject">
-                                <option value="other">Khác</option>
-                                <option value="toan">Toán</option>
-                                <option value="ly">Vật lý</option>
-                                <option value="hoa">Hóa học</option>
-                                <option value="sinh">Sinh học</option>
-                                <option value="van">Ngữ văn</option>
-                                <option value="anh">Tiếng Anh</option>
-                                <option value="su">Lịch sử</option>
-                                <option value="dia">Địa lý</option>
-                                <option value="gdcd">GDCD</option>
-                                <option value="tin">Tin học</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Thời gian (phút)</label>
-                            <input type="number" id="exam-duration" value="45" min="0">
-                        </div>
-                    </div>
-                    <div class="config-row">
-                        <div class="config-item" style="flex:2;">
-                            <label>Mô tả</label>
-                            <input type="text" id="exam-desc" placeholder="Nhập mô tả đề thi..." value="Đề cương ôn tập giữa học kỳ II">
-                        </div>
-                        <div class="config-item">
-                            <label>Mục đích</label>
-                            <select id="exam-purpose">
-                                <option value="">-- Chọn mục đích --</option>
-                                <option value="ontap">Ôn tập theo chương bài</option>
-                                <option value="giuaky">Kiểm tra giữa kỳ</option>
-                                <option value="cuoiky">Kiểm tra cuối kỳ</option>
-                                <option value="luyentap">Luyện tập</option>
-                            </select>
-                        </div>
+                    <div class="feature">
+                        <span class="f-icon">🌟</span>
+                        <span class="f-label">Hẹn gặp lại</span>
                     </div>
                 </div>
                 
-                <!-- CẤU HÌNH KIỂM TRA -->
-                <div id="exam-config" class="config-section">
-                    <div class="config-title">📌 Cấu hình kiểm tra</div>
-                    
-                    <div class="config-row">
-                        <div class="config-item">
-                            <label>Ai được phép làm</label>
-                            <select id="exam-access">
-                                <option value="all">Tất cả mọi người</option>
-                                <option value="class">Giao theo lớp</option>
-                                <option value="student">Giao theo học sinh</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Số lượt làm</label>
-                            <input type="number" id="exam-attempts" value="0" placeholder="0 = không giới hạn">
-                        </div>
-                        <div class="config-item">
-                            <label>Mật khẩu đề thi</label>
-                            <input type="text" id="exam-password" placeholder="Nhập mật khẩu...">
-                        </div>
-                    </div>
-                    
-                    <div class="config-row">
-                        <div class="config-item">
-                            <label>Cho xem điểm</label>
-                            <select id="exam-show-score">
-                                <option value="none">Không</option>
-                                <option value="done">Khi làm bài xong</option>
-                                <option value="all">Khi tất cả thi xong</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Cho xem đáp án</label>
-                            <select id="exam-show-answer">
-                                <option value="none">Không</option>
-                                <option value="done">Khi làm bài xong</option>
-                                <option value="all">Khi tất cả thi xong</option>
-                                <option value="score">Khi đạt số điểm nhất định</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Giám sát tự động</label>
-                            <select id="exam-proctor">
-                                <option value="all">Tất cả</option>
-                                <option value="screen">Giám sát thoát màn hình</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="config-row">
-                        <div class="config-item">
-                            <label>Đảo câu hỏi và đáp án</label>
-                            <select id="exam-shuffle">
-                                <option value="yes">Có</option>
-                                <option value="no">Không</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Bàn phím nhập liệu</label>
-                            <select id="exam-keyboard">
-                                <option value="basic">Bàn phím cơ bản</option>
-                                <option value="math">Bàn phím toán học</option>
-                                <option value="editor">Soạn thảo văn bản</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" id="exam-hide-group"> Ẩn tiêu đề câu hỏi nhóm</label>
-                        <label><input type="checkbox" id="exam-start-from-one"> Các phần bắt đầu từ câu 1</label>
-                        <label><input type="checkbox" id="exam-only-app"> Chỉ thi trên ứng dụng</label>
-                    </div>
-                </div>
+                <button class="btn" onclick="closePopup()">
+                    🎯 Đã hiểu, cảm ơn!
+                </button>
                 
-                <!-- CẤU HÌNH LUYỆN TẬP -->
-                <div id="practice-config" class="config-section" style="display:none;">
-                    <div class="config-title">📌 Cấu hình luyện tập</div>
-                    
-                    <div class="config-row">
-                        <div class="config-item">
-                            <label>Hiển thị đáp án</label>
-                            <select id="practice-show-answer">
-                                <option value="immediate">Ngay sau mỗi câu</option>
-                                <option value="end">Sau khi hoàn thành</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Luyện tập lại câu sai</label>
-                            <select id="practice-retry">
-                                <option value="yes">Cho phép</option>
-                                <option value="no">Không</option>
-                            </select>
-                        </div>
-                        <div class="config-item">
-                            <label>Số câu mỗi lượt</label>
-                            <input type="number" id="practice-questions-per-round" value="10" min="1">
-                        </div>
-                    </div>
-                    
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" id="practice-show-hint"> Hiển thị gợi ý</label>
-                        <label><input type="checkbox" id="practice-show-explanation"> Hiển thị giải thích</label>
-                    </div>
-                </div>
-                
-                <!-- BUTTON SAVE CONFIG -->
-                <div style="display: flex; gap: 12px; padding-top: 20px; border-top: 1px solid #edf2f7; margin-top: 8px; flex-wrap: wrap;">
-                    <button class="btn btn-success" onclick="saveExam()" style="flex:1; justify-content:center;">
-                        💾 Lưu cấu hình
-                    </button>
-                    <button class="btn btn-primary" onclick="publishExam()" style="flex:1; justify-content:center;">
-                        🚀 Xuất bản
-                    </button>
-                    <button class="btn btn-secondary" onclick="hideConfig()" style="flex:0;">
-                        ↩️ Quay lại soạn đề
-                    </button>
+                <div class="footer-text">
+                    Made with ❤️ by <a href="#">Nguyễn Tuấn Khải</a> · DEV Dora Fanclub Việt Nam
                 </div>
             </div>
-        </div>
-        
-        <!-- FOOTER -->
-        <div class="footer">
-            © 2026 <a href="#">QuizSystem</a> - Made with ❤️ by 
-            <a href="#">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
-            <strong>v2.0.0</strong>
         </div>
     </div>
     
-    <!-- TOAST -->
-    <div id="toast" class="toast hidden"></div>
-    
     <script>
-        // ==================== FIREBASE ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
-            authDomain: "quizsystem-1d1c2.firebaseapp.com",
-            databaseURL: "https://quizsystem-1d1c2-default-rtdb.firebaseio.com",
-            projectId: "quizsystem-1d1c2",
-            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
-            messagingSenderId: "435483557148",
-            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
-            measurementId: "G-FS5YZWPDD9"
-        };
-        
-        let auth = null;
-        let database = null;
-        let firebaseReady = false;
-        let currentUser = null;
-        let questions = [];
-        let currentMode = 'exam';
-        let nextId = 1;
-        let savedExamId = null;
-        let isConfigVisible = false;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            database = firebase.database();
-            firebaseReady = true;
-        } catch (e) { console.warn('Firebase init failed'); }
-        
-        // ==================== TOAST ====================
-        function showToast(msg, type = 'success') {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.className = `toast ${type}`;
-            el.classList.remove('hidden');
-            clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
+        // ===== CLOSE POPUP =====
+        function closePopup() {
+            const overlay = document.getElementById('popupOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s ease';
+            
+            // Chuyển hướng sau khi đóng
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Chuyển đến một trang tạm biệt hoặc index
+                // window.location.href = 'goodbye.html';
+            }, 500);
         }
         
-        // ==================== AUTH ====================
-        function checkAuth() {
-            if (!auth) return;
-            auth.onAuthStateChanged(user => {
-                if (!user) { window.location.href = 'index.html'; return; }
-                currentUser = user;
-                if (questions.length === 0) {
-                    addSampleQuestions();
-                }
-                renderAll();
-            });
-        }
-        
-        async function handleLogout() {
-            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
-            try {
-                if (auth) await auth.signOut();
-                localStorage.clear();
-                window.location.href = 'index.html';
-            } catch (e) { showToast('Đăng xuất thất bại', 'error'); }
-        }
-        
-        // ==================== SAMPLE QUESTIONS ====================
-        function addSampleQuestions() {
-            questions = [
-                {
-                    id: nextId++,
-                    content: '',
-                    options: [
-                      
-                    ],
-                    correct: 3
-                }
-            ];
-        }
-        
-        // ==================== ADD / DELETE ====================
-        function addQuestion() {
-            questions.push({
-                id: nextId++,
-                content: '',
-                options: ['', '', '', ''],
-                correct: -1
-            });
-            renderAll();
-        }
-        
-        function deleteQuestion(id) {
-            if (questions.length <= 1) {
-                showToast('⚠️ Cần ít nhất 1 câu hỏi', 'error');
-                return;
-            }
-            if (!confirm('Xóa câu hỏi này?')) return;
-            questions = questions.filter(q => q.id !== id);
-            renderAll();
-        }
-        
-        function clearAll() {
-            if (!confirm('Xóa tất cả câu hỏi?')) return;
-            questions = [];
-            renderAll();
-        }
-        
-        // ==================== UPDATE ====================
-        function updateQuestionContent(id, value) {
-            const q = questions.find(q => q.id === id);
-            if (!q) return;
-            q.content = value;
-            renderPreview();
-        }
-        
-        function updateOption(id, index, value) {
-            const q = questions.find(q => q.id === id);
-            if (!q) return;
-            q.options[index] = value;
-            renderPreview();
-        }
-        
-        function setCorrectAnswer(id, index) {
-            const q = questions.find(q => q.id === id);
-            if (!q) return;
-            if (q.correct === index) {
-                q.correct = -1;
-            } else {
-                q.correct = index;
-            }
-            renderAll();
-        }
-        
-        // ==================== RENDER ====================
-        function renderAll() {
-            renderEditor();
-            renderPreview();
-            updateCount();
-        }
-        
-        function renderEditor() {
-            const panel = document.getElementById('editor-panel');
-            const labels = ['A', 'B', 'C', 'D'];
-            
-            if (questions.length === 0) {
-                panel.innerHTML = `
-                    <div class="empty-state">
-                        <span class="icon">📝</span>
-                        <p>Chưa có câu hỏi nào. Bấm <strong>Thêm câu</strong> để bắt đầu.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            panel.innerHTML = questions.map((q, idx) => `
-                <div class="question-editor">
-                    <span class="q-label">📌 CÂU ${idx + 1} :</span>
-                    <textarea class="q-content" 
-                              placeholder="Nhập nội dung câu hỏi..." 
-                              oninput="updateQuestionContent(${q.id}, this.value)">${q.content || ''}</textarea>
-                    
-                    ${q.options.map((opt, i) => {
-                        const isCorrect = q.correct === i;
-                        return `
-                            <div class="option-row">
-                                <span class="opt-label">${labels[i]}.</span>
-                                <input class="opt-input ${isCorrect ? 'correct' : ''}" 
-                                       type="text" 
-                                       value="${opt || ''}" 
-                                       placeholder="Đáp án ${labels[i]}..." 
-                                       oninput="updateOption(${q.id}, ${i}, this.value)">
-                                <button class="opt-check ${isCorrect ? 'active' : ''}" 
-                                        onclick="setCorrectAnswer(${q.id}, ${i})"
-                                        title="Chọn làm đáp án đúng">
-                                    ${isCorrect ? '✓' : ''}
-                                </button>
-                            </div>
-                        `;
-                    }).join('')}
-                    
-                    <div class="q-actions">
-                        <span class="hint">✅ Click vào nút tròn bên phải để đánh dấu đáp án đúng (sẽ in đậm)</span>
-                        <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${q.id})">🗑️ Xóa</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function renderPreview() {
-            const panel = document.getElementById('preview-panel');
-            const labels = ['A', 'B', 'C', 'D'];
-            
-            if (questions.length === 0) {
-                panel.innerHTML = `
-                    <div class="empty-state">
-                        <span class="icon">📝</span>
-                        <p>Chưa có câu hỏi nào.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            panel.innerHTML = questions.map((q, idx) => {
-                const hasCorrect = q.correct >= 0 && q.correct < q.options.length;
-                return `
-                    <div class="preview-item">
-                        <div class="p-header">
-                            <span class="p-num">CÂU ${idx + 1} :</span>
-                            <span class="p-status ${hasCorrect ? 'done' : 'pending'}">
-                                ${hasCorrect ? '✅ Đã chọn đáp án' : '⚠️ Chưa chọn đáp án'}
-                            </span>
-                        </div>
-                        <div class="p-content">${q.content || 'Nội dung câu hỏi chưa có'}</div>
-                        <div class="p-options">
-                            ${q.options.map((opt, i) => {
-                                const isCorrect = q.correct === i;
-                                return `
-                                    <div class="opt ${isCorrect ? 'correct' : ''}">
-                                        <span class="mark">${labels[i]}.</span> 
-                                        ${opt || 'Trống'}
-                                        ${isCorrect ? ' <span class="star">*</span>' : ''}
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function updateCount() {
-            document.getElementById('question-count').textContent = `${questions.length} câu hỏi`;
-        }
-        
-        // ==================== MODE SWITCH ====================
-        function switchMode(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.mode === mode);
-            });
-            
-            document.getElementById('exam-config').style.display = mode === 'exam' ? 'block' : 'none';
-            document.getElementById('practice-config').style.display = mode === 'practice' ? 'block' : 'none';
-            
-            showToast(`📌 Đã chuyển sang chế độ ${mode === 'exam' ? 'Kiểm tra' : 'Luyện tập'}`, 'success');
-        }
-        
-        // ==================== SHOW / HIDE CONFIG ====================
-        function showConfig() {
-            document.getElementById('config-wrapper').classList.add('active');
-            isConfigVisible = true;
-            document.getElementById('config-status').textContent = '✅ Đã lưu đề thi';
-            // Scroll xuống cấu hình
-            document.getElementById('config-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        
-        function hideConfig() {
-            document.getElementById('config-wrapper').classList.remove('active');
-            isConfigVisible = false;
-        }
-        
-        // ==================== SAVE AND SHOW CONFIG ====================
-        async function saveAndShowConfig() {
-            if (questions.length === 0) {
-                showToast('⚠️ Vui lòng thêm ít nhất 1 câu hỏi', 'error');
-                return;
-            }
-            
-            const hasAllCorrect = questions.every(q => q.correct >= 0);
-            if (!hasAllCorrect) {
-                showToast('⚠️ Vui lòng chọn đáp án đúng cho tất cả câu hỏi', 'error');
-                return;
-            }
-            
-            // Kiểm tra có nội dung câu hỏi không
-            const hasEmptyContent = questions.some(q => !q.content.trim());
-            if (hasEmptyContent) {
-                showToast('⚠️ Vui lòng nhập nội dung cho tất cả câu hỏi', 'error');
-                return;
-            }
-            
-            const title = document.getElementById('exam-title').value.trim() || 'Đề thi chưa có tên';
-            
-            // Lưu tạm vào localStorage để dùng cho cấu hình
-            const examData = {
-                title: title,
-                questions: questions,
-                totalQuestions: questions.length,
-                mode: currentMode,
-                createdAt: new Date().toISOString(),
-                status: 'draft'
-            };
-            
-            localStorage.setItem('temp_exam_data', JSON.stringify(examData));
-            
-            showToast('✅ Đã lưu đề thi! Vui lòng cấu hình thêm bên dưới.', 'success');
-            showConfig();
-        }
-        
-        // ==================== SAVE EXAM (FINAL) ====================
-        async function saveExam() {
-            if (questions.length === 0) {
-                showToast('⚠️ Vui lòng thêm ít nhất 1 câu hỏi', 'error');
-                return;
-            }
-            
-            const hasAllCorrect = questions.every(q => q.correct >= 0);
-            if (!hasAllCorrect) {
-                showToast('⚠️ Vui lòng chọn đáp án đúng cho tất cả câu hỏi', 'error');
-                return;
-            }
-            
-            const title = document.getElementById('exam-title').value.trim();
-            if (!title) {
-                showToast('⚠️ Vui lòng nhập tên đề thi', 'error');
-                return;
-            }
-            
-            const examData = {
-                title: title,
-                grade: document.getElementById('exam-grade').value,
-                subject: document.getElementById('exam-subject').value,
-                duration: parseInt(document.getElementById('exam-duration').value) || 0,
-                description: document.getElementById('exam-desc').value.trim(),
-                purpose: document.getElementById('exam-purpose').value,
-                mode: currentMode,
-                questions: questions,
-                totalQuestions: questions.length,
-                createdAt: new Date().toISOString(),
-                createdBy: currentUser?.uid || 'anonymous',
-                status: 'draft'
-            };
-            
-            if (currentMode === 'exam') {
-                examData.config = {
-                    access: document.getElementById('exam-access').value,
-                    attempts: parseInt(document.getElementById('exam-attempts').value) || 0,
-                    password: document.getElementById('exam-password').value,
-                    showScore: document.getElementById('exam-show-score').value,
-                    showAnswer: document.getElementById('exam-show-answer').value,
-                    proctor: document.getElementById('exam-proctor').value,
-                    shuffle: document.getElementById('exam-shuffle').value,
-                    keyboard: document.getElementById('exam-keyboard').value,
-                    hideGroup: document.getElementById('exam-hide-group').checked,
-                    startFromOne: document.getElementById('exam-start-from-one').checked,
-                    onlyApp: document.getElementById('exam-only-app').checked
-                };
-            } else {
-                examData.config = {
-                    showAnswer: document.getElementById('practice-show-answer').value,
-                    retry: document.getElementById('practice-retry').value,
-                    questionsPerRound: parseInt(document.getElementById('practice-questions-per-round').value) || 10,
-                    showHint: document.getElementById('practice-show-hint').checked,
-                    showExplanation: document.getElementById('practice-show-explanation').checked
-                };
-            }
-            
-            try {
-                if (firebaseReady && database) {
-                    const ref = database.ref('exams').push();
-                    await ref.set(examData);
-                    savedExamId = ref.key;
-                    showToast('✅ Đã lưu đề thi thành công!', 'success');
-                    
-                    const countSnapshot = await database.ref('exams').once('value');
-                    const countData = countSnapshot.val();
-                    localStorage.setItem('examCount', countData ? Object.keys(countData).length : 0);
-                    
-                    // Xóa dữ liệu tạm
-                    localStorage.removeItem('temp_exam_data');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'exams.html';
-                    }, 1500);
-                } else {
-                    showToast('⚠️ Không thể kết nối Firebase', 'error');
-                }
-            } catch (error) {
-                console.error('Save error:', error);
-                showToast('❌ Không thể lưu đề thi', 'error');
-            }
-        }
-        
-        // ==================== PUBLISH ====================
-        async function publishExam() {
-            if (questions.length === 0) {
-                showToast('⚠️ Vui lòng thêm ít nhất 1 câu hỏi', 'error');
-                return;
-            }
-            
-            const hasAllCorrect = questions.every(q => q.correct >= 0);
-            if (!hasAllCorrect) {
-                showToast('⚠️ Vui lòng chọn đáp án đúng cho tất cả câu hỏi', 'error');
-                return;
-            }
-            
-            if (!confirm('🚀 Bạn có chắc chắn muốn xuất bản đề thi này?')) return;
-            
-            try {
-                const title = document.getElementById('exam-title').value.trim();
-                if (!title) {
-                    showToast('⚠️ Vui lòng nhập tên đề thi', 'error');
-                    return;
-                }
-                
-                const examData = {
-                    title: title,
-                    grade: document.getElementById('exam-grade').value,
-                    subject: document.getElementById('exam-subject').value,
-                    duration: parseInt(document.getElementById('exam-duration').value) || 0,
-                    description: document.getElementById('exam-desc').value.trim(),
-                    purpose: document.getElementById('exam-purpose').value,
-                    mode: currentMode,
-                    questions: questions,
-                    totalQuestions: questions.length,
-                    createdAt: new Date().toISOString(),
-                    publishedAt: new Date().toISOString(),
-                    createdBy: currentUser?.uid || 'anonymous',
-                    status: 'active'
-                };
-                
-                if (currentMode === 'exam') {
-                    examData.config = {
-                        access: document.getElementById('exam-access').value,
-                        attempts: parseInt(document.getElementById('exam-attempts').value) || 0,
-                        password: document.getElementById('exam-password').value,
-                        showScore: document.getElementById('exam-show-score').value,
-                        showAnswer: document.getElementById('exam-show-answer').value,
-                        proctor: document.getElementById('exam-proctor').value,
-                        shuffle: document.getElementById('exam-shuffle').value,
-                        keyboard: document.getElementById('exam-keyboard').value,
-                        hideGroup: document.getElementById('exam-hide-group').checked,
-                        startFromOne: document.getElementById('exam-start-from-one').checked,
-                        onlyApp: document.getElementById('exam-only-app').checked
-                    };
-                } else {
-                    examData.config = {
-                        showAnswer: document.getElementById('practice-show-answer').value,
-                        retry: document.getElementById('practice-retry').value,
-                        questionsPerRound: parseInt(document.getElementById('practice-questions-per-round').value) || 10,
-                        showHint: document.getElementById('practice-show-hint').checked,
-                        showExplanation: document.getElementById('practice-show-explanation').checked
-                    };
-                }
-                
-                if (firebaseReady && database) {
-                    const ref = database.ref('exams').push();
-                    await ref.set(examData);
-                    
-                    const countSnapshot = await database.ref('exams').once('value');
-                    const countData = countSnapshot.val();
-                    localStorage.setItem('examCount', countData ? Object.keys(countData).length : 0);
-                    
-                    showToast('🚀 Xuất bản đề thi thành công!', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'exams.html';
-                    }, 1500);
-                } else {
-                    showToast('⚠️ Không thể kết nối Firebase', 'error');
-                }
-            } catch (error) {
-                console.error('Publish error:', error);
-                showToast('❌ Không thể xuất bản đề thi', 'error');
-            }
-        }
-        
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 create-exam-advanced.html đã tải');
-            checkAuth();
-            
-            // Kiểm tra nếu có dữ liệu tạm
-            const tempData = localStorage.getItem('temp_exam_data');
-            if (tempData) {
-                try {
-                    const data = JSON.parse(tempData);
-                    if (data.questions && data.questions.length > 0) {
-                        questions = data.questions;
-                        renderAll();
-                        showToast('📌 Đã khôi phục dữ liệu đề thi', 'success');
-                    }
-                } catch (e) {}
+        // ===== CLICK OUTSIDE =====
+        document.getElementById('popupOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
             }
         });
+        
+        // ===== KEYBOARD =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Enter') {
+                closePopup();
+            }
+        });
+        
+        // ===== LOG =====
+        console.log('🚀 QuizSystem - Cảm ơn bạn đã đồng hành!');
+        console.log('⏰ Web sẽ ngừng hoạt động từ 00:00 14.08.2026');
+        console.log('❤️ Made with love by Nguyễn Tuấn Khải');
     </script>
 </body>
 </html>
