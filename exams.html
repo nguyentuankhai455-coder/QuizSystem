@@ -10,75 +10,497 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .header h1 { font-size: 26px; font-weight: 700; }
-        .header .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-        .btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; }
-        .btn-primary { background: white; color: #667eea; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-        .btn-success { background: #48bb78; color: white; }
-        .btn-success:hover { background: #38a169; }
-        .btn-danger { background: #fc8181; color: white; }
-        .btn-danger:hover { background: #f56565; }
-        .btn-secondary { background: #e2e8f0; color: #4a5568; }
-        .btn-secondary:hover { background: #cbd5e0; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        .filters { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 25px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
-        .filters input, .filters select { padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; flex: 1; min-width: 180px; }
-        .filters input:focus, .filters select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); }
-        .exam-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .exam-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: all 0.3s ease; cursor: pointer; border-left: 5px solid #667eea; display: flex; flex-direction: column; }
-        .exam-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
-        .exam-card .title { font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 8px; }
-        .exam-card .course { font-size: 14px; color: #667eea; font-weight: 600; margin-bottom: 10px; }
-        .exam-card .meta { display: flex; gap: 15px; flex-wrap: wrap; font-size: 14px; color: #718096; margin: 12px 0; padding: 12px 0; border-top: 1px solid #edf2f7; border-bottom: 1px solid #edf2f7; }
-        .exam-card .meta span { display: flex; align-items: center; gap: 5px; }
-        .exam-card .description { color: #4a5568; font-size: 14px; line-height: 1.6; flex: 1; margin-bottom: 15px; }
-        .exam-card .card-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: auto; }
-        .exam-card .card-actions .btn { flex: 1; text-align: center; min-width: 60px; }
-        .empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; }
-        .empty-state h3 { font-size: 24px; color: #a0aec0; margin-bottom: 10px; }
-        .empty-state p { color: #cbd5e0; font-size: 16px; }
-        .footer { text-align: center; padding: 20px; color: #a0aec0; font-size: 14px; border-top: 1px solid #e2e8f0; margin-top: 20px; }
-        .footer a { color: #667eea; text-decoration: none; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal { background: white; border-radius: 16px; padding: 30px; max-width: 550px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal h3 { font-size: 22px; margin-bottom: 20px; color: #2d3748; }
-        .modal .form-group { margin-bottom: 18px; }
-        .modal .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #4a5568; font-size: 14px; }
-        .modal .form-group input, .modal .form-group select, .modal .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
-        .modal .form-group textarea { resize: vertical; min-height: 80px; }
-        .modal .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid #edf2f7; }
-        #loading-exams { text-align: center; padding: 60px 20px; color: #667eea; font-size: 18px; }
-        .hidden { display: none !important; }
-        .status-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .status-badge.active { background: #c6f6d5; color: #22543d; }
-        .status-badge.draft { background: #fefcbf; color: #975a16; }
-        .status-badge.inactive { background: #fed7d7; color: #9b2c2c; }
-        .toast { position: fixed; bottom: 30px; right: 30px; background: #2d3748; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); z-index: 9999; animation: slideUp 0.3s ease; max-width: 400px; }
-        .toast.success { background: #48bb78; }
-        .toast.error { background: #fc8181; }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @media (max-width: 640px) { .header { flex-direction: column; text-align: center; } .header .actions { width: 100%; justify-content: center; } .filters { flex-direction: column; } .filters input, .filters select { width: 100%; } .exam-grid { grid-template-columns: 1fr; } .exam-card .card-actions .btn { flex: 1; } .modal { padding: 20px; } .toast { bottom: 10px; right: 10px; left: 10px; max-width: none; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+        
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
+        }
+        
+        .btn-outline:hover {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+        
+        /* ===== FILTERS ===== */
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        
+        .filters input,
+        .filters select {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            color: #1a1a2e;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .filters input:focus,
+        .filters select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        
+        /* ===== EXAM GRID ===== */
+        .exam-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        
+        .exam-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid #edf2f7;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .exam-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            border-color: #4f46e5;
+        }
+        
+        .exam-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+        
+        .exam-card .title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            flex: 1;
+        }
+        
+        .exam-card .course {
+            font-size: 13px;
+            color: #4f46e5;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .exam-card .meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #718096;
+            padding: 12px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+            margin: 10px 0 12px 0;
+        }
+        
+        .exam-card .meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .exam-card .description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+            flex: 1;
+            margin-bottom: 14px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .exam-card .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .exam-card .card-actions .btn {
+            flex: 1;
+            justify-content: center;
+            min-width: 70px;
+        }
+        
+        /* ===== LOADING ===== */
+        #loading-exams {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+            font-size: 16px;
+        }
+        
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 16px;
+            border: 2px dashed #e2e8f0;
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .empty-state h3 {
+            font-size: 20px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 32px 20px 12px;
+            color: #a0aec0;
+            font-size: 13px;
+            border-top: 1px solid #edf2f7;
+            margin-top: 40px;
+        }
+        
+        .footer a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .modal h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1a1a2e;
+        }
+        
+        .modal .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .modal .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 4px;
+        }
+        
+        .modal .form-group input,
+        .modal .form-group select,
+        .modal .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .modal .form-group input:focus,
+        .modal .form-group select:focus,
+        .modal .form-group textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+        
+        .modal .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .modal .form-group .hint {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 4px;
+            display: block;
+        }
+        
+        .modal .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
+            margin-top: 8px;
+        }
+        
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            max-width: 400px;
+            font-size: 14px;
+        }
+        
+        .toast.success {
+            background: #10b981;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.hidden {
+            display: none;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .header-actions {
+                justify-content: center;
+            }
+            .filters {
+                flex-direction: column;
+            }
+            .filters input,
+            .filters select {
+                min-width: unset;
+                width: 100%;
+            }
+            .exam-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal {
+                padding: 20px;
+                margin: 10px;
+            }
+            .toast {
+                bottom: 12px;
+                right: 12px;
+                left: 12px;
+                max-width: none;
+            }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- HEADER -->
         <div class="header">
             <h1>📚 Danh sách đề thi</h1>
-            <div class="actions">
+            <div class="header-actions">
                 <button class="btn btn-primary" onclick="openCreateModal()">➕ Tạo đề thi mới</button>
                 <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">🏠 Dashboard</button>
             </div>
         </div>
-
-        <!-- Filters -->
+        
+        <!-- FILTERS -->
         <div class="filters">
             <input type="text" id="search-input" placeholder="🔍 Tìm kiếm đề thi..." oninput="filterExams()">
             <select id="course-filter" onchange="filterExams()">
@@ -90,27 +512,28 @@
                 <option value="title">Theo tên A-Z</option>
             </select>
         </div>
-
-        <!-- Loading -->
+        
+        <!-- LOADING -->
         <div id="loading-exams">⏳ Đang tải danh sách đề thi...</div>
         
-        <!-- Exam Grid -->
+        <!-- EXAM GRID -->
         <div id="exam-grid" class="exam-grid"></div>
         
-        <!-- Empty State -->
+        <!-- EMPTY STATE -->
         <div id="empty-state" class="empty-state hidden">
-            <h3>📭 Không có đề thi nào</h3>
+            <div class="icon">📭</div>
+            <h3>Không có đề thi nào</h3>
             <p>Hãy tạo đề thi mới để bắt đầu.</p>
-            <button class="btn btn-primary" style="margin-top:15px;" onclick="openCreateModal()">➕ Tạo đề thi ngay</button>
+            <button class="btn btn-primary" onclick="openCreateModal()">➕ Tạo đề thi ngay</button>
         </div>
-
-        <!-- Footer -->
+        
+        <!-- FOOTER -->
         <div class="footer">
             © 2026 <a href="https://www.quizsystem.com">QuizSystem</a> - Made with ❤️ by <strong>Nguyễn Tuấn Khải</strong> DEV Dora Fanclub Việt Nam
         </div>
     </div>
-
-    <!-- Modal Tạo đề thi -->
+    
+    <!-- MODAL -->
     <div class="modal-overlay" id="create-modal">
         <div class="modal">
             <h3>➕ Tạo đề thi mới</h3>
@@ -136,9 +559,9 @@
                     <textarea id="new-description" placeholder="Mô tả ngắn về đề thi..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Nhập câu hỏi (mỗi câu 1 dòng)</label>
-                    <textarea id="new-questions-list" placeholder="Câu hỏi 1|Đáp án A,Đáp án B,Đáp án C,Đáp án D&#10;Câu hỏi 2|Đáp án A,Đáp án B,Đáp án C,Đáp án D" style="min-height:100px;"></textarea>
-                    <small style="color: #a0aec0; display: block; margin-top: 5px;">Định dạng: Câu hỏi|Đáp án A,Đáp án B,Đáp án C,Đáp án D</small>
+                    <label>Nhập câu hỏi</label>
+                    <textarea id="new-questions-list" placeholder="Câu hỏi 1|Đáp án A,Đáp án B,Đáp án C,Đáp án D" style="min-height:100px;"></textarea>
+                    <span class="hint">Định dạng: Câu hỏi|Đáp án A,Đáp án B,Đáp án C,Đáp án D (mỗi câu 1 dòng)</span>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Hủy</button>
@@ -147,12 +570,12 @@
             </form>
         </div>
     </div>
-
-    <!-- Toast notification -->
+    
+    <!-- TOAST -->
     <div id="toast" class="toast hidden"></div>
-
+    
     <script>
-        // ==================== FIREBASE CONFIG ====================
+        // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
             apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
             authDomain: "quizsystem-1d1c2.firebaseapp.com",
@@ -163,22 +586,20 @@
             appId: "1:435483557148:web:bde77e8d41f46009518ed9",
             measurementId: "G-FS5YZWPDD9"
         };
-
-        // Initialize Firebase
+        
         let database = null;
-        let firebaseInitialized = false;
-
+        let firebaseReady = false;
+        
         try {
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
-            firebaseInitialized = true;
-            console.log('✅ Firebase đã kết nối thành công');
-        } catch (error) {
-            console.warn('⚠️ Không thể kết nối Firebase:', error.message);
-            console.log('📌 Sử dụng dữ liệu mẫu (mock data)');
+            firebaseReady = true;
+            console.log('✅ Firebase connected');
+        } catch (e) {
+            console.warn('⚠️ Firebase init failed:', e.message);
         }
-
-        // ==================== MOCK DATA ====================
+        
+        // ===== MOCK DATA =====
         const mockExams = [
             {
                 id: 'mock_1',
@@ -187,9 +608,9 @@
                 duration: 60,
                 totalQuestions: 10,
                 totalScore: 100,
-                description: 'Đề thi gồm 10 câu trắc nghiệm về HTML, CSS, JavaScript.',
+                description: 'Đề thi gồm 10 câu trắc nghiệm về HTML, CSS, JavaScript và các framework phổ biến.',
                 status: 'active',
-                createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+                createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
                 questions: [
                     { id: 1, content: 'HTML là viết tắt của từ gì?', options: ['Hyper Text Markup Language', 'High Tech Machine Language', 'Hyper Transfer Markup Language', 'Home Tool Markup Language'] },
                     { id: 2, content: 'CSS dùng để làm gì?', options: ['Tạo cấu trúc trang web', 'Định dạng giao diện', 'Xử lý dữ liệu', 'Kết nối database'] }
@@ -200,11 +621,11 @@
                 title: 'Đề thi cuối kỳ - Cơ sở dữ liệu',
                 course: 'Cơ sở dữ liệu',
                 duration: 90,
-                totalQuestions: 5,
+                totalQuestions: 15,
                 totalScore: 150,
-                description: 'Đề thi gồm 5 câu hỏi về SQL, Normalization, Transaction.',
+                description: 'Đề thi gồm 15 câu hỏi về SQL, Normalization, Transaction và NoSQL.',
                 status: 'active',
-                createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+                createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
                 questions: [
                     { id: 1, content: 'SQL là viết tắt của?', options: ['Structured Query Language', 'Simple Query Language', 'System Query Language', 'Standard Query Language'] },
                     { id: 2, content: 'Primary key dùng để làm gì?', options: ['Định danh duy nhất', 'Liên kết bảng', 'Lưu trữ dữ liệu', 'Đánh chỉ mục'] }
@@ -217,7 +638,7 @@
                 duration: 45,
                 totalQuestions: 8,
                 totalScore: 80,
-                description: 'Bài tập về biến, vòng lặp, hàm và xử lý file trong Python.',
+                description: 'Bài tập thực hành về biến, vòng lặp, hàm và xử lý file trong Python.',
                 status: 'draft',
                 createdAt: new Date().toISOString(),
                 questions: [
@@ -225,129 +646,114 @@
                 ]
             }
         ];
-
-        // ==================== STATE ====================
+        
+        // ===== STATE =====
         let exams = [];
-        let filteredExams = [];
         let isUsingMock = false;
-
-        // ==================== TOAST ====================
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            toast.classList.remove('hidden');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
+        
+        // ===== TOAST =====
+        function showToast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = `toast ${type}`;
+            el.classList.remove('hidden');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
         }
-
-        // ==================== LOAD EXAMS ====================
+        
+        // ===== LOAD EXAMS =====
         async function loadExams() {
-            const loadingEl = document.getElementById('loading-exams');
-
+            const loading = document.getElementById('loading-exams');
+            
             try {
-                // Thử lấy từ Firebase trước
-                if (firebaseInitialized && database) {
+                if (firebaseReady && database) {
                     const snapshot = await database.ref('exams').once('value');
                     const data = snapshot.val();
-
                     if (data) {
-                        exams = Object.keys(data).map(key => ({
-                            id: key,
-                            ...data[key]
-                        }));
-                        console.log('✅ Đã tải từ Firebase:', exams.length, 'đề thi');
-                        loadingEl.classList.add('hidden');
+                        exams = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                        console.log('✅ Loaded from Firebase:', exams.length);
+                        loading.classList.add('hidden');
                         filterExams();
                         return;
                     }
                 }
-
-                // Nếu Firebase không có dữ liệu, dùng mock data
-                console.log('📌 Không có dữ liệu từ Firebase, sử dụng mock data');
+                
+                // Fallback to mock
                 isUsingMock = true;
                 exams = JSON.parse(JSON.stringify(mockExams));
-                loadingEl.classList.add('hidden');
+                console.log('📌 Using mock data');
+                loading.classList.add('hidden');
                 filterExams();
-
-                // Hiển thị thông báo
-                showToast('📌 Đang sử dụng dữ liệu mẫu (mock data)', 'error');
-
-            } catch (error) {
-                console.error('❌ Lỗi tải danh sách đề thi:', error);
-                // Dùng mock data khi có lỗi
+                showToast('📌 Đang sử dụng dữ liệu mẫu', 'error');
+                
+            } catch (e) {
+                console.error('❌ Load error:', e);
                 isUsingMock = true;
                 exams = JSON.parse(JSON.stringify(mockExams));
-                loadingEl.classList.add('hidden');
+                loading.classList.add('hidden');
                 filterExams();
-                showToast('⚠️ Không thể kết nối Firebase, đang dùng dữ liệu mẫu', 'error');
+                showToast('⚠️ Không thể kết nối Firebase', 'error');
             }
         }
-
-        // ==================== FILTER ====================
+        
+        // ===== FILTER =====
         function filterExams() {
             const search = document.getElementById('search-input').value.toLowerCase().trim();
             const course = document.getElementById('course-filter').value;
             const sort = document.getElementById('sort-filter').value;
-
+            
             updateCourseFilter();
-
-            filteredExams = exams.filter(exam => {
+            
+            let filtered = exams.filter(e => {
                 const matchSearch = !search || 
-                    (exam.title && exam.title.toLowerCase().includes(search)) || 
-                    (exam.course && exam.course.toLowerCase().includes(search));
-                const matchCourse = !course || exam.course === course;
+                    (e.title || '').toLowerCase().includes(search) || 
+                    (e.course || '').toLowerCase().includes(search);
+                const matchCourse = !course || e.course === course;
                 return matchSearch && matchCourse;
             });
-
+            
             switch(sort) {
-                case 'newest':
-                    filteredExams.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                    break;
-                case 'oldest':
-                    filteredExams.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-                    break;
-                case 'title':
-                    filteredExams.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-                    break;
+                case 'newest': filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); break;
+                case 'oldest': filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); break;
+                case 'title': filtered.sort((a, b) => (a.title || '').localeCompare(b.title || '')); break;
             }
-
-            renderExams(filteredExams);
+            
+            renderExams(filtered);
         }
-
+        
         function updateCourseFilter() {
             const select = document.getElementById('course-filter');
-            const currentValue = select.value;
-            
-            const courses = [...new Set(exams.map(e => e.course).filter(c => c))];
-            select.innerHTML = '<option value="">Tất cả môn học</option>' +
+            const current = select.value;
+            const courses = [...new Set(exams.map(e => e.course).filter(Boolean))];
+            select.innerHTML = '<option value="">Tất cả môn học</option>' + 
                 courses.map(c => `<option value="${c}">${c}</option>`).join('');
-            
-            if (currentValue) select.value = currentValue;
+            if (current) select.value = current;
         }
-
-        // ==================== RENDER ====================
-        function renderExams(examList) {
+        
+        // ===== RENDER =====
+        function renderExams(list) {
             const grid = document.getElementById('exam-grid');
             const empty = document.getElementById('empty-state');
-
-            if (!examList || examList.length === 0) {
+            
+            if (!list || list.length === 0) {
                 grid.innerHTML = '';
                 empty.classList.remove('hidden');
                 return;
             }
             empty.classList.add('hidden');
-
-            grid.innerHTML = examList.map(exam => {
-                const statusClass = exam.status === 'active' ? 'active' : (exam.status === 'draft' ? 'draft' : 'inactive');
-                const statusText = exam.status === 'active' ? '✅ Hoạt động' : (exam.status === 'draft' ? '📝 Nháp' : '⏸️ Tạm dừng');
+            
+            grid.innerHTML = list.map(exam => {
+                const statusMap = {
+                    active: ['active', '✅ Hoạt động'],
+                    draft: ['draft', '📝 Bản nháp'],
+                    inactive: ['inactive', '⏸️ Tạm dừng']
+                };
+                const [statusClass, statusText] = statusMap[exam.status] || ['active', '✅ Hoạt động'];
                 const totalQ = exam.totalQuestions || exam.questions?.length || 0;
                 
                 return `
                 <div class="exam-card" onclick="goToDetail('${exam.id}')">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="exam-card-top">
                         <div class="title">${exam.title || 'Đề thi không tên'}</div>
                         <span class="status-badge ${statusClass}">${statusText}</span>
                     </div>
@@ -359,106 +765,79 @@
                     </div>
                     <div class="description">${exam.description || 'Không có mô tả'}</div>
                     <div class="card-actions" onclick="event.stopPropagation();">
-                        <button class="btn btn-primary btn-sm" onclick="goToDetail('${exam.id}')">📝 Xem chi tiết</button>
+                        <button class="btn btn-outline btn-sm" onclick="goToDetail('${exam.id}')">📝 Xem chi tiết</button>
                         <button class="btn btn-success btn-sm" onclick="goToTakeExam('${exam.id}')">🚀 Làm bài</button>
                         <button class="btn btn-danger btn-sm" onclick="deleteExam('${exam.id}')">🗑️</button>
                     </div>
                 </div>
             `}).join('');
         }
-
-        // ==================== ACTIONS ====================
+        
+        // ===== ACTIONS =====
         function goToDetail(id) {
-            if (!id || id.trim() === '') {
-                showToast('⚠️ ID đề thi không hợp lệ', 'error');
-                return;
-            }
+            if (!id) { showToast('⚠️ ID không hợp lệ', 'error'); return; }
             window.location.href = `exam-detail.html?id=${id}`;
         }
-
+        
         function goToTakeExam(id) {
-            if (!id || id.trim() === '') {
-                showToast('⚠️ ID đề thi không hợp lệ', 'error');
-                return;
-            }
+            if (!id) { showToast('⚠️ ID không hợp lệ', 'error'); return; }
             window.location.href = `take-exam.html?id=${id}`;
         }
-
+        
         async function deleteExam(id) {
-            if (!id || id.trim() === '') {
-                showToast('⚠️ ID đề thi không hợp lệ', 'error');
-                return;
-            }
-
-            if (!confirm('Bạn có chắc chắn muốn xóa đề thi này không?')) return;
-
+            if (!id || !confirm('Bạn có chắc muốn xóa đề thi này?')) return;
+            
             try {
-                // Nếu là mock data, xóa khỏi mảng
-                if (isUsingMock) {
-                    exams = exams.filter(e => e.id !== id);
-                    localStorage.removeItem(`exam_progress_${id}`);
-                    localStorage.removeItem(`exam_time_${id}`);
-                    filterExams();
-                    showToast('✅ Đã xóa đề thi thành công!', 'success');
-                    return;
-                }
-
-                // Xóa trên Firebase
-                if (firebaseInitialized && database) {
+                if (firebaseReady && database && !isUsingMock) {
                     await database.ref(`exams/${id}`).remove();
-                    localStorage.removeItem(`exam_progress_${id}`);
-                    localStorage.removeItem(`exam_time_${id}`);
-                    await loadExams();
-                    showToast('✅ Đã xóa đề thi thành công!', 'success');
-                } else {
-                    // Fallback: xóa khỏi mảng
-                    exams = exams.filter(e => e.id !== id);
-                    filterExams();
-                    showToast('✅ Đã xóa đề thi thành công!', 'success');
                 }
-            } catch (error) {
-                console.error('❌ Lỗi xóa đề thi:', error);
-                showToast('❌ Không thể xóa đề thi. Vui lòng thử lại.', 'error');
+                exams = exams.filter(e => e.id !== id);
+                localStorage.removeItem(`exam_progress_${id}`);
+                localStorage.removeItem(`exam_time_${id}`);
+                filterExams();
+                showToast('✅ Đã xóa đề thi', 'success');
+            } catch (e) {
+                showToast('❌ Không thể xóa', 'error');
             }
         }
-
-        // ==================== CREATE MODAL ====================
+        
+        // ===== MODAL =====
         function openCreateModal() {
             document.getElementById('create-modal').classList.add('active');
             document.getElementById('create-exam-form').reset();
         }
-
+        
         function closeCreateModal() {
             document.getElementById('create-modal').classList.remove('active');
         }
-
-        async function createExam(event) {
-            event.preventDefault();
-
+        
+        async function createExam(e) {
+            e.preventDefault();
+            
             const title = document.getElementById('new-title').value.trim();
             const course = document.getElementById('new-course').value.trim();
             const duration = parseInt(document.getElementById('new-duration').value);
             const totalScore = parseInt(document.getElementById('new-total-score').value) || 0;
             const description = document.getElementById('new-description').value.trim();
             const questionsRaw = document.getElementById('new-questions-list').value;
-
+            
             if (!title || !course || !duration) {
-                showToast('⚠️ Vui lòng điền đầy đủ các trường bắt buộc!', 'error');
+                showToast('⚠️ Vui lòng điền đầy đủ thông tin', 'error');
                 return;
             }
-
-            // Xử lý câu hỏi
+            
             let questions = [];
             if (questionsRaw) {
-                const lines = questionsRaw.split('\n').filter(line => line.trim());
-                questions = lines.map((line, index) => {
+                questions = questionsRaw.split('\n').filter(Boolean).map((line, i) => {
                     const parts = line.split('|').map(s => s.trim());
-                    const content = parts[0] || `Câu hỏi ${index + 1}`;
-                    const options = parts[1] ? parts[1].split(',').map(s => s.trim()) : ['Chưa có đáp án'];
-                    return { id: Date.now() + index, content, options };
+                    return {
+                        id: Date.now() + i,
+                        content: parts[0] || `Câu hỏi ${i+1}`,
+                        options: parts[1] ? parts[1].split(',').map(s => s.trim()) : ['Chưa có đáp án']
+                    };
                 });
             }
-
+            
             const examData = {
                 title,
                 course,
@@ -466,84 +845,31 @@
                 totalQuestions: questions.length || 10,
                 totalScore,
                 description: description || 'Chưa có mô tả',
-                questions: questions.length > 0 ? questions : [],
+                questions,
                 status: 'active',
                 createdAt: new Date().toISOString()
             };
-
+            
             try {
-                // Nếu đang dùng mock data, thêm vào mảng
-                if (isUsingMock) {
-                    const newExam = {
-                        ...examData,
-                        id: 'mock_' + Date.now()
-                    };
-                    exams.push(newExam);
-                    closeCreateModal();
-                    filterExams();
-                    showToast('✅ Đã tạo đề thi thành công! (Mock data)', 'success');
-                    return;
-                }
-
-                // Lưu lên Firebase
-                if (firebaseInitialized && database) {
-                    const newRef = database.ref('exams').push();
-                    await newRef.set(examData);
-                    closeCreateModal();
-                    await loadExams();
+                if (firebaseReady && database) {
+                    const ref = database.ref('exams').push();
+                    await ref.set(examData);
                     showToast('✅ Đã tạo đề thi thành công!', 'success');
                 } else {
-                    // Fallback: lưu vào mock
-                    const newExam = {
-                        ...examData,
-                        id: 'mock_' + Date.now()
-                    };
+                    const newExam = { ...examData, id: 'mock_' + Date.now() };
                     exams.push(newExam);
-                    closeCreateModal();
-                    filterExams();
-                    showToast('✅ Đã tạo đề thi thành công! (Mock data)', 'success');
+                    showToast('✅ Đã tạo đề thi (Mock)', 'success');
                 }
-            } catch (error) {
-                console.error('❌ Lỗi tạo đề thi:', error);
-                showToast('❌ Không thể tạo đề thi. Vui lòng thử lại.', 'error');
+                closeCreateModal();
+                await loadExams();
+            } catch (err) {
+                showToast('❌ Không thể tạo đề thi', 'error');
             }
         }
-
-        // ==================== HELPER: Tự động tạo mock data nếu Firebase trống ====================
-        async function seedMockDataToFirebase() {
-            if (!firebaseInitialized || !database) return;
-            
-            try {
-                // Kiểm tra xem đã có dữ liệu chưa
-                const snapshot = await database.ref('exams').once('value');
-                if (snapshot.exists()) {
-                    console.log('📌 Firebase đã có dữ liệu, không cần seed');
-                    return;
-                }
-
-                console.log('📌 Đang seed dữ liệu mẫu lên Firebase...');
-                for (const exam of mockExams) {
-                    const { id, ...examData } = exam;
-                    await database.ref(`exams/${id}`).set(examData);
-                }
-                console.log('✅ Đã seed dữ liệu mẫu lên Firebase');
-                showToast('✅ Đã tạo dữ liệu mẫu trên Firebase', 'success');
-            } catch (error) {
-                console.warn('⚠️ Không thể seed dữ liệu lên Firebase:', error);
-            }
-        }
-
-        // ==================== KHỞI CHẠY ====================
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('📄 exams.html đã tải');
-            
-            // Thử seed dữ liệu nếu Firebase trống
-            await seedMockDataToFirebase();
-            
-            // Tải danh sách đề thi
-            await loadExams();
-            
-            // Đóng modal khi click outside
+        
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadExams();
             document.getElementById('create-modal').addEventListener('click', function(e) {
                 if (e.target === this) closeCreateModal();
             });
