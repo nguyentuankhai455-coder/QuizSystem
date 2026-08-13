@@ -3,725 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài tập - QuizSystem</title>
-
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <title>QuizSystem - Tạm dừng hoạt động</title>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            background: #f0f4f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .top-header {
-            background: white;
-            padding: 12px 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .top-header .logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #2c3e50;
-            cursor: pointer;
-        }
-        .top-header .logo span {
-            color: #3498db;
-        }
-
-        .top-header .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .top-header .header-right .user-name {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-
-        .top-header .header-right .badge-role {
-            background: #e8f4fd;
-            color: #2980b9;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .btn {
-            padding: 8px 18px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #229954;
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background: #7f8c8d;
-        }
-
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 12px;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #3498db;
-            color: #3498db;
-        }
-        .btn-outline:hover {
-            background: #3498db;
-            color: white;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 16px 24px;
-            flex: 1;
-        }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .breadcrumb span {
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        .breadcrumb span:hover {
-            color: #3498db;
-        }
-        .breadcrumb .current {
-            color: #2c3e50;
-            font-weight: 600;
-            cursor: default;
-        }
-        .breadcrumb .sep {
-            color: #b0b8c4;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .search-box input {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 16px;
-            border: 2px solid #e0e6ed;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .exam-grid {
-            display: grid;
-            gap: 12px;
-        }
-
-        .exam-item {
-            background: white;
-            border-radius: 12px;
-            padding: 16px 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            transition: all 0.3s;
-            border-left: 4px solid #27ae60;
-            cursor: pointer;
-        }
-
-        .exam-item:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            border-color: #3498db;
-        }
-
-        .exam-item .exam-info {
-            flex: 1;
-        }
-
-        .exam-item .exam-info h4 {
-            color: #2c3e50;
-            font-size: 15px;
-        }
-
-        .exam-item .exam-info p {
-            color: #7f8c8d;
-            font-size: 13px;
-            margin-top: 3px;
-        }
-
-        .exam-item .exam-info .tags {
-            display: flex;
-            gap: 6px;
-            margin-top: 4px;
-            flex-wrap: wrap;
-        }
-
-        .exam-item .exam-info .tags .tag {
-            background: #e8edf5;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            color: #2c3e50;
-        }
-
-        .exam-item .exam-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .exam-item .exam-status .status-badge {
-            padding: 4px 14px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .exam-item .exam-status .status-badge.not-started {
-            background: #fde8e8;
-            color: #e74c3c;
-        }
-
-        .exam-item .exam-status .status-badge.in-progress {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .exam-item .exam-status .status-badge.completed {
-            background: #d4edda;
-            color: #27ae60;
-        }
-
-        .exam-item .exam-status .status-badge .score-text {
-            font-weight: 700;
-            color: #27ae60;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #95a5a6;
-        }
-
-        .empty-state .icon {
-            font-size: 56px;
-            color: #d0d7e6;
-            margin-bottom: 12px;
-        }
-
-        .empty-state h4 {
-            color: #2c3e50;
-            font-size: 18px;
-            margin-bottom: 6px;
-        }
-
-        .empty-state p {
-            font-size: 14px;
-        }
-
-        .loading-spinner {
-            text-align: center;
-            padding: 40px;
-            color: #3498db;
-        }
-
-        .loading-spinner i {
-            font-size: 32px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .btn-delete {
-            background: #fee2e2;
-            color: #dc2626;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            transition: all 0.3s;
-        }
-
-        .btn-delete:hover {
-            background: #fecaca;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: white;
-            padding: 16px 24px;
-            border-top: 2px solid #e8edf5;
-            text-align: center;
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-top: 40px;
-        }
-
-        .footer .copyright {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
         }
-
-        .footer .copyright .heart {
-            color: #e74c3c;
-            animation: heartbeat 1.5s ease-in-out infinite;
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
         }
-
-        @keyframes heartbeat {
+        
+        /* ===== OVERLAY ===== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* ===== POPUP ===== */
+        .popup {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .popup .icon {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+            50% { transform: scale(1.1); }
         }
-
-        .footer .copyright .brand {
-            color: #3498db;
-            font-weight: 700;
+        
+        .popup h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 8px;
         }
-
-        .footer .copyright .version {
-            background: #e8edf5;
-            padding: 2px 10px;
+        
+        .popup h1 span {
+            color: #4f46e5;
+        }
+        
+        .popup .subtitle {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 12px;
+        }
+        
+        .popup .message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        
+        .popup .message strong {
+            color: #1a1a2e;
+        }
+        
+        .popup .time-box {
+            background: #f8fafc;
             border-radius: 12px;
-            font-size: 11px;
-            color: #7f8c8d;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border: 2px solid #edf2f7;
         }
-
-        @media (max-width: 768px) {
-            .top-header {
-                padding: 10px 16px;
+        
+        .popup .time-box .label {
+            font-size: 13px;
+            color: #a0aec0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .popup .time-box .time {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ef4444;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .popup .time-box .date {
+            font-size: 16px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        .popup .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .popup .features .feature {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 8px;
+            border: 1px solid #edf2f7;
+        }
+        
+        .popup .features .feature .f-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .popup .features .feature .f-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .popup .btn {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            margin-top: 8px;
+            box-shadow: 0 8px 30px rgba(79, 70, 229, 0.35);
+        }
+        
+        .popup .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(79, 70, 229, 0.45);
+        }
+        
+        .popup .footer-text {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-top: 20px;
+        }
+        
+        .popup .footer-text a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        .popup .footer-text a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .popup {
+                padding: 32px 24px;
+                margin: 16px;
+                border-radius: 20px;
             }
-            .container {
-                padding: 10px 16px;
+            .popup .icon { font-size: 56px; }
+            .popup h1 { font-size: 24px; }
+            .popup .time-box .time { font-size: 22px; }
+            .popup .features {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
-            .exam-item {
-                flex-direction: column;
-                align-items: stretch;
+            .popup .btn {
+                width: 100%;
+                justify-content: center;
             }
-            .exam-item .exam-actions {
-                justify-content: flex-start;
-            }
-            .footer {
-                padding: 12px 16px;
-                font-size: 12px;
-            }
+        }
+        
+        @media (max-width: 400px) {
+            .popup .features { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-
-    <header class="top-header">
-        <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
-        <div class="header-right">
-            <span class="user-name" id="userDisplayName">👋 Học sinh</span>
-            <span class="badge-role" id="userRoleBadge">Học sinh</span>
-            <button class="btn btn-danger" onclick="handleLogout()">🚪 Đăng xuất</button>
-        </div>
-    </header>
-
     <div class="container">
-
-        <div class="breadcrumb">
-            <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
-            <span class="sep">›</span>
-            <span class="current">Bài tập / Đề thi</span>
+        <!-- OVERLAY -->
+        <div class="overlay" id="popupOverlay">
+            <div class="popup">
+                <span class="icon">🚀</span>
+                
+                <h1>📚 <span>Quiz</span>System</h1>
+                <div class="subtitle">✨ Hành trình kết thúc ✨</div>
+                
+                <p class="message">
+                    <strong>Cảm ơn bạn đã đồng hành cùng chúng tôi</strong> trong suốt hành trình phát triển 
+                    hệ thống <strong>QuizSystem</strong>.
+                </p>
+                
+                <div class="time-box">
+                    <div class="label">⏰ Thời điểm ngừng hoạt động</div>
+                    <div class="time">00:00</div>
+                    <div class="date">14.08.2026</div>
+                </div>
+                
+                <p class="message">
+                    Web sẽ <strong>không cập nhật</strong> và <strong>ngừng hoạt động</strong> kể từ thời điểm trên. 
+                    Đây là cột mốc kết thúc một chặng đường đáng nhớ.
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <span class="f-icon">💻</span>
+                        <span class="f-label">Dự án đã hoàn thành</span>
+                    </div>
+                    <div class="feature">
+                        <span class="f-icon">❤️</span>
+                        <span class="f-label">Cảm ơn người dùng</span>
+                    </div>
+                    <div class="feature">
+                        <span class="f-icon">🌟</span>
+                        <span class="f-label">Hẹn gặp lại</span>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="closePopup()">
+                    🎯 Đã hiểu, cảm ơn!
+                </button>
+                
+                <div class="footer-text">
+                    Made with ❤️ by <a href="#">Nguyễn Tuấn Khải</a> · DEV Dora Fanclub Việt Nam
+                </div>
+            </div>
         </div>
-
-        <div class="search-box">
-            <input type="text" id="searchExam" placeholder="🔍 Tìm kiếm đề thi..." oninput="filterExams()">
-            <button class="btn btn-secondary" onclick="document.getElementById('searchExam').value=''; filterExams();">
-                <i class="fas fa-times"></i> Xóa
-            </button>
-        </div>
-
-        <div id="examList" class="exam-grid"></div>
-
-        <div id="loading" class="loading-spinner" style="display:none;">
-            <i class="fas fa-spinner"></i>
-            <p style="margin-top:8px;">Đang tải danh sách đề thi...</p>
-        </div>
-
     </div>
-
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-        <div class="copyright">
-            <span>© 2026</span>
-            <span class="brand">QuizSystem</span>
-            <span>·</span>
-            <span>Made with</span>
-            <span class="heart">❤️</span>
-            <span>by</span>
-            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
-            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
-            <span class="version">v2.0.0</span>
-        </div>
-    </footer>
-
+    
     <script>
-        // ============================================================
-        // FIREBASE
-        // ============================================================
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
-            authDomain: "quizsystem-1d1c2.firebaseapp.com",
-            projectId: "quizsystem-1d1c2",
-            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
-            messagingSenderId: "435483557148",
-            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
-            measurementId: "G-FS5YZWPDD9"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // ============================================================
-        // BIẾN TOÀN CỤ
-        // ============================================================
-
-        let currentUser = null;
-        let allExams = [];
-        let examHistory = [];
-        let userRole = 'student';
-
-        // ============================================================
-        // AUTH
-        // ============================================================
-
-        function checkAuth() {
-            const saved = localStorage.getItem('quizCurrentUser');
-            if (!saved) {
-                window.location.href = 'index.html';
-                return;
-            }
-            try {
-                currentUser = JSON.parse(saved);
-                userRole = currentUser.role || 'student';
-            } catch (e) {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
-            document.getElementById('userRoleBadge').textContent = userRole === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
-
-            loadExams();
-            loadHistory();
+        // ===== CLOSE POPUP =====
+        function closePopup() {
+            const overlay = document.getElementById('popupOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s ease';
+            
+            // Chuyển hướng sau khi đóng
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Chuyển đến một trang tạm biệt hoặc index
+                // window.location.href = 'goodbye.html';
+            }, 500);
         }
-
-        function handleLogout() {
-            if (!confirm('Bạn muốn đăng xuất?')) return;
-            auth.signOut().then(() => {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
-            }).catch(() => {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
-            });
-        }
-
-        // ============================================================
-        // LOAD HISTORY
-        // ============================================================
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
-            examHistory = history.filter(h => h.studentId === currentUser.uid);
-        }
-
-        // ============================================================
-        // LOAD EXAMS
-        // ============================================================
-
-        async function loadExams() {
-            const loadingEl = document.getElementById('loading');
-            loadingEl.style.display = 'block';
-
-            try {
-                const snapshot = await db.collection('exams')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-
-                allExams = [];
-                snapshot.forEach(doc => {
-                    allExams.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-
-                renderExams();
-
-            } catch (error) {
-                console.error('Lỗi tải đề thi:', error);
-                renderEmptyState('error');
-            } finally {
-                loadingEl.style.display = 'none';
-            }
-        }
-
-        // ============================================================
-        // CHECK EXAM STATUS
-        // ============================================================
-
-        function getExamStatus(examId) {
-            const history = examHistory.filter(h => h.examId === examId);
-
-            if (history.length === 0) {
-                return { status: 'not-started', label: '📝 Chưa làm', score: null };
-            }
-
-            const last = history[history.length - 1];
-            return {
-                status: 'completed',
-                label: `✅ Đã hoàn thành (${last.score || 0}%)`,
-                score: last.score || 0,
-                correct: last.correct || 0,
-                total: last.total || 0
-            };
-        }
-
-        // ============================================================
-        // RENDER EXAMS
-        // ============================================================
-
-        function renderExams() {
-            const container = document.getElementById('examList');
-
-            if (allExams.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">📭</div>
-                        <h4>Chưa có đề thi nào</h4>
-                        <p>Giáo viên sẽ giao đề thi cho bạn!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = allExams.map(exam => {
-                const questionCount = exam.questions ? exam.questions.length : 0;
-                const createdDate = exam.createdAt || 'Mới tạo';
-
-                const statusInfo = getExamStatus(exam.id);
-                const isCompleted = statusInfo.status === 'completed';
-                const isTeacher = userRole === 'teacher';
-
-                return `
-                    <div class="exam-item" onclick="viewExamDetail('${exam.id}')" data-examname="${(exam.title || '').toLowerCase()}">
-                        <div class="exam-info">
-                            <h4>📄 ${exam.title || 'Đề thi không tên'}</h4>
-                            <p>⏱ ${exam.duration || 0} phút · ${questionCount} câu hỏi</p>
-                            <div class="tags">
-                                <span class="tag">📅 ${createdDate}</span>
-                                <span class="tag">👥 ${exam.attempts || 0} lượt làm</span>
-                                ${exam.status ? `<span class="tag">${exam.status}</span>` : ''}
-                                ${isCompleted ? `<span class="tag" style="background:#d4edda;color:#27ae60;">✅ Đã làm</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="exam-actions">
-                            <div class="exam-status">
-                                <span class="status-badge ${isCompleted ? 'completed' : 'not-started'}">
-                                    ${isCompleted ? 
-                                        `✅ Đã hoàn thành (${statusInfo.score}%)` : 
-                                        '📝 Chưa làm'}
-                                </span>
-                            </div>
-                            ${isTeacher ? `
-                                <button class="btn-delete" onclick="event.stopPropagation(); deleteExam('${exam.id}')">
-                                    <i class="fas fa-trash"></i> Xóa
-                                </button>
-                            ` : ''}
-                            <button class="btn ${isCompleted ? 'btn-outline' : 'btn-success'} btn-sm" 
-                                    onclick="event.stopPropagation(); startExam('${exam.id}')">
-                                ${isCompleted ? 
-                                    '<i class="fas fa-redo"></i> Làm lại' : 
-                                    '<i class="fas fa-play"></i> Làm bài'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ============================================================
-        // FILTER
-        // ============================================================
-
-        function filterExams() {
-            const keyword = document.getElementById('searchExam').value.toLowerCase();
-            const items = document.querySelectorAll('.exam-item');
-
-            items.forEach(item => {
-                const name = item.dataset.examname || '';
-                item.style.display = name.includes(keyword) ? 'flex' : 'none';
-            });
-        }
-
-        // ============================================================
-        // ACTIONS
-        // ============================================================
-
-        function viewExamDetail(examId) {
-            window.location.href = 'exam-detail.html?id=' + examId;
-        }
-
-        function startExam(examId) {
-            window.location.href = 'take-exam.html?id=' + examId;
-        }
-
-        // ============================================================
-        // DELETE EXAM (Chỉ giáo viên)
-        // ============================================================
-
-        async function deleteExam(examId) {
-            if (userRole !== 'teacher') {
-                alert('Bạn không có quyền xóa đề thi!');
-                return;
-            }
-
-            if (!confirm('Bạn có chắc chắn muốn xóa đề thi này?')) return;
-
-            try {
-                await db.collection('exams').doc(examId).delete();
-                allExams = allExams.filter(e => e.id !== examId);
-                renderExams();
-                alert('✅ Đã xóa đề thi thành công!');
-            } catch (error) {
-                console.error('Lỗi xóa đề thi:', error);
-                alert('❌ Không thể xóa đề thi. Vui lòng thử lại!');
-            }
-        }
-
-        // ============================================================
-        // EMPTY STATE
-        // ============================================================
-
-        function renderEmptyState(type) {
-            const container = document.getElementById('examList');
-            if (type === 'error') {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">⚠️</div>
-                        <h4>Không thể tải dữ liệu</h4>
-                        <p>Vui lòng kiểm tra kết nối mạng và thử lại.</p>
-                        <button class="btn btn-primary" onclick="loadExams()" style="margin-top:12px;">
-                            <i class="fas fa-sync"></i> Thử lại
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        // ============================================================
-        // INIT
-        // ============================================================
-
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
+        
+        // ===== CLICK OUTSIDE =====
+        document.getElementById('popupOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
             }
         });
-
-        checkAuth();
-
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'examHistory') {
-                loadHistory();
-                renderExams();
+        
+        // ===== KEYBOARD =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Enter') {
+                closePopup();
             }
         });
+        
+        // ===== LOG =====
+        console.log('🚀 QuizSystem - Cảm ơn bạn đã đồng hành!');
+        console.log('⏰ Web sẽ ngừng hoạt động từ 00:00 14.08.2026');
+        console.log('❤️ Made with love by Nguyễn Tuấn Khải');
     </script>
-
 </body>
 </html>
