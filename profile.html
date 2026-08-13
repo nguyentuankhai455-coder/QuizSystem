@@ -210,7 +210,26 @@
         
         .profile-header .user-info .role {
             font-size: 14px;
-            color: #718096;
+            font-weight: 600;
+            padding: 2px 14px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+        
+        .role-teacher {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .role-student {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .role-admin {
+            background: #fef3c7;
+            color: #92400e;
         }
         
         .profile-header .avatar-actions {
@@ -576,7 +595,7 @@
                 <div>
                     <div class="user-info">
                         <h2 id="display-name">Đang tải...</h2>
-                        <div class="role" id="display-role">Học sinh</div>
+                        <span class="role role-student" id="display-role">👨‍🎓 Học sinh</span>
                     </div>
                     <div class="avatar-actions">
                         <button class="btn btn-secondary btn-sm" id="upload-btn" onclick="openCloudinaryUpload()">
@@ -758,6 +777,7 @@
                 }
                 currentUser = user;
                 console.log('✅ User logged in:', user.email);
+                console.log('📌 UID:', user.uid);
                 await loadProfile();
             });
         }
@@ -770,24 +790,31 @@
             }
             
             try {
+                // Lấy profile từ Firebase
                 const snapshot = await database.ref(`users/${currentUser.uid}/profile`).once('value');
                 const data = snapshot.val();
                 
+                // Lấy role từ Firebase (nếu có)
+                const roleSnapshot = await database.ref(`users/${currentUser.uid}/role`).once('value');
+                const userRole = roleSnapshot.val() || 'student';
+                
                 if (data) {
-                    profileData = data;
+                    profileData = { ...data, role: userRole };
                 } else {
-                    // Tạo profile mặc định
+                    // Tạo profile mặc định với role
                     profileData = {
                         fullName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
                         phone: '',
                         username: currentUser.email?.split('@')[0] || 'username',
                         gender: 'male',
                         avatar: '',
-                        role: 'Học sinh',
+                        role: userRole,
                         createdAt: new Date().toISOString()
                     };
+                    
                     // Lưu lên Firebase
                     await database.ref(`users/${currentUser.uid}/profile`).set(profileData);
+                    await database.ref(`users/${currentUser.uid}/role`).set(userRole);
                 }
                 
                 renderProfile(profileData);
@@ -812,8 +839,24 @@
             // Phone
             document.getElementById('phone-number').textContent = data.phone || '---';
             
-            // Role
-            document.getElementById('display-role').textContent = data.role || 'Học sinh';
+            // Role - PHÂN QUYỀN CHÍNH XÁC
+            const roleEl = document.getElementById('display-role');
+            const role = data.role || 'student';
+            
+            // Xóa tất cả class role cũ
+            roleEl.className = 'role';
+            
+            // Thêm class và text phù hợp
+            if (role === 'teacher') {
+                roleEl.classList.add('role-teacher');
+                roleEl.textContent = '👨‍🏫 Giáo viên';
+            } else if (role === 'admin') {
+                roleEl.classList.add('role-admin');
+                roleEl.textContent = '👑 Quản trị viên';
+            } else {
+                roleEl.classList.add('role-student');
+                roleEl.textContent = '👨‍🎓 Học sinh';
+            }
             
             // Gender
             if (data.gender) {
@@ -837,6 +880,7 @@
             
             // Lưu vào localStorage để đồng bộ
             localStorage.setItem('userName', displayName);
+            localStorage.setItem('userRole', role);
         }
         
         // ==================== SAVE PROFILE TO FIREBASE ====================
@@ -857,7 +901,6 @@
                 const gender = document.querySelector('input[name="gender"]:checked')?.value || 'male';
                 
                 const updatedData = {
-                    ...profileData,
                     fullName: fullName,
                     phone: phone === '---' ? '' : phone,
                     username: username,
@@ -865,8 +908,11 @@
                     updatedAt: new Date().toISOString()
                 };
                 
+                // Lưu profile
                 await database.ref(`users/${currentUser.uid}/profile`).update(updatedData);
-                profileData = updatedData;
+                
+                // Giữ nguyên role, không ghi đè
+                profileData = { ...profileData, ...updatedData };
                 
                 // Cập nhật tên hiển thị
                 document.getElementById('display-name').textContent = fullName;
@@ -899,7 +945,7 @@
                 cloudName: CLOUDINARY_CONFIG.cloudName,
                 uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
                 folder: CLOUDINARY_CONFIG.folder,
-                maxFileSize: 5000000, // 5MB
+                maxFileSize: 5000000,
                 multiple: false,
                 clientAllowedFormats: ['image/*'],
                 styles: {
@@ -930,17 +976,14 @@
                     const imageUrl = result.info.secure_url;
                     console.log('✅ Upload thành công:', imageUrl);
                     
-                    // Cập nhật avatar
                     const avatarImage = document.getElementById('avatar-image');
                     const avatarText = document.getElementById('avatar-text');
                     avatarImage.src = imageUrl;
                     avatarImage.style.display = 'block';
                     avatarText.style.display = 'none';
                     
-                    // Lưu URL vào profileData
                     profileData.avatar = imageUrl;
                     
-                    // Lưu lên Firebase
                     if (currentUser && database) {
                         database.ref(`users/${currentUser.uid}/profile/avatar`).set(imageUrl)
                             .then(() => showToast('✅ Đã cập nhật ảnh đại diện', 'success'))
@@ -967,7 +1010,6 @@
             avatarText.textContent = initials;
             avatarText.style.display = 'block';
             
-            // Xóa URL khỏi Firebase
             if (currentUser && database) {
                 try {
                     await database.ref(`users/${currentUser.uid}/profile/avatar`).remove();
@@ -1023,14 +1065,11 @@
             
             try {
                 if (auth && currentUser) {
-                    // Re-authenticate
                     const credential = firebase.auth.EmailAuthProvider.credential(
                         currentUser.email,
                         oldPwd
                     );
                     await currentUser.reauthenticateWithCredential(credential);
-                    
-                    // Update password
                     await currentUser.updatePassword(newPwd);
                     
                     showToast('✅ Đổi mật khẩu thành công!', 'success');
@@ -1090,6 +1129,7 @@
                 localStorage.removeItem('userId');
                 localStorage.removeItem('userEmail');
                 localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
                 localStorage.removeItem('userPhoto');
                 localStorage.removeItem('rememberMe');
                 showToast('✅ Đã đăng xuất', 'success');
