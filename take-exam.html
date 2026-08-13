@@ -147,8 +147,61 @@
             measurementId: "G-FS5YZWPDD9"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        let database = null;
+        let firebaseInitialized = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            firebaseInitialized = true;
+            console.log('✅ Firebase đã kết nối');
+        } catch (error) {
+            console.warn('⚠️ Không thể kết nối Firebase:', error.message);
+        }
+
+        // ==================== MOCK DATA (dùng khi Firebase lỗi) ====================
+        const mockExams = {
+            'mock_1': {
+                id: 'mock_1',
+                title: 'Đề thi giữa kỳ - Lập trình Web',
+                course: 'Lập trình Web',
+                duration: 60,
+                totalQuestions: 10,
+                totalScore: 100,
+                description: 'Đề thi gồm 10 câu trắc nghiệm về HTML, CSS, JavaScript.',
+                questions: [
+                    { id: 1, content: 'HTML là viết tắt của từ gì?', options: ['Hyper Text Markup Language', 'High Tech Machine Language', 'Hyper Transfer Markup Language', 'Home Tool Markup Language'] },
+                    { id: 2, content: 'CSS dùng để làm gì?', options: ['Tạo cấu trúc trang web', 'Định dạng giao diện', 'Xử lý dữ liệu', 'Kết nối database'] },
+                    { id: 3, content: 'JavaScript là ngôn ngữ gì?', options: ['Ngôn ngữ đánh dấu', 'Ngôn ngữ lập trình', 'Ngôn ngữ truy vấn', 'Ngôn ngữ mô tả'] }
+                ]
+            },
+            'mock_2': {
+                id: 'mock_2',
+                title: 'Đề thi cuối kỳ - Cơ sở dữ liệu',
+                course: 'Cơ sở dữ liệu',
+                duration: 90,
+                totalQuestions: 5,
+                totalScore: 150,
+                description: 'Đề thi gồm 5 câu hỏi về SQL, Normalization, Transaction.',
+                questions: [
+                    { id: 1, content: 'SQL là viết tắt của?', options: ['Structured Query Language', 'Simple Query Language', 'System Query Language', 'Standard Query Language'] },
+                    { id: 2, content: 'Primary key dùng để làm gì?', options: ['Định danh duy nhất', 'Liên kết bảng', 'Lưu trữ dữ liệu', 'Đánh chỉ mục'] }
+                ]
+            },
+            'mock_3': {
+                id: 'mock_3',
+                title: 'Bài tập thực hành - Python cơ bản',
+                course: 'Python',
+                duration: 45,
+                totalQuestions: 8,
+                totalScore: 80,
+                description: 'Bài tập về biến, vòng lặp, hàm và xử lý file trong Python.',
+                questions: [
+                    { id: 1, content: 'Python là ngôn ngữ gì?', options: ['Biên dịch', 'Thông dịch', 'Hợp ngữ', 'Máy'] },
+                    { id: 2, content: 'Biến trong Python được khai báo như thế nào?', options: ['int x = 5', 'var x = 5', 'x = 5', 'let x = 5'] }
+                ]
+            }
+        };
 
         // ==================== STATE ====================
         let examId = null;
@@ -158,17 +211,17 @@
         let timerInterval = null;
         let timeRemaining = 0;
         let isSubmitting = false;
+        let isUsingMock = false;
 
-        // ==================== HELPER: Lấy ID từ URL ====================
+        // ==================== HELPERS ====================
         function getExamIdFromURL() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
         }
 
-        // ==================== HELPER: Chuyển hướng an toàn ====================
         function safeRedirect(url) {
             if (!url || url.trim() === '') {
-                console.error('❌ URL rỗng, không thể chuyển hướng');
+                console.error('❌ URL rỗng');
                 return false;
             }
             try {
@@ -184,7 +237,7 @@
             safeRedirect('exams.html');
         }
 
-        // ==================== MAIN LOGIC ====================
+        // ==================== LOAD EXAM ====================
         async function loadExam() {
             const loadingEl = document.getElementById('loading-message');
             const contentEl = document.getElementById('question-content');
@@ -192,43 +245,57 @@
             const errorMsg = document.getElementById('error-message-text');
 
             try {
-                // Lấy ID từ URL
                 examId = getExamIdFromURL();
-                console.log('📌 Exam ID từ URL:', examId);
+                console.log('📌 Exam ID:', examId);
 
-                // Kiểm tra ID có hợp lệ không
                 if (!examId || examId.trim() === '') {
-                    errorMsg.textContent = 'Không tìm thấy mã đề thi trong URL. Vui lòng kiểm tra lại đường dẫn.';
+                    errorMsg.textContent = 'Không tìm thấy mã đề thi trong URL.';
                     loadingEl.classList.add('hidden');
                     errorEl.classList.remove('hidden');
                     return;
                 }
 
-                // Lấy dữ liệu từ Firebase
-                const snapshot = await database.ref(`exams/${examId}`).once('value');
-                currentExam = snapshot.val();
-
-                if (!currentExam) {
-                    throw new Error(`Không tìm thấy đề thi với ID: "${examId}"`);
+                // Thử lấy từ Firebase
+                if (firebaseInitialized && database) {
+                    try {
+                        const snapshot = await database.ref(`exams/${examId}`).once('value');
+                        currentExam = snapshot.val();
+                        if (currentExam) {
+                            currentExam.id = examId;
+                            console.log('✅ Đã tải từ Firebase:', currentExam.title);
+                        }
+                    } catch (firebaseError) {
+                        console.warn('⚠️ Lỗi Firebase:', firebaseError.message);
+                        // Nếu lỗi permission, thử dùng mock
+                    }
                 }
-                currentExam.id = examId;
 
-                // Kiểm tra có câu hỏi không
+                // Nếu không có dữ liệu từ Firebase, dùng mock
+                if (!currentExam) {
+                    if (mockExams[examId]) {
+                        currentExam = JSON.parse(JSON.stringify(mockExams[examId]));
+                        currentExam.id = examId;
+                        isUsingMock = true;
+                        console.log('📌 Đang sử dụng mock data cho:', examId);
+                    } else {
+                        throw new Error(`Không tìm thấy đề thi với ID: "${examId}"`);
+                    }
+                }
+
+                // Kiểm tra câu hỏi
                 if (!currentExam.questions || currentExam.questions.length === 0) {
                     throw new Error('Đề thi này chưa có câu hỏi nào.');
                 }
 
-                // Khôi phục tiến trình từ localStorage
+                // Khôi phục tiến trình
                 const savedProgress = localStorage.getItem(`exam_progress_${examId}`);
                 if (savedProgress) {
                     try {
                         const parsed = JSON.parse(savedProgress);
                         if (parsed.answers) answers = parsed.answers;
                         if (parsed.currentIndex !== undefined) currentIndex = parsed.currentIndex;
-                        console.log('🔄 Đã khôi phục tiến trình:', Object.keys(answers).length, 'câu đã trả lời');
-                    } catch (e) {
-                        console.warn('Không thể parse dữ liệu lưu:', e);
-                    }
+                        console.log('🔄 Đã khôi phục:', Object.keys(answers).length, 'câu');
+                    } catch (e) {}
                 }
 
                 // Thiết lập thời gian
@@ -238,16 +305,14 @@
                     const parsedTime = parseInt(savedTime);
                     if (!isNaN(parsedTime) && parsedTime > 0 && parsedTime < timeRemaining) {
                         timeRemaining = parsedTime;
-                        console.log('⏱️ Đã khôi phục thời gian:', timeRemaining, 'giây');
                     }
                 }
 
-                // Ẩn loading, hiển thị nội dung
+                // Hiển thị
                 loadingEl.classList.add('hidden');
                 errorEl.classList.add('hidden');
                 contentEl.classList.remove('hidden');
 
-                // Render
                 renderExamInfo();
                 renderQuestion(currentIndex);
                 renderNavGrid();
@@ -255,29 +320,24 @@
                 startTimer();
 
             } catch (error) {
-                console.error('❌ Lỗi tải đề thi:', error);
+                console.error('❌ Lỗi:', error);
                 loadingEl.classList.add('hidden');
                 errorMsg.textContent = error.message || 'Không thể tải đề thi. Vui lòng thử lại.';
                 errorEl.classList.remove('hidden');
             }
         }
 
+        // ==================== RENDER FUNCTIONS ====================
         function renderExamInfo() {
-            const title = currentExam.title || 'Đề thi không tên';
-            const course = currentExam.course || 'Chưa phân loại';
-            const totalQ = currentExam.questions?.length || 0;
-            
-            document.getElementById('exam-title').textContent = title;
+            document.getElementById('exam-title').textContent = currentExam.title || 'Đề thi không tên';
             document.getElementById('exam-sub-info').textContent = 
-                `Môn học: ${course} | Số câu: ${totalQ} | Tổng điểm: ${currentExam.totalScore || 0}`;
-            document.getElementById('total-questions').textContent = totalQ;
+                `Môn học: ${currentExam.course || 'Chưa phân loại'} | Số câu: ${currentExam.questions?.length || 0}`;
+            document.getElementById('total-questions').textContent = currentExam.questions?.length || 0;
         }
 
         function renderQuestion(index) {
             const questions = currentExam.questions;
-            if (!questions || questions.length === 0 || index >= questions.length) {
-                return;
-            }
+            if (!questions || questions.length === 0 || index >= questions.length) return;
 
             const q = questions[index];
             const qNumber = document.getElementById('q-number');
@@ -317,7 +377,7 @@
                     optionsContainer.appendChild(div);
                 });
             } else {
-                optionsContainer.innerHTML = '<p style="color: #a0aec0;">Không có lựa chọn cho câu hỏi này.</p>';
+                optionsContainer.innerHTML = '<p style="color: #a0aec0;">Không có lựa chọn.</p>';
             }
 
             document.getElementById('prev-btn').disabled = index === 0;
@@ -336,10 +396,8 @@
             if (currentIndex < currentExam.questions.length - 1) {
                 currentIndex++;
                 renderQuestion(currentIndex);
-                updateNavButtons();
                 saveProgress();
-                // Scroll lên đầu câu hỏi
-                document.querySelector('.question-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.querySelector('.question-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -347,9 +405,8 @@
             if (currentIndex > 0) {
                 currentIndex--;
                 renderQuestion(currentIndex);
-                updateNavButtons();
                 saveProgress();
-                document.querySelector('.question-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.querySelector('.question-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -357,22 +414,14 @@
             if (index >= 0 && index < currentExam.questions.length) {
                 currentIndex = index;
                 renderQuestion(currentIndex);
-                updateNavButtons();
                 saveProgress();
             }
-        }
-
-        function updateNavButtons() {
-            const questions = currentExam.questions;
-            document.getElementById('prev-btn').disabled = currentIndex === 0;
-            document.getElementById('next-btn').disabled = currentIndex === questions.length - 1;
         }
 
         function renderNavGrid() {
             const grid = document.getElementById('nav-grid');
             grid.innerHTML = '';
-            const questions = currentExam.questions;
-            questions.forEach((q, index) => {
+            currentExam.questions.forEach((q, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'q-btn';
                 btn.textContent = index + 1;
@@ -387,8 +436,7 @@
             const total = currentExam.questions?.length || 0;
             const answered = Object.keys(answers).length;
             document.getElementById('answered-count').textContent = answered;
-            const percent = total > 0 ? (answered / total) * 100 : 0;
-            document.getElementById('progress-fill').style.width = `${Math.min(percent, 100)}%`;
+            document.getElementById('progress-fill').style.width = total > 0 ? `${(answered / total) * 100}%` : '0%';
         }
 
         function saveProgress() {
@@ -399,9 +447,7 @@
                         currentIndex: currentIndex
                     }));
                     localStorage.setItem(`exam_time_${examId}`, timeRemaining.toString());
-                } catch (e) {
-                    console.warn('Không thể lưu tiến trình:', e);
-                }
+                } catch (e) {}
             }
         }
 
@@ -415,14 +461,11 @@
                 updateTimerDisplay();
                 saveProgress();
 
-                // Cảnh báo khi còn 5 phút
                 if (timeRemaining === 300) {
                     alert('⏰ Còn 5 phút! Hãy hoàn thành bài thi.');
-                    const timerEl = document.getElementById('timer-display');
-                    timerEl.classList.add('warning');
+                    document.getElementById('timer-display').classList.add('warning');
                 }
 
-                // Hết giờ tự động nộp bài
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval);
                     alert('⏰ Hết giờ! Bài thi sẽ được nộp tự động.');
@@ -434,20 +477,16 @@
         function updateTimerDisplay() {
             const minutes = Math.floor(timeRemaining / 60);
             const seconds = timeRemaining % 60;
-            const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            document.getElementById('timer-countdown').textContent = display;
-
-            const timerEl = document.getElementById('timer-display');
+            document.getElementById('timer-countdown').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
             if (timeRemaining < 300) {
-                timerEl.classList.add('warning');
-            } else {
-                timerEl.classList.remove('warning');
+                document.getElementById('timer-display').classList.add('warning');
             }
         }
 
         // ==================== SUBMIT ====================
         async function submitExam() {
-            // Ngăn submit nhiều lần
             if (isSubmitting) return;
             isSubmitting = true;
 
@@ -466,67 +505,58 @@
                 );
                 if (!confirmSubmit) {
                     isSubmitting = false;
-                    // Tiếp tục làm bài
-                    if (timeRemaining > 0) {
-                        startTimer();
-                    }
+                    if (timeRemaining > 0) startTimer();
                     return;
                 }
             }
 
-            // Tính điểm (giả lập - đáp án đúng là option đầu tiên)
+            // Tính điểm (giả lập)
             let correctCount = 0;
-            if (currentExam.questions) {
-                currentExam.questions.forEach(q => {
-                    if (answers[q.id] === 0) {
-                        correctCount++;
-                    }
-                });
-            }
+            currentExam.questions.forEach(q => {
+                if (answers[q.id] === 0) correctCount++;
+            });
 
             const totalScore = currentExam.totalScore || 0;
             const score = total > 0 ? Math.round((correctCount / total) * totalScore) : 0;
 
-            // Lưu kết quả vào Firebase
-            try {
-                const userId = localStorage.getItem('userId') || 'anonymous';
-                await database.ref(`results/${examId}/${userId}`).set({
-                    examId: examId,
-                    examTitle: currentExam.title || 'Đề thi không tên',
-                    userId: userId,
-                    answers: answers,
-                    score: score,
-                    totalQuestions: total,
-                    correctCount: correctCount,
-                    submittedAt: new Date().toISOString()
-                });
-                console.log('✅ Đã lưu kết quả vào Firebase');
-            } catch (error) {
-                console.error('❌ Lỗi lưu kết quả:', error);
+            // Lưu kết quả (nếu có Firebase)
+            if (firebaseInitialized && database && !isUsingMock) {
+                try {
+                    const userId = localStorage.getItem('userId') || 'anonymous';
+                    await database.ref(`results/${examId}/${userId}`).set({
+                        examId: examId,
+                        examTitle: currentExam.title,
+                        userId: userId,
+                        answers: answers,
+                        score: score,
+                        totalQuestions: total,
+                        correctCount: correctCount,
+                        submittedAt: new Date().toISOString()
+                    });
+                    console.log('✅ Đã lưu kết quả');
+                } catch (error) {
+                    console.warn('⚠️ Không thể lưu kết quả:', error.message);
+                }
             }
 
-            // Xóa dữ liệu localStorage
-            try {
-                localStorage.removeItem(`exam_progress_${examId}`);
-                localStorage.removeItem(`exam_time_${examId}`);
-            } catch (e) {}
+            // Xóa localStorage
+            localStorage.removeItem(`exam_progress_${examId}`);
+            localStorage.removeItem(`exam_time_${examId}`);
 
-            // Hiển thị kết quả
             alert(
                 `📊 KẾT QUẢ BÀI THI\n\n` +
-                `📝 Đề thi: ${currentExam.title || 'Không tên'}\n` +
-                `✅ Số câu đúng: ${correctCount}/${total}\n` +
-                `🎯 Điểm số: ${score}/${totalScore}\n` +
+                `📝 Đề thi: ${currentExam.title}\n` +
+                `✅ Đúng: ${correctCount}/${total}\n` +
+                `🎯 Điểm: ${score}/${totalScore}\n` +
                 `📈 Tỷ lệ: ${Math.round((correctCount/total)*100)}%\n\n` +
-                `🎉 Chúc mừng bạn đã hoàn thành!`
+                `🎉 Chúc mừng!`
             );
 
             isSubmitting = false;
-            // Quay lại trang chi tiết
             safeRedirect(`exam-detail.html?id=${examId}`);
         }
 
-        // ==================== KHỞI CHẠY ====================
+        // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 take-exam.html đã tải');
             loadExam();
