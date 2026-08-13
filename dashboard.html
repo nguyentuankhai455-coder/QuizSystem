@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - QuizSystem</title>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -94,6 +99,17 @@
         
         .btn-secondary:hover {
             background: #cbd5e0;
+        }
+        
+        .btn-danger-outline {
+            background: transparent;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+        
+        .btn-danger-outline:hover {
+            background: #ef4444;
+            color: white;
         }
         
         /* ===== BREADCRUMB ===== */
@@ -209,6 +225,45 @@
             color: #a0aec0;
         }
         
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            font-size: 14px;
+            max-width: 400px;
+        }
+        
+        .toast.success {
+            background: #10b981;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.hidden {
+            display: none;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         /* ===== FOOTER ===== */
         .footer {
             text-align: center;
@@ -249,6 +304,12 @@
             .grid {
                 grid-template-columns: 1fr 1fr;
             }
+            .toast {
+                bottom: 12px;
+                right: 12px;
+                left: 12px;
+                max-width: none;
+            }
         }
         
         @media (max-width: 480px) {
@@ -265,7 +326,7 @@
             <div class="logo">📚 <span>Quiz</span>System</div>
             <div class="header-actions">
                 <a href="profile.html" class="btn btn-secondary">👤 Hồ sơ</a>
-                <a href="index.html" class="btn btn-outline">🚪 Đăng xuất</a>
+                <button class="btn btn-danger-outline" onclick="handleLogout()">🚪 Đăng xuất</button>
             </div>
         </div>
         
@@ -277,7 +338,7 @@
         
         <!-- WELCOME -->
         <div class="welcome-card">
-            <h1>👋 Chào mừng trở lại, <span>tuần khải nguyễn</span></h1>
+            <h1>👋 Chào mừng trở lại, <span id="user-name">tuần khải nguyễn</span></h1>
             <p>Quản lý hệ thống giáo dục của bạn một cách hiệu quả</p>
         </div>
         
@@ -285,7 +346,6 @@
         <div class="grid">
             <div class="grid-title">📖 Học tập</div>
             
-            <!-- Lớp học -->
             <a href="student-classes.html" class="card">
                 <span class="icon">🏫</span>
                 <h3>Lớp học của tôi</h3>
@@ -293,15 +353,13 @@
                 <span class="badge zero">0</span>
             </a>
             
-            <!-- Bài tập / Đề thi -->
             <a href="exams.html" class="card">
                 <span class="icon">📝</span>
                 <h3>Bài tập / Đề thi</h3>
                 <p class="desc">Bài tập được giao</p>
-                <span class="badge zero">0</span>
+                <span class="badge zero" id="exam-count-badge">0</span>
             </a>
             
-            <!-- Kết quả học tập -->
             <a href="results.html" class="card">
                 <span class="icon">📊</span>
                 <h3>Kết quả học tập</h3>
@@ -309,7 +367,6 @@
                 <span class="badge zero">0</span>
             </a>
             
-            <!-- Lịch thi -->
             <a href="schedule.html" class="card">
                 <span class="icon">📅</span>
                 <h3>Lịch thi</h3>
@@ -322,7 +379,6 @@
         <div class="grid">
             <div class="grid-title">🚀 Đang phát triển</div>
             
-            <!-- Hỏi đáp AI -->
             <a href="ai-chat.html" class="card" style="opacity:0.7;">
                 <span class="icon">🤖</span>
                 <h3>Hỏi đáp bằng AI</h3>
@@ -330,7 +386,6 @@
                 <span class="badge zero">0</span>
             </a>
             
-            <!-- Hồ sơ cá nhân -->
             <a href="profile.html" class="card">
                 <span class="icon">👤</span>
                 <h3>Hồ sơ cá nhân</h3>
@@ -342,52 +397,132 @@
         <!-- FOOTER -->
         <div class="footer">
             © 2026 <a href="https://www.quizsystem.com">QuizSystem</a> - Made with ❤️ by 
-            <a href="https://www.quizsystem.com">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
+            <a href="#">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
             <strong>v2.0.0</strong>
         </div>
     </div>
     
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden"></div>
+    
     <script>
-        // ===== Lấy dữ liệu thống kê từ localStorage hoặc Firebase =====
-        document.addEventListener('DOMContentLoaded', function() {
-            // Có thể lấy dữ liệu từ localStorage để hiển thị số lượng
-            // Ví dụ: đếm số đề thi đã tạo
-            try {
-                // Đếm số đề thi từ localStorage (nếu có)
-                let examCount = 0;
-                const savedExams = localStorage.getItem('examCount');
-                if (savedExams) {
-                    examCount = parseInt(savedExams) || 0;
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
+            authDomain: "quizsystem-1d1c2.firebaseapp.com",
+            databaseURL: "https://quizsystem-1d1c2-default-rtdb.firebaseio.com",
+            projectId: "quizsystem-1d1c2",
+            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
+            messagingSenderId: "435483557148",
+            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
+            measurementId: "G-FS5YZWPDD9"
+        };
+        
+        let auth = null;
+        let firebaseReady = false;
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            firebaseReady = true;
+            console.log('✅ Firebase Auth connected');
+        } catch (e) {
+            console.warn('⚠️ Firebase init failed:', e.message);
+        }
+        
+        // ===== TOAST =====
+        function showToast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = `toast ${type}`;
+            el.classList.remove('hidden');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+        
+        // ===== CHECK AUTH STATE =====
+        function checkAuthState() {
+            if (!firebaseReady || !auth) return;
+            
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    // Chưa đăng nhập -> chuyển về index
+                    console.log('🔒 Chưa đăng nhập, chuyển về trang đăng nhập');
+                    window.location.href = 'index.html';
+                    return;
                 }
                 
-                // Cập nhật badge cho "Bài tập / Đề thi"
-                const examBadge = document.querySelector('a[href="exams.html"] .badge');
-                if (examBadge) {
-                    examBadge.textContent = examCount;
-                    if (examCount > 0) {
-                        examBadge.className = 'badge';
-                    }
-                }
-            } catch (e) {
-                console.log('Không thể tải dữ liệu thống kê');
-            }
-        });
-        
-        // ===== Hàm cập nhật số lượng đề thi (gọi từ các trang khác) =====
-        function updateExamCount(count) {
-            try {
-                localStorage.setItem('examCount', count.toString());
-                const badge = document.querySelector('a[href="exams.html"] .badge');
-                if (badge) {
-                    badge.textContent = count;
-                    if (count > 0) {
-                        badge.className = 'badge';
-                    } else {
-                        badge.className = 'badge zero';
-                    }
-                }
-            } catch (e) {}
+                // Đã đăng nhập -> hiển thị tên
+                const userName = localStorage.getItem('userName') || 
+                                 user.displayName || 
+                                 user.email?.split('@')[0] || 
+                                 'User';
+                document.getElementById('user-name').textContent = userName;
+                console.log('✅ Đã đăng nhập:', user.email);
+            });
         }
+        
+        // ===== LOGOUT =====
+        async function handleLogout() {
+            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                return;
+            }
+            
+            try {
+                // Đăng xuất Firebase
+                if (firebaseReady && auth) {
+                    await auth.signOut();
+                }
+                
+                // Xóa dữ liệu localStorage
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userPhoto');
+                localStorage.removeItem('rememberMe');
+                localStorage.removeItem('examCount');
+                
+                showToast('✅ Đã đăng xuất thành công!', 'success');
+                
+                // Chuyển về trang đăng nhập
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+                
+            } catch (error) {
+                console.error('❌ Lỗi đăng xuất:', error);
+                showToast('❌ Đăng xuất thất bại. Vui lòng thử lại.', 'error');
+            }
+        }
+        
+        // ===== LOAD EXAM COUNT =====
+        function loadExamCount() {
+            const count = localStorage.getItem('examCount');
+            const badge = document.getElementById('exam-count-badge');
+            if (badge) {
+                const num = parseInt(count) || 0;
+                badge.textContent = num;
+                if (num > 0) {
+                    badge.className = 'badge';
+                } else {
+                    badge.className = 'badge zero';
+                }
+            }
+        }
+        
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 dashboard.html đã tải');
+            checkAuthState();
+            loadExamCount();
+            
+            // Lắng nghe sự thay đổi số lượng đề thi
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'examCount') {
+                    loadExamCount();
+                }
+            });
+        });
     </script>
 </body>
 </html>
