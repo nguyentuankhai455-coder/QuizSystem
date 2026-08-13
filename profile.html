@@ -4,959 +4,895 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ cá nhân - QuizSystem</title>
-
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
         }
-
+        
         body {
-            background: #f0f4f8;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.6;
         }
-
-        .top-header {
-            background: white;
-            padding: 12px 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .top-header .logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #2c3e50;
-            cursor: pointer;
-        }
-        .top-header .logo span {
-            color: #3498db;
-        }
-
-        .top-header .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .top-header .header-right .user-name {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-
-        .top-header .header-right .badge-role {
-            background: #e8f4fd;
-            color: #2980b9;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .btn {
-            padding: 8px 18px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #229954;
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background: #7f8c8d;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #3498db;
-            color: #3498db;
-        }
-        .btn-outline:hover {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 12px;
-        }
-
-        .btn-danger-sm {
-            background: #fee2e2;
-            color: #dc2626;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-danger-sm:hover {
-            background: #fecaca;
-        }
-
-        .btn-edit {
-            background: transparent;
-            color: #3498db;
-            border: none;
-            cursor: pointer;
-            font-size: 13px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-
-        .btn-edit:hover {
-            background: #e8f4fd;
-            text-decoration: underline;
-        }
-
+        
         .container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 16px 24px;
-            flex: 1;
+            padding: 24px 20px;
         }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .breadcrumb span {
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        .breadcrumb span:hover {
-            color: #3498db;
-        }
-        .breadcrumb .current {
-            color: #2c3e50;
-            font-weight: 600;
-            cursor: default;
-        }
-        .breadcrumb .sep {
-            color: #b0b8c4;
-        }
-
-        .profile-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            overflow: hidden;
-        }
-
-        .profile-card .card-header {
-            padding: 20px 28px;
-            border-bottom: 2px solid #e8edf5;
+        
+        /* ===== HEADER ===== */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 16px;
+            margin-bottom: 4px;
         }
-
-        .profile-card .card-header h2 {
-            color: #2c3e50;
-            font-size: 20px;
+        
+        .header .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
         }
-
-        .profile-card .card-header .back-btn {
-            color: #7f8c8d;
+        
+        .header .logo span {
+            color: #4f46e5;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
-
-        .profile-card .card-header .back-btn:hover {
-            color: #3498db;
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
         }
-
-        .profile-card .card-body {
-            padding: 24px 28px;
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
         }
-
-        /* AVATAR */
-        .profile-avatar {
+        
+        .btn-outline {
+            background: transparent;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
+        }
+        
+        .btn-outline:hover {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 13px;
+        }
+        
+        /* ===== BREADCRUMB ===== */
+        .breadcrumb {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        
+        /* ===== PAGE TITLE ===== */
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 24px;
+        }
+        
+        /* ===== PROFILE HEADER ===== */
+        .profile-header {
+            background: white;
+            border-radius: 16px;
+            padding: 28px 32px;
+            border: 1px solid #edf2f7;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .profile-header .back-btn {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .profile-header .back-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .profile-header .avatar-section {
             display: flex;
             align-items: center;
             gap: 20px;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e8edf5;
+            flex: 1;
         }
-
-        .profile-avatar .avatar-img {
+        
+        .profile-header .avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: #3498db;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-size: 32px;
+            color: white;
             font-weight: 700;
             flex-shrink: 0;
-            background-size: cover;
-            background-position: center;
-            transition: all 0.3s;
-            overflow: hidden;
         }
-
-        .profile-avatar .avatar-img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        
+        .profile-header .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
-
-        .profile-avatar .avatar-info h4 {
-            color: #2c3e50;
-            font-size: 18px;
+        
+        .profile-header .user-info h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
         }
-
-        .profile-avatar .avatar-info p {
-            color: #7f8c8d;
+        
+        .profile-header .user-info .role {
             font-size: 14px;
+            color: #718096;
         }
-
-        .profile-avatar .avatar-upload {
-            margin-left: auto;
+        
+        .profile-header .avatar-actions {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-        }
-
-        .profile-avatar .avatar-upload .upload-row {
-            display: flex;
-            gap: 6px;
+            gap: 10px;
             align-items: center;
-        }
-
-        .profile-avatar .avatar-upload .hint {
-            font-size: 11px;
-            color: #95a5a6;
-            display: block;
-        }
-
-        /* INFO */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px 24px;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f4f8;
-        }
-
-        .info-item .label {
-            font-size: 12px;
-            color: #95a5a6;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .info-item .value {
-            font-size: 15px;
-            color: #2c3e50;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-item .sub-text {
-            font-size: 13px;
-            color: #7f8c8d;
-            margin-top: 2px;
-        }
-
-        .info-item .sub-text .click-link {
-            color: #3498db;
-            cursor: pointer;
-        }
-
-        .info-item .sub-text .click-link:hover {
-            text-decoration: underline;
-        }
-
-        .info-item .gender-options {
-            display: flex;
-            gap: 16px;
-            margin-top: 4px;
-        }
-
-        .info-item .gender-options label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: #34495e;
-            cursor: pointer;
-        }
-
-        .info-item .gender-options input[type="radio"] {
-            width: 16px;
-            height: 16px;
-            accent-color: #3498db;
-            cursor: pointer;
-        }
-
-        .info-item.full-width {
-            grid-column: 1 / -1;
-        }
-
-        /* Loading */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-overlay.show {
-            display: flex;
-        }
-
-        .loading-overlay .spinner {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 16px;
-            text-align: center;
-        }
-
-        .loading-overlay .spinner i {
-            font-size: 48px;
-            color: #3498db;
-            animation: spin 1s linear infinite;
-        }
-
-        .loading-overlay .spinner p {
-            margin-top: 12px;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* FOOTER */
-        .footer {
-            background: white;
-            padding: 16px 24px;
-            border-top: 2px solid #e8edf5;
-            text-align: center;
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-top: auto;
-        }
-
-        .footer .copyright {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            margin-top: 8px;
             flex-wrap: wrap;
         }
-
-        .footer .copyright .heart {
-            color: #e74c3c;
-            animation: heartbeat 1.5s ease-in-out infinite;
+        
+        .profile-header .avatar-actions .hint {
+            font-size: 12px;
+            color: #a0aec0;
+            display: block;
+            margin-top: 4px;
         }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+        
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 32px;
+            border: 1px solid #edf2f7;
+            margin-bottom: 16px;
         }
-
-        .footer .copyright .brand {
-            color: #3498db;
+        
+        .card .card-title {
+            font-size: 13px;
             font-weight: 700;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
         }
-
-        .footer .copyright .version {
-            background: #e8edf5;
-            padding: 2px 10px;
+        
+        .card .card-title .action-link {
+            float: right;
+            font-weight: 600;
+            text-transform: none;
+            color: #4f46e5;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .card .card-title .action-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== FORM ROWS ===== */
+        .form-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .form-row:last-child {
+            border-bottom: none;
+        }
+        
+        .form-row .label {
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 120px;
+            font-size: 14px;
+        }
+        
+        .form-row .value {
+            flex: 1;
+            color: #1a1a2e;
+            font-size: 14px;
+        }
+        
+        .form-row .value .edit-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .form-row .value .edit-link:hover {
+            text-decoration: underline;
+        }
+        
+        .form-row input,
+        .form-row select {
+            padding: 8px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            flex: 1;
+            min-width: 180px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-row input:focus,
+        .form-row select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+        
+        .form-row .gender-group {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .form-row .gender-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #4a5568;
+            cursor: pointer;
+        }
+        
+        .form-row .gender-group input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #4f46e5;
+            cursor: pointer;
+            min-width: unset;
+            flex: unset;
+        }
+        
+        /* ===== PASSWORD SECTION ===== */
+        .password-section {
+            margin-top: 8px;
+        }
+        
+        .password-section .form-row:last-child {
+            border-bottom: none;
+        }
+        
+        .password-section .btn-change {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .password-section .btn-change:hover {
+            background: #4338ca;
+        }
+        
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 460px;
+            width: 100%;
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .modal h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+        
+        .modal .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .modal .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 4px;
+        }
+        
+        .modal .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .modal .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+        
+        .modal .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
+            margin-top: 8px;
+        }
+        
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            color: white;
+            padding: 14px 24px;
             border-radius: 12px;
-            font-size: 11px;
-            color: #7f8c8d;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            font-size: 14px;
         }
-
+        
+        .toast.success {
+            background: #10b981;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.hidden {
+            display: none;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .top-header { padding: 10px 16px; }
-            .container { padding: 10px 16px; }
-            .info-grid { grid-template-columns: 1fr; }
-            .info-item.full-width { grid-column: 1; }
-            .profile-avatar { flex-wrap: wrap; }
-            .profile-avatar .avatar-upload { margin-left: 0; width: 100%; align-items: flex-start; }
-            .profile-avatar .avatar-upload .upload-row { flex-wrap: wrap; }
-            .profile-card .card-body { padding: 16px 18px; }
-            .profile-card .card-header { padding: 16px 18px; }
-            .footer { padding: 12px 16px; font-size: 12px; }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .header-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            .profile-header .avatar-section {
+                flex-direction: column;
+            }
+            .profile-header .avatar-actions {
+                justify-content: center;
+            }
+            .card {
+                padding: 20px;
+            }
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .form-row .label {
+                min-width: unset;
+            }
+            .form-row .gender-group {
+                justify-content: center;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .action-buttons .btn {
+                justify-content: center;
+            }
+            .modal {
+                padding: 20px;
+                margin: 10px;
+            }
+            .toast {
+                bottom: 12px;
+                right: 12px;
+                left: 12px;
+                max-width: none;
+            }
+        }
+        
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-
-    <!-- LOADING OVERLAY -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p>Đang tải ảnh lên Cloudinary...</p>
-        </div>
-    </div>
-
-    <!-- HEADER -->
-    <header class="top-header">
-        <div class="logo" onclick="window.location.href='dashboard.html'">📝 <span>Quiz</span>System</div>
-        <div class="header-right">
-            <span class="user-name" id="userDisplayName">👋 User</span>
-            <span class="badge-role" id="userRoleBadge">Giáo viên</span>
-            <button class="btn btn-danger" onclick="handleLogout()">🚪 Đăng xuất</button>
-        </div>
-    </header>
-
     <div class="container">
-
-        <div class="breadcrumb">
-            <span onclick="window.location.href='dashboard.html'">Trang chủ</span>
-            <span class="sep">›</span>
-            <span class="current">Hồ sơ cá nhân</span>
-        </div>
-
-        <div class="profile-card">
-
-            <div class="card-header">
-                <h2>👤 Bài đặt tài khoản</h2>
-                <span class="back-btn" onclick="window.location.href='dashboard.html'">
-                    <i class="fas fa-arrow-left"></i> Quay lại
-                </span>
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo">📚 <span>Quiz</span>System</div>
+            <div class="header-actions">
+                <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="login.html" class="btn btn-outline">🚪 Đăng xuất</a>
             </div>
-
-            <div class="card-body">
-
-                <!-- AVATAR -->
-                <div class="profile-avatar">
-                    <div class="avatar-img" id="avatarDisplay">NK</div>
-                    <div class="avatar-info">
-                        <h4 id="profileFullname">User</h4>
-                        <p id="profileRole">...</p>
+        </div>
+        
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb">
+            <a href="dashboard.html">Trang chủ</a> &gt; 
+            <span>Hồ sơ cá nhân</span>
+        </div>
+        
+        <!-- PAGE TITLE -->
+        <h1 class="page-title">👤 Hồ sơ cá nhân</h1>
+        
+        <!-- PROFILE HEADER -->
+        <div class="profile-header">
+            <a href="dashboard.html" class="back-btn">← Quay lại</a>
+            
+            <div class="avatar-section">
+                <div class="avatar" id="avatar-display">
+                    TK
+                </div>
+                <div>
+                    <div class="user-info">
+                        <h2 id="display-name">user</h2>
+                        <div class="role" id="display-role">Học sinh</div>
                     </div>
-                    <div class="avatar-upload">
-                        <div class="upload-row">
-                            <button class="btn btn-outline btn-sm" onclick="uploadAvatar()">
-                                <i class="fas fa-camera"></i> Tải lên
-                            </button>
-                            <button class="btn-danger-sm" onclick="deleteAvatar()" id="deleteAvatarBtn">
-                                <i class="fas fa-trash"></i> Xóa
-                            </button>
-                        </div>
+                    <div class="avatar-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('avatar-upload').click()">
+                            📤 Tải lên
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="removeAvatar()">🗑️ Xóa</button>
+                        <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
                         <span class="hint">File ảnh, tối đa 5MB</span>
                     </div>
                 </div>
-
-                <!-- INFO -->
-                <div class="info-grid">
-
-                    <div class="info-item full-width" style="border-bottom: 2px solid #e8edf5; padding-bottom:16px; margin-bottom:8px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                            <span class="label" style="font-size:14px; color:#2c3e50; font-weight:600;">CHUNG</span>
-                            <button class="btn btn-secondary btn-sm" onclick="changePassword()">
-                                <i class="fas fa-key"></i> Đổi mật khẩu
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <span class="label">HỌ VÀ TÊN</span>
-                        <div class="value" id="displayFullname">User</div>
-                    </div>
-
-                    <div class="info-item">
-                        <span class="label">SỐ ĐIỆN THOẠI</span>
-                        <div class="value" id="displayPhone">...</div>
-                        <div class="sub-text">
-                            <span class="click-link" onclick="editField('Số điện thoại')">Click vào đây để đổi số điện thoại</span>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <span class="label">USERNAME</span>
-                        <div class="value" id="displayUsername">username123</div>
-                    </div>
-
-                    <div class="info-item">
-                        <span class="label">GIỚI TÍNH</span>
-                        <div class="gender-options">
-                            <label>
-                                <input type="radio" name="gender" value="nam"> Nam
-                            </label>
-                            <label>
-                                <input type="radio" name="gender" value="nu"> Nữ
-                            </label>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- ĐỔI MẬT KHẨU -->
-                <div style="margin:16px 0; padding:12px 0; border-top:2px solid #e8edf5; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <span class="label" style="font-size:14px; color:#2c3e50; font-weight:600;">Đổi mật khẩu</span>
-                    <button class="btn btn-primary btn-sm" onclick="changePassword()">
-                        <i class="fas fa-key"></i> Đổi mật khẩu
-                    </button>
-                </div>
-
-                <!-- SAVE BUTTON -->
-                <div style="margin-top:24px; padding-top:16px; border-top:2px solid #e8edf5; display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn btn-success" onclick="saveProfile()">
-                        <i class="fas fa-save"></i> Lưu thay đổi
-                    </button>
-                    <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
-                        <i class="fas fa-times"></i> Hủy
-                    </button>
-                </div>
-
             </div>
-
         </div>
-
+        
+        <!-- CARD: CHUNG -->
+        <div class="card">
+            <div class="card-title">
+                CHUNG
+                <span class="action-link" onclick="openChangePassword()">Đổi mật khẩu</span>
+            </div>
+            
+            <!-- Họ và tên -->
+            <div class="form-row">
+                <span class="label">HỌ VÀ TÊN</span>
+                <span class="value" id="full-name">user</span>
+            </div>
+            
+            <!-- Số điện thoại -->
+            <div class="form-row">
+                <span class="label">SỐ ĐIỆN THOẠI</span>
+                <span class="value">
+                    <span id="phone-number">...</span>
+                    <span class="edit-link" onclick="editPhone()">Click vào đây để đổi số điện thoại</span>
+                </span>
+            </div>
+        </div>
+        
+        <!-- CARD: USERNAME & GIỚI TÍNH -->
+        <div class="card">
+            <div class="card-title">THÔNG TIN CÁ NHÂN</div>
+            
+            <!-- Username -->
+            <div class="form-row">
+                <span class="label">USERNAME</span>
+                <span class="value" id="username">username</span>
+            </div>
+            
+            <!-- Giới tính -->
+            <div class="form-row">
+                <span class="label">Giới tính</span>
+                <div class="value">
+                    <div class="gender-group">
+                        <label>
+                            <input type="radio" name="gender" value="male" checked>
+                            Nam
+                        </label>
+                        <label>
+                            <input type="radio" name="gender" value="female">
+                            Nữ
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CARD: ĐỔI MẬT KHẨU -->
+        <div class="card password-section">
+            <div class="card-title">ĐỔI MẬT KHẨU</div>
+            
+            <div class="form-row">
+                <span class="label">Mật khẩu mới</span>
+                <input type="password" id="new-password" placeholder="Nhập mật khẩu mới...">
+            </div>
+            
+            <div class="form-row">
+                <span class="label">Xác nhận</span>
+                <input type="password" id="confirm-password" placeholder="Xác nhận mật khẩu...">
+            </div>
+            
+            <div class="form-row" style="border-bottom: none; padding-bottom: 0;">
+                <span class="label"></span>
+                <button class="btn-change" onclick="changePassword()">Đổi mật khẩu</button>
+            </div>
+        </div>
+        
+        <!-- ACTION BUTTONS -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="saveProfile()">💾 Lưu thay đổi</button>
+            <button class="btn btn-secondary" onclick="resetForm()">↩️ Hủy</button>
+        </div>
+        
+        <!-- FOOTER -->
+        <div style="text-align:center; padding:32px 20px 12px; color:#a0aec0; font-size:13px; border-top:1px solid #edf2f7; margin-top:40px;">
+            © 2026 <a href="https://www.quizsystem.com" style="color:#4f46e5; text-decoration:none;">QuizSystem</a> - Made with ❤️ by 
+            <a href="#" style="color:#4f46e5; text-decoration:none;">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
+            <strong>v2.0.0</strong>
+        </div>
     </div>
-
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-        <div class="copyright">
-            <span>© 2026</span>
-            <span class="brand">QuizSystem</span>
-            <span>·</span>
-            <span>Made with</span>
-            <span class="heart">❤️</span>
-            <span>by</span>
-            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải by DEV Dora Fanclub Việt Nam</span>
-            <span class="version">v2.0.0</span>
+    
+    <!-- MODAL: ĐỔI MẬT KHẨU -->
+    <div class="modal-overlay" id="password-modal">
+        <div class="modal">
+            <h3>🔑 Đổi mật khẩu</h3>
+            <div class="form-group">
+                <label>Mật khẩu cũ</label>
+                <input type="password" id="old-password" placeholder="Nhập mật khẩu cũ...">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu mới</label>
+                <input type="password" id="modal-new-password" placeholder="Nhập mật khẩu mới...">
+            </div>
+            <div class="form-group">
+                <label>Xác nhận mật khẩu</label>
+                <input type="password" id="modal-confirm-password" placeholder="Xác nhận mật khẩu...">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closePasswordModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="submitChangePassword()">Đổi mật khẩu</button>
+            </div>
         </div>
-    </footer>
-
+    </div>
+    
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden"></div>
+    
     <script>
-        // ============================================================
-        // CLOUDINARY CONFIG
-        // ============================================================
-
-        const CLOUD_NAME = "y6ooh4tp";
-        const UPLOAD_PRESET = "quizsystem_avatar";
-
-        // ============================================================
-        // FIREBASE
-        // ============================================================
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
-            authDomain: "quizsystem-1d1c2.firebaseapp.com",
-            projectId: "quizsystem-1d1c2",
-            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
-            messagingSenderId: "435483557148",
-            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
-            measurementId: "G-FS5YZWPDD9"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // ============================================================
-        // BIẾN TOÀN CỤ
-        // ============================================================
-
-        let currentUser = null;
-        let userData = {};
-
-        // ============================================================
-        // AUTH
-        // ============================================================
-
-        function checkAuth() {
-            const saved = localStorage.getItem('quizCurrentUser');
-            if (!saved) {
-                window.location.href = 'index.html';
+        // ===== TOAST =====
+        function showToast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = `toast ${type}`;
+            el.classList.remove('hidden');
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+        
+        // ===== AVATAR =====
+        function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('⚠️ File ảnh vượt quá 5MB', 'error');
                 return;
             }
-            try {
-                currentUser = JSON.parse(saved);
-            } catch (e) {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.getElementById('userDisplayName').textContent = '👋 ' + (currentUser.fullname || currentUser.email);
-            const roleLabel = currentUser.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
-            document.getElementById('userRoleBadge').textContent = roleLabel;
-
-            loadUserProfile();
-        }
-
-        function handleLogout() {
-            if (!confirm('Bạn muốn đăng xuất?')) return;
-            auth.signOut().then(() => {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
-            }).catch(() => {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
-            });
-        }
-
-        // ============================================================
-        // LOAD USER PROFILE
-        // ============================================================
-
-        async function loadUserProfile() {
-            try {
-                const doc = await db.collection('users').doc(currentUser.uid).get();
-                if (doc.exists) {
-                    userData = doc.data();
-                    renderProfile();
-                } else {
-                    userData = {
-                        fullname: currentUser.fullname || 'Người dùng',
-                        email: currentUser.email || 'user@email.com',
-                        phone: '',
-                        username: currentUser.email ? currentUser.email.split('@')[0] : 'username',
-                        gender: 'nam',
-                        role: currentUser.role || 'student',
-                        avatar: ''
-                    };
-                    renderProfile();
-                }
-            } catch (error) {
-                console.error('Lỗi tải profile:', error);
-                userData = {
-                    fullname: currentUser.fullname || 'Người dùng',
-                    email: currentUser.email || 'user@email.com',
-                    phone: '',
-                    username: currentUser.email ? currentUser.email.split('@')[0] : 'username',
-                    gender: 'nam',
-                    role: currentUser.role || 'student',
-                    avatar: ''
-                };
-                renderProfile();
-            }
-        }
-
-        // ============================================================
-        // RENDER PROFILE
-        // ============================================================
-
-        function renderProfile() {
-            if (!userData) return;
-
-            const avatarEl = document.getElementById('avatarDisplay');
-            if (userData.avatar) {
-                avatarEl.style.backgroundImage = `url(${userData.avatar})`;
-                avatarEl.style.backgroundSize = 'cover';
-                avatarEl.style.backgroundPosition = 'center';
-                avatarEl.textContent = '';
-            } else {
-                avatarEl.style.backgroundImage = '';
-                const initials = (userData.fullname || 'User').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-                avatarEl.textContent = initials || '??';
-            }
-
-            const deleteBtn = document.getElementById('deleteAvatarBtn');
-            if (userData.avatar) {
-                deleteBtn.style.display = 'inline-flex';
-            } else {
-                deleteBtn.style.display = 'none';
-            }
-
-            document.getElementById('profileFullname').textContent = userData.fullname || 'Chưa có tên';
-            document.getElementById('profileRole').textContent = userData.role === 'teacher' ? '👨‍🏫 Giáo viên' : '👨‍🎓 Học sinh';
-
-            document.getElementById('displayFullname').textContent = userData.fullname || 'Chưa có tên';
-            document.getElementById('displayPhone').textContent = userData.phone || 'Chưa có số điện thoại';
-            document.getElementById('displayUsername').textContent = userData.username || 'username';
-
-            const genderRadios = document.querySelectorAll('input[name="gender"]');
-            genderRadios.forEach(radio => {
-                radio.checked = radio.value === userData.gender;
-            });
-        }
-
-        // ============================================================
-        // UPLOAD AVATAR
-        // ============================================================
-
-        function uploadAvatar() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.style.display = 'none';
-            document.body.appendChild(input);
-
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (!file) {
-                    document.body.removeChild(input);
-                    return;
-                }
-
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('⚠️ File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
-                    document.body.removeChild(input);
-                    return;
-                }
-
-                document.getElementById('loadingOverlay').classList.add('show');
-
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', UPLOAD_PRESET);
-                formData.append('folder', `avatars/${currentUser.uid}`);
-
-                fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(`Cloudinary lỗi: ${text}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('✅ Cloudinary upload thành công:', data);
-                    const avatarUrl = data.secure_url;
-
-                    return db.collection('users').doc(currentUser.uid).update({
-                        avatar: avatarUrl
-                    }).then(() => {
-                        userData.avatar = avatarUrl;
-                        renderProfile();
-                        document.getElementById('loadingOverlay').classList.remove('show');
-                        alert('✅ Đã tải ảnh đại diện lên Cloudinary thành công!');
-                    });
-                })
-                .catch(error => {
-                    console.error('❌ Lỗi upload Cloudinary:', error);
-                    document.getElementById('loadingOverlay').classList.remove('show');
-
-                    if (error.message.includes('upload preset')) {
-                        alert('⚠️ Lỗi: Upload Preset chưa được tạo!\n\n' +
-                              'Vui lòng tạo Upload Preset trong Cloudinary:\n' +
-                              '1. Vào Settings → Upload\n' +
-                              '2. Add upload preset → Tên: "quizsystem_avatar"\n' +
-                              '3. Signing mode: "Unsigned"\n' +
-                              '4. Save');
-                    } else {
-                        alert('⚠️ Không thể tải ảnh lên Cloudinary. Vui lòng thử lại!\n\nLỗi: ' + error.message);
-                    }
-                })
-                .finally(() => {
-                    document.body.removeChild(input);
-                });
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatar = document.getElementById('avatar-display');
+                avatar.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+                showToast('✅ Đã tải lên ảnh đại diện', 'success');
             };
-
-            input.click();
+            reader.readAsDataURL(file);
         }
-
-        // ============================================================
-        // DELETE AVATAR
-        // ============================================================
-
-        function deleteAvatar() {
-            if (!userData.avatar) {
-                alert('Bạn chưa có ảnh đại diện để xóa!');
+        
+        function removeAvatar() {
+            const avatar = document.getElementById('avatar-display');
+            const name = document.getElementById('display-name').textContent;
+            const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+            avatar.innerHTML = initials;
+            showToast('✅ Đã xóa ảnh đại diện', 'success');
+        }
+        
+        // ===== PHONE =====
+        function editPhone() {
+            const current = document.getElementById('phone-number').textContent;
+            const newPhone = prompt('Nhập số điện thoại mới:', current);
+            if (newPhone && newPhone.trim()) {
+                document.getElementById('phone-number').textContent = newPhone.trim();
+                showToast('✅ Đã cập nhật số điện thoại', 'success');
+            }
+        }
+        
+        // ===== PASSWORD MODAL =====
+        function openChangePassword() {
+            document.getElementById('password-modal').classList.add('active');
+            document.getElementById('old-password').value = '';
+            document.getElementById('modal-new-password').value = '';
+            document.getElementById('modal-confirm-password').value = '';
+        }
+        
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.remove('active');
+        }
+        
+        function submitChangePassword() {
+            const oldPwd = document.getElementById('old-password').value;
+            const newPwd = document.getElementById('modal-new-password').value;
+            const confirmPwd = document.getElementById('modal-confirm-password').value;
+            
+            if (!oldPwd || !newPwd || !confirmPwd) {
+                showToast('⚠️ Vui lòng điền đầy đủ thông tin', 'error');
                 return;
             }
-
-            if (!confirm('Bạn có chắc chắn muốn xóa ảnh đại diện này?')) {
+            
+            if (newPwd.length < 6) {
+                showToast('⚠️ Mật khẩu phải có ít nhất 6 ký tự', 'error');
                 return;
             }
-
-            db.collection('users').doc(currentUser.uid).update({
-                avatar: ''
-            })
-            .then(() => {
-                userData.avatar = '';
-                renderProfile();
-                alert('✅ Đã xóa ảnh đại diện thành công!');
-            })
-            .catch(error => {
-                console.error('❌ Lỗi xóa avatar:', error);
-                alert('⚠️ Không thể xóa ảnh đại diện. Vui lòng thử lại!');
-            });
-        }
-
-        // ============================================================
-        // EDIT FIELD
-        // ============================================================
-
-        function editField(fieldName) {
-            const newValue = prompt(`Nhập ${fieldName} mới:`);
-            if (newValue !== null && newValue.trim() !== '') {
-                const fieldMap = {
-                    'Số điện thoại': 'phone'
-                };
-                const key = fieldMap[fieldName];
-                if (key) {
-                    userData[key] = newValue.trim();
-                    renderProfile();
-                    db.collection('users').doc(currentUser.uid).update({
-                        [key]: newValue.trim()
-                    }).then(() => {
-                        alert(`✅ Đã cập nhật ${fieldName}!`);
-                    }).catch(err => {
-                        console.error('Lỗi lưu:', err);
-                        alert('⚠️ Không thể lưu thay đổi. Vui lòng thử lại!');
-                    });
-                }
+            
+            if (newPwd !== confirmPwd) {
+                showToast('⚠️ Mật khẩu xác nhận không khớp', 'error');
+                return;
             }
+            
+            showToast('✅ Đổi mật khẩu thành công!', 'success');
+            closePasswordModal();
         }
-
-        // ============================================================
-        // CHANGE PASSWORD
-        // ============================================================
-
+        
+        // ===== CHANGE PASSWORD (from card) =====
         function changePassword() {
-            const newPassword = prompt('Nhập mật khẩu mới (tối thiểu 6 ký tự):');
-            if (newPassword && newPassword.length >= 6) {
-                auth.currentUser.updatePassword(newPassword)
-                    .then(() => {
-                        alert('✅ Đổi mật khẩu thành công!');
-                    })
-                    .catch((error) => {
-                        alert('❌ Lỗi đổi mật khẩu: ' + error.message);
-                    });
-            } else if (newPassword !== null) {
-                alert('⚠️ Mật khẩu phải có ít nhất 6 ký tự!');
+            const newPwd = document.getElementById('new-password').value;
+            const confirmPwd = document.getElementById('confirm-password').value;
+            
+            if (!newPwd || !confirmPwd) {
+                showToast('⚠️ Vui lòng nhập mật khẩu mới', 'error');
+                return;
+            }
+            
+            if (newPwd.length < 6) {
+                showToast('⚠️ Mật khẩu phải có ít nhất 6 ký tự', 'error');
+                return;
+            }
+            
+            if (newPwd !== confirmPwd) {
+                showToast('⚠️ Mật khẩu xác nhận không khớp', 'error');
+                return;
+            }
+            
+            showToast('✅ Đổi mật khẩu thành công!', 'success');
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+        }
+        
+        // ===== SAVE PROFILE =====
+        function saveProfile() {
+            const name = document.getElementById('full-name').textContent;
+            const phone = document.getElementById('phone-number').textContent;
+            const username = document.getElementById('username').textContent;
+            const gender = document.querySelector('input[name="gender"]:checked');
+            const genderText = gender ? gender.value : 'male';
+            
+            const profileData = {
+                name: name,
+                phone: phone,
+                username: username,
+                gender: genderText,
+                updatedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('profile', JSON.stringify(profileData));
+            
+            // Cập nhật tên hiển thị
+            document.getElementById('display-name').textContent = name;
+            
+            showToast('✅ Đã lưu thông tin cá nhân!', 'success');
+        }
+        
+        // ===== RESET FORM =====
+        function resetForm() {
+            const saved = localStorage.getItem('profile');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    document.getElementById('full-name').textContent = data.name || 'user';
+                    document.getElementById('phone-number').textContent = data.phone || '...';
+                    document.getElementById('username').textContent = data.username || 'username';
+                    document.querySelector(`input[name="gender"][value="${data.gender || 'male'}"]`).checked = true;
+                    document.getElementById('display-name').textContent = data.name || 'user';
+                    showToast('↩️ Đã hoàn tác thay đổi', 'success');
+                    return;
+                } catch (e) {}
+            }
+            
+            // Reset về mặc định
+            document.getElementById('full-name').textContent = 'USER';
+            document.getElementById('phone-number').textContent = '...';
+            document.getElementById('username').textContent = 'username';
+            document.querySelector('input[name="gender"][value="male"]').checked = true;
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('display-name').textContent = 'USRER';
+            showToast('↩️ Đã hoàn tác thay đổi', 'success');
+        }
+        
+        // ===== LOAD SAVED PROFILE =====
+        function loadProfile() {
+            const saved = localStorage.getItem('profile');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (data.name) {
+                        document.getElementById('full-name').textContent = data.name;
+                        document.getElementById('display-name').textContent = data.name;
+                    }
+                    if (data.phone) document.getElementById('phone-number').textContent = data.phone;
+                    if (data.username) document.getElementById('username').textContent = data.username;
+                    if (data.gender) {
+                        document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
+                    }
+                    // Cập nhật avatar
+                    const avatar = document.getElementById('avatar-display');
+                    const name = data.name || 'USRER';
+                    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                    avatar.innerHTML = initials;
+                } catch (e) {}
             }
         }
-
-        // ============================================================
-        // SAVE PROFILE
-        // ============================================================
-
-        async function saveProfile() {
-            const genderRadio = document.querySelector('input[name="gender"]:checked');
-            const gender = genderRadio ? genderRadio.value : 'nam';
-
-            userData.gender = gender;
-
-            const saveBtn = document.querySelector('.btn-success');
-            const originalText = saveBtn.innerHTML;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
-            saveBtn.disabled = true;
-
-            try {
-                await db.collection('users').doc(currentUser.uid).update({
-                    fullname: userData.fullname,
-                    phone: userData.phone,
-                    username: userData.username,
-                    gender: userData.gender
-                });
-
-                const saved = JSON.parse(localStorage.getItem('quizCurrentUser'));
-                saved.fullname = userData.fullname;
-                localStorage.setItem('quizCurrentUser', JSON.stringify(saved));
-
-                alert('✅ Đã lưu thông tin cá nhân thành công!');
-                renderProfile();
-
-            } catch (error) {
-                console.error('Lỗi lưu profile:', error);
-                alert('❌ Không thể lưu thông tin. Vui lòng thử lại!');
-            } finally {
-                saveBtn.innerHTML = originalText;
-                saveBtn.disabled = false;
-            }
-        }
-
-        // ============================================================
-        // INIT
-        // ============================================================
-
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                localStorage.removeItem('quizCurrentUser');
-                window.location.href = 'index.html';
-            }
+        
+        // ===== CLOSE MODAL ON OVERLAY CLICK =====
+        document.getElementById('password-modal').addEventListener('click', function(e) {
+            if (e.target === this) closePasswordModal();
         });
-
-        checkAuth();
+        
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', loadProfile);
     </script>
-
 </body>
 </html>
