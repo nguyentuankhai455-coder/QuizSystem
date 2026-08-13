@@ -3,676 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lớp học của tôi - QuizSystem</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <title>QuizSystem - Tạm dừng hoạt động</title>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: #f0f2f5;
             color: #1a1a2e;
             line-height: 1.6;
-        }
-        .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px; }
-        
-        .header {
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 8px;
-        }
-        .header .logo { font-size: 24px; font-weight: 700; color: #1a1a2e; }
-        .header .logo span { color: #4f46e5; }
-        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        
-        .btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        .btn-secondary { background: #e2e8f0; color: #4a5568; }
-        .btn-secondary:hover { background: #cbd5e0; }
-        .btn-primary { background: #4f46e5; color: white; }
-        .btn-primary:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35); }
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
-        .btn-danger { background: #ef4444; color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-outline { background: transparent; color: #4f46e5; border: 2px solid #4f46e5; }
-        .btn-outline:hover { background: #4f46e5; color: white; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 8px; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
-        
-        .breadcrumb {
-            font-size: 14px;
-            color: #718096;
-            margin-bottom: 20px;
-        }
-        .breadcrumb a { color: #4f46e5; text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .breadcrumb span { color: #1a1a2e; font-weight: 600; }
-        
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .page-header h1 { font-size: 28px; font-weight: 700; color: #1a1a2e; }
-        .page-header p { color: #718096; font-size: 15px; margin-top: 2px; }
-        
-        .join-section {
-            background: white;
-            border-radius: 16px;
-            padding: 20px 24px;
-            border: 1px solid #edf2f7;
-            margin-bottom: 24px;
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .join-section .join-label {
-            font-weight: 600;
-            color: #4a5568;
-            font-size: 14px;
-        }
-        .join-section input {
-            flex: 1;
-            min-width: 180px;
-            padding: 10px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            background: #f8fafc;
-            text-transform: uppercase;
-        }
-        .join-section input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-            background: white;
-        }
-        .join-section input::placeholder {
-            text-transform: none;
-        }
-        
-        .class-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
-        
-        .class-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            border: 1px solid #edf2f7;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-        .class-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-            border-color: #4f46e5;
-        }
-        .class-card .class-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 4px;
-        }
-        .class-card .class-code {
-            font-size: 13px;
-            color: #4f46e5;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        .class-card .class-meta {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            font-size: 13px;
-            color: #718096;
-            padding: 10px 0;
-            border-top: 1px solid #f0f0f0;
-            border-bottom: 1px solid #f0f0f0;
-            margin: 8px 0 12px 0;
-        }
-        .class-card .class-meta span { display: flex; align-items: center; gap: 4px; }
-        .class-card .class-desc {
-            color: #4a5568;
-            font-size: 14px;
-            line-height: 1.6;
-            flex: 1;
-            margin-bottom: 14px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .class-card .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .class-card .card-actions .btn { flex: 1; justify-content: center; min-width: 60px; }
-        
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            background: white;
-            border-radius: 16px;
-            border: 2px dashed #e2e8f0;
-            grid-column: 1 / -1;
-        }
-        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
-        .empty-state h3 { font-size: 20px; color: #1a1a2e; margin-bottom: 8px; }
-        .empty-state p { color: #718096; margin-bottom: 20px; }
-        
-        #loading { text-align: center; padding: 60px 20px; color: #718096; font-size: 16px; }
-        
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
             justify-content: center;
             align-items: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
             padding: 20px;
         }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: white;
-            border-radius: 20px;
-            padding: 32px;
-            max-width: 460px;
-            width: 100%;
-            animation: modalIn 0.3s ease;
-        }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e; }
-        .modal p { color: #4a5568; margin-bottom: 20px; }
-        .modal .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            padding-top: 16px;
-            border-top: 1px solid #edf2f7;
-        }
         
-        .toast {
+        /* ===== OVERLAY ===== */
+        .overlay {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #1a1a2e;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
             z-index: 9999;
-            animation: slideUp 0.3s ease;
-            font-size: 14px;
-            max-width: 400px;
-        }
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
-        .toast.hidden { display: none; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
         }
         
-        .footer {
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* ===== POPUP ===== */
+        .popup {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 520px;
+            width: 100%;
             text-align: center;
-            padding: 32px 20px 12px;
-            color: #a0aec0;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .popup .icon {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .popup h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        
+        .popup h1 span {
+            color: #4f46e5;
+        }
+        
+        .popup .subtitle {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 12px;
+        }
+        
+        .popup .message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        
+        .popup .message strong {
+            color: #1a1a2e;
+        }
+        
+        .popup .time-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border: 2px solid #edf2f7;
+        }
+        
+        .popup .time-box .label {
             font-size: 13px;
-            border-top: 1px solid #edf2f7;
-            margin-top: 40px;
+            color: #a0aec0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .footer a { color: #4f46e5; text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
         
-        @media (max-width: 640px) {
-            .header { flex-direction: column; text-align: center; }
-            .header-actions { justify-content: center; }
-            .page-header { flex-direction: column; text-align: center; }
-            .join-section { flex-direction: column; align-items: stretch; }
-            .join-section input { min-width: unset; width: 100%; }
-            .class-grid { grid-template-columns: 1fr; }
-            .modal { padding: 20px; margin: 10px; }
-            .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
+        .popup .time-box .time {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ef4444;
+            font-family: 'Courier New', monospace;
         }
-        .hidden { display: none !important; }
         
-        /* Status badge */
-        .status-badge {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+        .popup .time-box .date {
+            font-size: 16px;
+            color: #4a5568;
             font-weight: 600;
         }
-        .status-badge.active { background: #d1fae5; color: #065f46; }
-        .status-badge.inactive { background: #fee2e2; color: #991b1b; }
-        .status-badge.completed { background: #fef3c7; color: #92400e; }
+        
+        .popup .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .popup .features .feature {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 8px;
+            border: 1px solid #edf2f7;
+        }
+        
+        .popup .features .feature .f-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .popup .features .feature .f-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+        
+        .popup .btn {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            margin-top: 8px;
+            box-shadow: 0 8px 30px rgba(79, 70, 229, 0.35);
+        }
+        
+        .popup .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(79, 70, 229, 0.45);
+        }
+        
+        .popup .footer-text {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-top: 20px;
+        }
+        
+        .popup .footer-text a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        .popup .footer-text a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .popup {
+                padding: 32px 24px;
+                margin: 16px;
+                border-radius: 20px;
+            }
+            .popup .icon { font-size: 56px; }
+            .popup h1 { font-size: 24px; }
+            .popup .time-box .time { font-size: 22px; }
+            .popup .features {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .popup .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .popup .features { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="logo">📚 <span>Quiz</span>System</div>
-            <div class="header-actions">
-                <a href="dashboard.html" class="btn btn-secondary">🏠 Dashboard</a>
-                <a href="profile.html" class="btn btn-secondary">👤 Hồ sơ</a>
-                <button class="btn btn-outline" onclick="handleLogout()">🚪 Đăng xuất</button>
-            </div>
-        </div>
-        
-        <!-- BREADCRUMB -->
-        <div class="breadcrumb">
-            <a href="dashboard.html">Trang chủ</a> &gt; 
-            <span>Lớp học của tôi</span>
-        </div>
-        
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <div>
-                <h1>📚 Lớp học của tôi</h1>
-                <p>Xem danh sách lớp học của bạn</p>
-            </div>
-        </div>
-        
-        <!-- JOIN SECTION -->
-        <div class="join-section">
-            <span class="join-label">🔑 Nhập mã lớp:</span>
-            <input type="text" id="join-code" placeholder="VD: WEB101" maxlength="20" 
-                   onkeydown="if(event.key==='Enter') joinClass()">
-            <button class="btn btn-primary" onclick="joinClass()">➕ Tham gia</button>
-        </div>
-        
-        <!-- LOADING -->
-        <div id="loading">⏳ Đang tải danh sách lớp học...</div>
-        
-        <!-- CLASS GRID -->
-        <div id="class-grid" class="class-grid"></div>
-        
-        <!-- FOOTER -->
-        <div class="footer">
-            © 2026 <a href="#">QuizSystem</a> - Made with ❤️ by 
-            <a href="#">Nguyễn Tuấn Khải</a> DEV Dora Fanclub Việt Nam 
-            <strong>v2.0.0</strong>
-        </div>
-    </div>
-    
-    <!-- MODAL: RỜI LỚP -->
-    <div class="modal-overlay" id="leave-modal">
-        <div class="modal">
-            <h3>🚪 Rời khỏi lớp học</h3>
-            <p id="leave-confirm-text">Bạn có chắc chắn muốn rời khỏi lớp học này?</p>
-            <div class="form-actions">
-                <button class="btn btn-secondary" onclick="closeLeaveModal()">Hủy</button>
-                <button class="btn btn-danger" id="confirm-leave-btn" onclick="confirmLeave()">🚪 Rời lớp</button>
+        <!-- OVERLAY -->
+        <div class="overlay" id="popupOverlay">
+            <div class="popup">
+                <span class="icon">🚀</span>
+                
+                <h1>📚 <span>Quiz</span>System</h1>
+                <div class="subtitle">✨ Hành trình kết thúc ✨</div>
+                
+                <p class="message">
+                    <strong>Cảm ơn bạn đã đồng hành cùng chúng tôi</strong> trong suốt hành trình phát triển 
+                    hệ thống <strong>QuizSystem</strong>.
+                </p>
+                
+                <div class="time-box">
+                    <div class="label">⏰ Thời điểm ngừng hoạt động</div>
+                    <div class="time">00:00</div>
+                    <div class="date">14.08.2026</div>
+                </div>
+                
+                <p class="message">
+                    Web sẽ <strong>không cập nhật</strong> và <strong>ngừng hoạt động</strong> kể từ thời điểm trên. 
+                    Đây là cột mốc kết thúc một chặng đường đáng nhớ.
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <span class="f-icon">💻</span>
+                        <span class="f-label">Dự án đã hoàn thành</span>
+                    </div>
+                    <div class="feature">
+                        <span class="f-icon">❤️</span>
+                        <span class="f-label">Cảm ơn người dùng</span>
+                    </div>
+                    <div class="feature">
+                        <span class="f-icon">🌟</span>
+                        <span class="f-label">Hẹn gặp lại</span>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="closePopup()">
+                    🎯 Đã hiểu, cảm ơn!
+                </button>
+                
+                <div class="footer-text">
+                    Made with ❤️ by <a href="#">Nguyễn Tuấn Khải</a> · DEV Dora Fanclub Việt Nam
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- MODAL: CHI TIẾT LỚP -->
-    <div class="modal-overlay" id="detail-modal">
-        <div class="modal" style="max-width: 500px;">
-            <h3 id="detail-title">📋 Chi tiết lớp học</h3>
-            <div id="detail-content">
-                <p style="color: #718096;">Đang tải...</p>
-            </div>
-            <div class="form-actions">
-                <button class="btn btn-secondary" onclick="closeDetailModal()">Đóng</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- TOAST -->
-    <div id="toast" class="toast hidden"></div>
     
     <script>
-        // ==================== FIREBASE ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
-            authDomain: "quizsystem-1d1c2.firebaseapp.com",
-            databaseURL: "https://quizsystem-1d1c2-default-rtdb.firebaseio.com",
-            projectId: "quizsystem-1d1c2",
-            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
-            messagingSenderId: "435483557148",
-            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
-            measurementId: "G-FS5YZWPDD9"
-        };
-        
-        let auth = null;
-        let database = null;
-        let firebaseReady = false;
-        let currentUser = null;
-        let myClasses = [];
-        let allClasses = [];
-        let leaveTargetId = null;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            database = firebase.database();
-            firebaseReady = true;
-            console.log('✅ Firebase connected');
-        } catch (e) {
-            console.warn('⚠️ Firebase init failed:', e.message);
+        // ===== CLOSE POPUP =====
+        function closePopup() {
+            const overlay = document.getElementById('popupOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s ease';
+            
+            // Chuyển hướng sau khi đóng
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Chuyển đến một trang tạm biệt hoặc index
+                // window.location.href = 'goodbye.html';
+            }, 500);
         }
         
-        // ==================== TOAST ====================
-        function showToast(msg, type = 'success') {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.className = `toast ${type}`;
-            el.classList.remove('hidden');
-            clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.add('hidden'), 3000);
-        }
-        
-        // ==================== CHECK AUTH ====================
-        function checkAuth() {
-            if (!firebaseReady || !auth) return;
-            auth.onAuthStateChanged(user => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                    return;
-                }
-                currentUser = user;
-                console.log('✅ User logged in:', user.email);
-                loadMyClasses();
-            });
-        }
-        
-        // ==================== LOGOUT ====================
-        async function handleLogout() {
-            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) return;
-            try {
-                if (auth) await auth.signOut();
-                localStorage.clear();
-                showToast('✅ Đã đăng xuất', 'success');
-                setTimeout(() => { window.location.href = 'index.html'; }, 500);
-            } catch (error) {
-                showToast('❌ Đăng xuất thất bại', 'error');
+        // ===== CLICK OUTSIDE =====
+        document.getElementById('popupOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
             }
-        }
-        
-        // ==================== LOAD MY CLASSES ====================
-        async function loadMyClasses() {
-            const loading = document.getElementById('loading');
-            const grid = document.getElementById('class-grid');
-            
-            loading.classList.remove('hidden');
-            grid.innerHTML = '';
-            
-            try {
-                if (!firebaseReady || !database) {
-                    throw new Error('Không kết nối được Firebase');
-                }
-                
-                // Lấy tất cả lớp học
-                const snapshot = await database.ref('classes').once('value');
-                const data = snapshot.val();
-                
-                allClasses = [];
-                myClasses = [];
-                
-                if (data) {
-                    allClasses = Object.keys(data).map(key => ({
-                        id: key,
-                        ...data[key]
-                    }));
-                    
-                    // Lọc lớp học của user
-                    myClasses = allClasses.filter(cls => 
-                        cls.students && cls.students[currentUser.uid]
-                    );
-                    
-                    console.log('✅ My classes:', myClasses.length);
-                }
-                
-                loading.classList.add('hidden');
-                
-                if (myClasses.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-state">
-                            <div class="icon">📚</div>
-                            <h3>Chưa có lớp học</h3>
-                            <p>Hãy đợi giáo viên thêm bạn vào lớp nhé!</p>
-                        </div>
-                    `;
-                } else {
-                    renderClasses(myClasses);
-                }
-                
-            } catch (error) {
-                console.error('❌ Load error:', error);
-                loading.classList.add('hidden');
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">⚠️</div>
-                        <h3>Không thể tải dữ liệu</h3>
-                        <p>${error.message}</p>
-                        <button class="btn btn-primary" onclick="loadMyClasses()">🔄 Thử lại</button>
-                    </div>
-                `;
-            }
-        }
-        
-        // ==================== RENDER ====================
-        function renderClasses(list) {
-            const grid = document.getElementById('class-grid');
-            
-            const statusMap = {
-                'active': ['active', '✅ Hoạt động'],
-                'inactive': ['inactive', '⏸️ Tạm dừng'],
-                'completed': ['completed', '🎓 Đã kết thúc']
-            };
-            
-            grid.innerHTML = list.map(cls => {
-                const [statusClass, statusText] = statusMap[cls.status] || ['active', '✅ Hoạt động'];
-                
-                return `
-                <div class="class-card">
-                    <div class="class-name">${cls.name || 'Lớp học không tên'}</div>
-                    <div class="class-code">📌 Mã lớp: ${cls.code || 'N/A'}</div>
-                    <div class="class-meta">
-                        <span>📚 ${cls.subject || 'Chưa có môn'}</span>
-                        <span>👨‍🏫 ${cls.teacher || 'Chưa có GV'}</span>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
-                    </div>
-                    <div class="class-desc">${cls.description || 'Không có mô tả'}</div>
-                    <div class="card-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="viewClassDetail('${cls.id}')">📝 Xem</button>
-                        <button class="btn btn-danger btn-sm" onclick="openLeaveModal('${cls.id}')">🚪 Rời lớp</button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-        
-        // ==================== JOIN CLASS ====================
-        async function joinClass() {
-            const codeInput = document.getElementById('join-code');
-            const code = codeInput.value.trim().toUpperCase();
-            
-            if (!code) {
-                showToast('⚠️ Vui lòng nhập mã lớp', 'error');
-                return;
-            }
-            
-            if (!currentUser) {
-                showToast('⚠️ Vui lòng đăng nhập', 'error');
-                return;
-            }
-            
-            // Tìm lớp theo mã
-            const targetClass = allClasses.find(c => c.code === code);
-            
-            if (!targetClass) {
-                showToast('❌ Không tìm thấy lớp học với mã này', 'error');
-                return;
-            }
-            
-            // Kiểm tra đã tham gia chưa
-            if (targetClass.students && targetClass.students[currentUser.uid]) {
-                showToast('⚠️ Bạn đã tham gia lớp học này rồi', 'error');
-                codeInput.value = '';
-                return;
-            }
-            
-            // Kiểm tra trạng thái lớp
-            if (targetClass.status === 'inactive') {
-                showToast('⏸️ Lớp học đang tạm dừng', 'error');
-                return;
-            }
-            if (targetClass.status === 'completed') {
-                showToast('🎓 Lớp học đã kết thúc', 'error');
-                return;
-            }
-            
-            try {
-                // Lấy thông tin user
-                const userSnapshot = await database.ref(`users/${currentUser.uid}/profile`).once('value');
-                const userData = userSnapshot.val();
-                const userName = userData?.fullName || currentUser.displayName || currentUser.email?.split('@')[0] || 'Học sinh';
-                
-                // Thêm học sinh vào lớp
-                const studentData = {
-                    name: userName,
-                    email: currentUser.email,
-                    joinedAt: new Date().toISOString(),
-                    uid: currentUser.uid
-                };
-                
-                await database.ref(`classes/${targetClass.id}/students/${currentUser.uid}`).set(studentData);
-                
-                showToast('✅ Đã tham gia lớp học thành công!', 'success');
-                codeInput.value = '';
-                await loadMyClasses();
-                
-            } catch (error) {
-                console.error('❌ Join error:', error);
-                showToast('❌ Không thể tham gia lớp học', 'error');
-            }
-        }
-        
-        // ==================== LEAVE CLASS ====================
-        function openLeaveModal(id) {
-            leaveTargetId = id;
-            const cls = myClasses.find(c => c.id === id);
-            document.getElementById('leave-confirm-text').textContent = 
-                `Bạn có chắc chắn muốn rời khỏi lớp học "${cls?.name || 'này'}"?`;
-            document.getElementById('leave-modal').classList.add('active');
-        }
-        
-        function closeLeaveModal() {
-            document.getElementById('leave-modal').classList.remove('active');
-            leaveTargetId = null;
-        }
-        
-        async function confirmLeave() {
-            if (!leaveTargetId) return;
-            
-            const btn = document.getElementById('confirm-leave-btn');
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Đang xử lý...';
-            
-            try {
-                await database.ref(`classes/${leaveTargetId}/students/${currentUser.uid}`).remove();
-                showToast('✅ Đã rời khỏi lớp học', 'success');
-                closeLeaveModal();
-                await loadMyClasses();
-            } catch (error) {
-                console.error('❌ Leave error:', error);
-                showToast('❌ Không thể rời lớp học', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '🚪 Rời lớp';
-            }
-        }
-        
-        // ==================== VIEW CLASS DETAIL ====================
-        async function viewClassDetail(id) {
-            const cls = myClasses.find(c => c.id === id);
-            if (!cls) {
-                showToast('❌ Không tìm thấy lớp học', 'error');
-                return;
-            }
-            
-            const modal = document.getElementById('detail-modal');
-            const title = document.getElementById('detail-title');
-            const content = document.getElementById('detail-content');
-            
-            title.textContent = `📋 ${cls.name || 'Chi tiết lớp học'}`;
-            
-            const studentCount = cls.students ? Object.keys(cls.students).length : 0;
-            
-            content.innerHTML = `
-                <div style="margin-bottom: 12px;">
-                    <p><strong>📌 Mã lớp:</strong> ${cls.code || 'N/A'}</p>
-                    <p><strong>📚 Môn học:</strong> ${cls.subject || 'Chưa có'}</p>
-                    <p><strong>👨‍🏫 Giáo viên:</strong> ${cls.teacher || 'Chưa có'}</p>
-                    <p><strong>📍 Phòng học:</strong> ${cls.room || 'Chưa có'}</p>
-                    <p><strong>👥 Số học sinh:</strong> ${studentCount}</p>
-                    <p><strong>📝 Mô tả:</strong> ${cls.description || 'Không có mô tả'}</p>
-                    <p><strong>📅 Ngày tạo:</strong> ${cls.createdAt ? new Date(cls.createdAt).toLocaleDateString('vi-VN') : 'N/A'}</p>
-                    <p><strong>📊 Trạng thái:</strong> ${cls.status === 'active' ? '✅ Hoạt động' : cls.status === 'inactive' ? '⏸️ Tạm dừng' : '🎓 Đã kết thúc'}</p>
-                </div>
-                <div style="background: #f8fafc; border-radius: 10px; padding: 12px; max-height: 150px; overflow-y: auto;">
-                    <p style="font-weight: 600; font-size: 13px; color: #4a5568;">👥 Danh sách học sinh:</p>
-                    ${cls.students ? Object.values(cls.students).map(s => 
-                        `<div style="padding: 4px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0;">• ${s.name || 'Học sinh'}</div>`
-                    ).join('') : '<p style="color: #a0aec0; font-size: 14px;">Chưa có học sinh</p>'}
-                </div>
-            `;
-            
-            modal.classList.add('active');
-        }
-        
-        function closeDetailModal() {
-            document.getElementById('detail-modal').classList.remove('active');
-        }
-        
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 student-classes.html đã tải');
-            checkAuth();
-            
-            document.getElementById('leave-modal').addEventListener('click', function(e) {
-                if (e.target === this) closeLeaveModal();
-            });
-            
-            document.getElementById('detail-modal').addEventListener('click', function(e) {
-                if (e.target === this) closeDetailModal();
-            });
         });
+        
+        // ===== KEYBOARD =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Enter') {
+                closePopup();
+            }
+        });
+        
+        // ===== LOG =====
+        console.log('🚀 QuizSystem - Cảm ơn bạn đã đồng hành!');
+        console.log('⏰ Web sẽ ngừng hoạt động từ 00:00 14.08.2026');
+        console.log('❤️ Made with love by Nguyễn Tuấn Khải');
     </script>
 </body>
 </html>
