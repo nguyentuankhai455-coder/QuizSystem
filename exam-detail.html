@@ -22,6 +22,8 @@
         body {
             background: #f0f4f8;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .top-header {
@@ -130,6 +132,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 16px 24px;
+            flex: 1;
         }
 
         .breadcrumb {
@@ -369,8 +372,54 @@
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            padding: 16px 24px;
+            border-top: 2px solid #e8edf5;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 40px;
+        }
+
+        .footer .copyright {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer .copyright .heart {
+            color: #e74c3c;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .footer .copyright .brand {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .footer .copyright .version {
+            background: #e8edf5;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #7f8c8d;
         }
 
         @media (max-width: 768px) {
@@ -397,6 +446,10 @@
                 padding: 16px 18px;
                 flex-direction: column;
                 align-items: stretch;
+            }
+            .footer {
+                padding: 12px 16px;
+                font-size: 12px;
             }
         }
     </style>
@@ -431,7 +484,6 @@
         <!-- Nội dung chính -->
         <div id="mainContent" style="display:none;">
 
-            <!-- Warning sẽ được render bằng JS -->
             <div id="warningContainer"></div>
 
             <div class="exam-card">
@@ -497,6 +549,21 @@
 
     </div>
 
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="copyright">
+            <span>© 2026</span>
+            <span class="brand">QuizSystem</span>
+            <span>·</span>
+            <span>Made with</span>
+            <span class="heart">❤️</span>
+            <span>by</span>
+            <span style="font-weight:600; color:#2c3e50;">Nguyễn Tuấn Khải</span>
+            <span style="color:#95a5a6; font-size:12px;">DEV Dora Fanclub Việt Nam</span>
+            <span class="version">v2.0.0</span>
+        </div>
+    </footer>
+
     <script>
         // ============================================================
         // FIREBASE
@@ -549,7 +616,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             examId = urlParams.get('id');
 
-            // Load lịch sử trước
             loadHistory();
 
             if (examId) {
@@ -619,10 +685,10 @@
                 code: examId ? examId.substring(0, 6) : 'k6ubl1',
                 duration: 30,
                 timeLimit: null,
-                questions: Array(10).fill({}),
+                questions: Array(2).fill({}),
                 type: 'Trắc nghiệm',
                 attempts: 0,
-                maxAttempts: null // null = không giới hạn
+                maxAttempts: null
             };
 
             document.getElementById('loadingState').style.display = 'none';
@@ -641,7 +707,6 @@
             document.getElementById('examCode').textContent = examData.code || generateExamCode();
             document.getElementById('breadcrumbTitle').textContent = examData.title || 'Chi tiết đề thi';
 
-            // Thời gian làm bài
             const durationEl = document.getElementById('examDuration');
             if (examData.duration) {
                 durationEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> ${examData.duration} phút</span>`;
@@ -649,7 +714,6 @@
                 durationEl.innerHTML = `<span class="badge-unlimited"><i class="fas fa-infinity"></i> Không giới hạn</span>`;
             }
 
-            // Thời gian vào thi
             const timeEl = document.getElementById('examTime');
             if (examData.timeLimit) {
                 timeEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> ${examData.timeLimit}</span>`;
@@ -657,21 +721,17 @@
                 timeEl.innerHTML = `<span class="badge-time"><i class="fas fa-clock"></i> Không thời hạn</span>`;
             }
 
-            // Số câu hỏi
             const questionCount = examData.questions ? examData.questions.length : 0;
             document.getElementById('examQuestions').textContent = questionCount || 0;
 
-            // Loại đề
             document.getElementById('examType').innerHTML = `
                 <span class="badge-exam"><i class="fas fa-list-ul"></i> ${examData.type || 'Trắc nghiệm'}</span>
             `;
 
-            // Tổng lượt làm
             document.getElementById('examAttempts').innerHTML = `
                 <span class="badge-count"><i class="fas fa-users"></i> ${examData.attempts || 0} lượt</span>
             `;
 
-            // ===== SỐ LẦN ĐƯỢC LÀM =====
             const maxAttempts = examData.maxAttempts;
             const maxAttemptsEl = document.getElementById('examMaxAttempts');
 
@@ -681,27 +741,21 @@
                 maxAttemptsEl.innerHTML = `<span class="badge-attempts"><i class="fas fa-sync-alt"></i> ${maxAttempts} lần</span>`;
             }
 
-            // ===== KIỂM TRA SỐ LẦN ĐÃ LÀM =====
             const studentAttempts = getStudentAttempts(examData.id);
             const attemptCount = studentAttempts.length;
 
-            // Render warning
             renderWarning(attemptCount);
 
-            // Cập nhật nút bắt đầu thi
             const startBtn = document.getElementById('startBtn');
 
             if (maxAttempts !== null && maxAttempts > 0 && attemptCount >= maxAttempts) {
-                // Đã đạt giới hạn số lần
                 startBtn.disabled = true;
                 startBtn.className = 'btn btn-secondary btn-lg btn-disabled';
                 startBtn.innerHTML = '<i class="fas fa-ban"></i> Đã hết lượt làm';
             } else if (attemptCount > 0) {
-                // Đã làm nhưng còn lượt
                 const remaining = maxAttempts === null ? '♾️' : (maxAttempts - attemptCount);
                 startBtn.innerHTML = `<i class="fas fa-redo"></i> Làm lại (còn ${remaining} lượt)`;
             } else {
-                // Chưa làm
                 startBtn.innerHTML = '<i class="fas fa-play"></i> Bắt đầu thi';
             }
         }
@@ -714,12 +768,10 @@
             const container = document.getElementById('warningContainer');
             const maxAttempts = examData.maxAttempts;
 
-            // Xóa warning cũ
             container.innerHTML = '';
 
             let warningHTML = '';
 
-            // Nếu đã hết lượt
             if (maxAttempts !== null && maxAttempts > 0 && attemptCount >= maxAttempts) {
                 warningHTML = `
                     <div class="exam-warning danger">
@@ -731,7 +783,6 @@
                     </div>
                 `;
             } else if (maxAttempts !== null && maxAttempts > 0) {
-                // Có giới hạn, còn lượt
                 const remaining = maxAttempts - attemptCount;
                 warningHTML = `
                     <div class="exam-warning info">
@@ -744,7 +795,6 @@
                     </div>
                 `;
             } else if (attemptCount > 0) {
-                // Không giới hạn, đã làm
                 warningHTML = `
                     <div class="exam-warning success">
                         <div class="icon"><i class="fas fa-check-circle"></i></div>
@@ -755,7 +805,6 @@
                     </div>
                 `;
             } else {
-                // Chưa làm
                 warningHTML = `
                     <div class="exam-warning">
                         <div class="icon"><i class="fas fa-info-circle"></i></div>
@@ -787,7 +836,7 @@
         }
 
         // ============================================================
-        // START EXAM - KIỂM TRA SỐ LẦN
+        // START EXAM - CHUYỂN SANG TAKE-EXAM.HTML
         // ============================================================
 
         function startExam() {
@@ -808,7 +857,6 @@
             const attemptCount = studentAttempts.length;
             const maxAttempts = examData.maxAttempts;
 
-            // Nếu có giới hạn và đã đạt giới hạn
             if (maxAttempts !== null && maxAttempts > 0 && attemptCount >= maxAttempts) {
                 alert(`⛔ Bạn đã hết lượt làm bài!\n\nĐã làm ${attemptCount}/${maxAttempts} lượt. Không thể làm thêm.`);
                 return;
@@ -819,7 +867,6 @@
                 `📝 Số câu hỏi: ${questionCount}\n` +
                 `⏱️ Thời gian: ${examData.duration ? examData.duration + ' phút' : 'Không giới hạn'}\n`;
 
-            // Thêm thông tin về số lần
             if (maxAttempts !== null && maxAttempts > 0) {
                 const remaining = maxAttempts - attemptCount;
                 confirmMsg += `📊 Lượt làm: ${attemptCount}/${maxAttempts} (còn ${remaining} lượt)\n\n`;
@@ -830,6 +877,7 @@
             confirmMsg += `Bạn đã sẵn sàng chưa?`;
 
             if (confirm(confirmMsg)) {
+                // ✅ CHUYỂN SANG TRANG LÀM BÀI THI
                 window.location.href = 'take-exam.html?id=' + examData.id;
             }
         }
