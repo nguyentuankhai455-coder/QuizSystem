@@ -3,44 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuizSystem - Tạm dừng hoạt động</title>
+    <title>QuizSystem - Coming Soon</title>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f0f2f5;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
             color: #1a1a2e;
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        
-        .container {
-            max-width: 600px;
-            width: 100%;
             padding: 20px;
         }
         
-        /* ===== OVERLAY ===== */
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .container {
+            max-width: 700px;
+            width: 100%;
         }
         
         /* ===== POPUP ===== */
@@ -48,13 +30,13 @@
             background: white;
             border-radius: 24px;
             padding: 48px 40px;
-            max-width: 520px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 30px 80px rgba(79, 70, 229, 0.12);
             animation: slideUp 0.6s ease;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(79, 70, 229, 0.08);
         }
         
         .popup::before {
@@ -64,7 +46,14 @@
             left: 0;
             right: 0;
             height: 6px;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899, #f59e0b, #10b981);
+            background-size: 300% 100%;
+            animation: gradientMove 4s ease infinite;
+        }
+        
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         
         @keyframes slideUp {
@@ -78,104 +67,203 @@
             }
         }
         
-        .popup .icon {
-            font-size: 72px;
+        /* ===== LOGO ===== */
+        .logo {
+            font-size: 56px;
             display: block;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .brand {
+            font-size: 34px;
+            font-weight: 800;
+            color: #1a1a2e;
+        }
+        
+        .brand span {
+            color: #4f46e5;
+        }
+        
+        .tagline {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 4px;
+        }
+        
+        /* ===== BADGE ===== */
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 6px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            margin: 16px 0 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             animation: pulse 2s ease-in-out infinite;
         }
         
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
         }
         
-        .popup h1 {
-            font-size: 28px;
+        /* ===== TITLE ===== */
+        .title {
+            font-size: 40px;
             font-weight: 800;
             color: #1a1a2e;
-            margin-bottom: 8px;
-        }
-        
-        .popup h1 span {
-            color: #4f46e5;
-        }
-        
-        .popup .subtitle {
-            font-size: 18px;
-            font-weight: 600;
-            color: #4f46e5;
             margin-bottom: 12px;
         }
         
-        .popup .message {
-            font-size: 16px;
-            color: #4a5568;
-            line-height: 1.8;
-            margin-bottom: 8px;
+        .title .highlight {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .popup .message strong {
+        /* ===== MESSAGE ===== */
+        .message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.9;
+            max-width: 460px;
+            margin: 0 auto 24px;
+        }
+        
+        .message strong {
             color: #1a1a2e;
         }
         
-        .popup .time-box {
-            background: #f8fafc;
-            border-radius: 12px;
+        /* ===== INVESTOR ===== */
+        .investor-box {
+            background: linear-gradient(135deg, #f8fafc, #eef2ff);
+            border-radius: 16px;
             padding: 16px 20px;
-            margin: 20px 0;
-            border: 2px solid #edf2f7;
+            margin: 16px 0 24px;
+            border: 2px dashed #c7d2fe;
+            transition: all 0.3s ease;
         }
         
-        .popup .time-box .label {
-            font-size: 13px;
-            color: #a0aec0;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .investor-box:hover {
+            border-color: #4f46e5;
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.1);
         }
         
-        .popup .time-box .time {
-            font-size: 28px;
-            font-weight: 800;
-            color: #ef4444;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .popup .time-box .date {
-            font-size: 16px;
-            color: #4a5568;
-            font-weight: 600;
-        }
-        
-        .popup .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin: 20px 0;
-        }
-        
-        .popup .features .feature {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 12px 8px;
-            border: 1px solid #edf2f7;
-        }
-        
-        .popup .features .feature .f-icon {
-            font-size: 24px;
+        .investor-box .i-icon {
+            font-size: 32px;
             display: block;
             margin-bottom: 4px;
         }
         
-        .popup .features .feature .f-label {
-            font-size: 12px;
-            color: #718096;
+        .investor-box .i-text {
+            font-size: 15px;
+            color: #4a5568;
             font-weight: 500;
         }
         
-        .popup .btn {
-            padding: 14px 40px;
+        .investor-box .i-text strong {
+            color: #4f46e5;
+        }
+        
+        .investor-box .i-text .verified {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        /* ===== FEATURES ===== */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0 24px;
+        }
+        
+        .features .feature {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px 12px;
+            border: 1px solid #edf2f7;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        
+        .features .feature:hover {
+            border-color: #4f46e5;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.12);
+        }
+        
+        .features .feature .f-icon {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        
+        .features .feature .f-label {
+            font-size: 14px;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        
+        .features .feature .f-desc {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+        
+        /* ===== PROGRESS ===== */
+        .progress-wrap {
+            margin: 20px 0 16px;
+        }
+        
+        .progress-wrap .p-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 6px;
+        }
+        
+        .progress-wrap .p-label .p-percent {
+            font-weight: 700;
+            color: #ef4444;
+        }
+        
+        .progress-wrap .p-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-wrap .p-bar .p-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+            border-radius: 4px;
+            background-size: 200% 100%;
+            animation: progressPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes progressPulse {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* ===== BUTTON ===== */
+        .btn {
+            padding: 14px 48px;
             border: none;
             border-radius: 12px;
             font-size: 16px;
@@ -187,139 +275,241 @@
             gap: 10px;
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            margin-top: 8px;
             box-shadow: 0 8px 30px rgba(79, 70, 229, 0.35);
+            margin-top: 8px;
         }
         
-        .popup .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(79, 70, 229, 0.45);
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 48px rgba(79, 70, 229, 0.5);
         }
         
-        .popup .footer-text {
+        .btn:active {
+            transform: scale(0.97);
+        }
+        
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* ===== FOOTER ===== */
+        .footer-text {
             font-size: 13px;
             color: #a0aec0;
-            margin-top: 20px;
+            margin-top: 24px;
+            line-height: 1.8;
         }
         
-        .popup .footer-text a {
+        .footer-text a {
             color: #4f46e5;
             text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
         }
-        .popup .footer-text a:hover {
-            text-decoration: underline;
+        
+        .footer-text a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #4f46e5;
+            transition: width 0.3s ease;
+        }
+        
+        .footer-text a:hover::after {
+            width: 100%;
+        }
+        
+        .footer-text a:hover {
+            color: #4338ca;
+        }
+        
+        .footer-text .heart {
+            color: #ec4899;
+            display: inline-block;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.2); }
+            70% { transform: scale(1); }
+        }
+        
+        .footer-text .launch-date {
+            font-size: 12px;
+            color: #cbd5e0;
+            display: block;
+            margin-top: 4px;
         }
         
         /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .popup {
-                padding: 32px 24px;
-                margin: 16px;
+                padding: 32px 20px;
                 border-radius: 20px;
             }
-            .popup .icon { font-size: 56px; }
-            .popup h1 { font-size: 24px; }
-            .popup .time-box .time { font-size: 22px; }
-            .popup .features {
+            
+            .logo { font-size: 44px; }
+            .brand { font-size: 26px; }
+            .title { font-size: 30px; }
+            .message { font-size: 15px; }
+            
+            .features {
                 grid-template-columns: 1fr 1fr;
-                gap: 8px;
+                gap: 10px;
             }
-            .popup .btn {
+            
+            .btn {
                 width: 100%;
                 justify-content: center;
+                padding: 14px 24px;
             }
+            
+            .investor-box { padding: 14px 16px; }
         }
         
         @media (max-width: 400px) {
-            .popup .features { grid-template-columns: 1fr; }
+            .features { grid-template-columns: 1fr; }
+            .brand { font-size: 22px; }
+            .title { font-size: 24px; }
+            .popup { padding: 24px 16px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- OVERLAY -->
-        <div class="overlay" id="popupOverlay">
-            <div class="popup">
-                <span class="icon">🚀</span>
-                
-                <h1>📚 <span>Quiz</span>System</h1>
-                <div class="subtitle">✨ Hành trình kết thúc ✨</div>
-                
-                <p class="message">
-                    <strong>Cảm ơn bạn đã đồng hành cùng chúng tôi</strong> trong suốt hành trình phát triển 
-                    hệ thống <strong>QuizSystem</strong>.
-                </p>
-                
-                <div class="time-box">
-                    <div class="label">⏰ Thời điểm ngừng hoạt động</div>
-                    <div class="time">00:00</div>
-                    <div class="date">14.08.2026</div>
+        <div class="popup">
+            <!-- ===== LOGO ===== -->
+            <span class="logo">🚀</span>
+            <div class="brand">📚 <span>Quiz</span>System</div>
+            <div class="tagline">Hệ thống thi trắc nghiệm trực tuyến</div>
+            
+            <!-- ===== BADGE ===== -->
+            <div class="badge">🔄 Đang phát triển</div>
+            
+            <!-- ===== TITLE ===== -->
+            <h1 class="title">
+                <span class="highlight">Coming</span> Soon
+            </h1>
+            
+            <!-- ===== MESSAGE ===== -->
+            <p class="message">
+                <strong>🎉 Tin vui!</strong> Dự án <strong>QuizSystem</strong> đã được rót vốn đầu tư.
+                Chúng tôi đang nâng cấp hệ thống để mang đến trải nghiệm tốt nhất cho bạn.
+            </p>
+            
+            <!-- ===== INVESTOR ===== -->
+            <div class="investor-box">
+                <span class="i-icon">💎</span>
+                <div class="i-text">
+                    Được đầu tư bởi <strong>DEV Dora Fanclub Việt Nam</strong> ·
+                    <span class="verified">✓ Đã xác nhận</span>
                 </div>
-                
-                <p class="message">
-                    Web sẽ <strong>không cập nhật</strong> và <strong>ngừng hoạt động</strong> kể từ thời điểm trên. 
-                    Đây là cột mốc kết thúc một chặng đường đáng nhớ.
-                </p>
-                
-                <div class="features">
-                    <div class="feature">
-                        <span class="f-icon">💻</span>
-                        <span class="f-label">Dự án đã hoàn thành</span>
-                    </div>
-                    <div class="feature">
-                        <span class="f-icon">❤️</span>
-                        <span class="f-label">Cảm ơn người dùng</span>
-                    </div>
-                    <div class="feature">
-                        <span class="f-icon">🌟</span>
-                        <span class="f-label">Hẹn gặp lại</span>
-                    </div>
+            </div>
+            
+            <!-- ===== FEATURES ===== -->
+            <div class="features">
+                <div class="feature">
+                    <span class="f-icon">🧠</span>
+                    <div class="f-label">AI thông minh</div>
+                    <div class="f-desc">Tích hợp trí tuệ nhân tạo</div>
                 </div>
-                
-                <button class="btn" onclick="closePopup()">
-                    🎯 Đã hiểu, cảm ơn!
-                </button>
-                
-                <div class="footer-text">
-                    Made with ❤️ by <a href="#">Nguyễn Tuấn Khải</a> · DEV Dora Fanclub Việt Nam
+                <div class="feature">
+                    <span class="f-icon">📱</span>
+                    <div class="f-label">Đa nền tảng</div>
+                    <div class="f-desc">Web + Mobile App</div>
                 </div>
+                <div class="feature">
+                    <span class="f-icon">🔒</span>
+                    <div class="f-label">Bảo mật cao</div>
+                    <div class="f-desc">Dữ liệu an toàn tuyệt đối</div>
+                </div>
+            </div>
+            
+            <!-- ===== PROGRESS ===== -->
+            <div class="progress-wrap">
+                <div class="p-label">
+                    <span>Tiến độ phát triển</span>
+                    <span class="p-percent">0%</span>
+                </div>
+                <div class="p-bar">
+                    <div class="p-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+            
+            <!-- ===== BUTTON ===== -->
+            <button class="btn" onclick="notify()">
+                🔔 Nhận thông báo khi ra mắt
+            </button>
+            
+            <!-- ===== FOOTER ===== -->
+            <div class="footer-text">
+                Made with <span class="heart">❤️</span> by
+                <a href="https://www.facebook.com/profile.php?id=61587897847223" target="_blank" rel="noopener noreferrer">
+                    Nguyễn Tuấn Khải
+                </a>
+                <span style="color: #a0aec0;">· DEV Dora Fanclub Việt Nam</span>
+                <span class="launch-date">📅 Dự kiến ra mắt: Quý IV/2026</span>
             </div>
         </div>
     </div>
     
     <script>
-        // ===== CLOSE POPUP =====
-        function closePopup() {
-            const overlay = document.getElementById('popupOverlay');
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.5s ease';
+        // ===== NOTIFICATION =====
+        function notify() {
+            const btn = document.querySelector('.btn');
+            const originalText = btn.innerHTML;
             
-            // Chuyển hướng sau khi đóng
+            btn.innerHTML = '✅ Đã đăng ký!';
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            btn.disabled = true;
+            
+            localStorage.setItem('quizsystem_notify', 'true');
+            localStorage.setItem('quizsystem_notify_time', new Date().toISOString());
+            
             setTimeout(() => {
-                overlay.style.display = 'none';
-                // Chuyển đến một trang tạm biệt hoặc index
-                // window.location.href = 'goodbye.html';
-            }, 500);
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.disabled = false;
+            }, 3000);
         }
         
-        // ===== CLICK OUTSIDE =====
-        document.getElementById('popupOverlay').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePopup();
+        // ===== CHECK NOTIFICATION STATUS =====
+        (function checkStatus() {
+            const notified = localStorage.getItem('quizsystem_notify');
+            if (notified === 'true') {
+                const btn = document.querySelector('.btn');
+                btn.innerHTML = '✅ Đã đăng ký nhận thông báo';
+                btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                btn.style.opacity = '0.8';
+                btn.disabled = true;
             }
-        });
+        })();
         
-        // ===== KEYBOARD =====
+        // ===== KEYBOARD SHORTCUT =====
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' || e.key === 'Enter') {
-                closePopup();
+            if (e.key === 'Enter') {
+                const btn = document.querySelector('.btn');
+                if (!btn.disabled) {
+                    btn.click();
+                }
             }
         });
         
-        // ===== LOG =====
-        console.log('🚀 QuizSystem - Cảm ơn bạn đã đồng hành!');
-        console.log('⏰ Web sẽ ngừng hoạt động từ 00:00 14.08.2026');
-        console.log('❤️ Made with love by Nguyễn Tuấn Khải');
+        // ===== CONSOLE LOG =====
+        console.log('%c🚀 QuizSystem - Coming Soon!', 'font-size: 20px; font-weight: bold; color: #4f46e5;');
+        console.log('%c💎 Dự án đã được rót vốn đầu tư', 'font-size: 14px; color: #10b981;');
+        console.log('%c📅 Dự kiến ra mắt: Quý IV/2026', 'font-size: 14px; color: #f59e0b;');
+        console.log('%c❤️ Made with love by Nguyễn Tuấn Khải', 'font-size: 14px; color: #ec4899;');
+        console.log('%c🔗 Facebook: https://www.facebook.com/profile.php?id=61587897847223', 'font-size: 12px; color: #3b82f6;');
     </script>
 </body>
 </html>
