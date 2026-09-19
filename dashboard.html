@@ -185,211 +185,211 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-        // ⚠️ THAY THẾ BẰNG CONFIG CỦA BẠN ⚠️
-        const firebaseConfig = {
-            apiKey: "AIzaSy...",
-            authDomain: "quizsystem-demo.firebaseapp.com",
-            projectId: "quizsystem-demo",
-            storageBucket: "quizsystem-demo.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSy...",
+        authDomain: "quizsystem-demo.firebaseapp.com",
+        projectId: "quizsystem-demo",
+        storageBucket: "quizsystem-demo.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abcdef"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-        const classListContainer = document.getElementById('class-list-container');
-        const searchInput = document.getElementById('search-input');
-        const modal = document.getElementById('class-modal');
-        const form = document.getElementById('class-form');
-        const modalTitle = document.getElementById('modal-title');
-        const toolbarEl = document.getElementById('toolbar');
+    const classListContainer = document.getElementById('class-list-container');
+    const searchInput = document.getElementById('search-input');
+    const modal = document.getElementById('class-modal');
+    const form = document.getElementById('class-form');
+    const modalTitle = document.getElementById('modal-title');
+    const toolbarEl = document.getElementById('toolbar');
 
-        let allClasses = [];
+    let allClasses = [];
+    let hasRedirected = false; // 🔒 Cờ chống loop redirect
 
-        // --- 0. KIỂM TRA ĐĂNG NHẬP ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('user-name').textContent = user.displayName || user.email.split('@')[0];
-                if (user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
-                fetchClasses();
-            } else {
-                // Nếu chưa đăng nhập, chuyển về index.html
-                window.location.href = 'index.html';
+    // --- 0. KIỂM TRA ĐĂNG NHẬP (ĐÃ FIX) ---
+    onAuthStateChanged(auth, (user) => {
+        if (hasRedirected) return;
+        
+        if (user) {
+            // ✅ Đã đăng nhập
+            document.getElementById('user-name').textContent = 
+                user.displayName || user.email.split('@')[0];
+            if (user.photoURL) {
+                document.getElementById('user-avatar').src = user.photoURL;
             }
-        });
-
-        // --- 1. FETCH DATA ---
-        async function fetchClasses() {
-            try {
-                classListContainer.innerHTML = '<div class="loading">Đang tải...</div>';
-                const querySnapshot = await getDocs(collection(db, "classes"));
-                allClasses = [];
-
-                if (querySnapshot.empty) {
-                    classListContainer.innerHTML = '<div class="loading">Chưa có lớp học. Hãy thêm mới!</div>';
-                    return;
+            sessionStorage.removeItem('redirecting');
+            fetchClasses();
+        } else {
+            // ❌ Chưa đăng nhập → chờ 1s rồi mới chuyển (tránh loop)
+            setTimeout(() => {
+                if (!auth.currentUser && !hasRedirected) {
+                    hasRedirected = true;
+                    console.log("→ Chuyển về index.html");
+                    window.location.replace('index.html'); // replace thay href
                 }
-
-                querySnapshot.forEach((docSnap) => {
-                    allClasses.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
-                renderClasses(allClasses);
-            } catch (error) {
-                console.error("Lỗi:", error);
-                // Hiển thị lỗi chi tiết để debug
-                classListContainer.innerHTML = `
-                    <div class="loading" style="color:red; text-align:left;">
-                        <b>Lỗi kết nối Firebase:</b><br>
-                        ${error.message}<br><br>
-                        <b>Kiểm tra:</b><br>
-                        1. firebaseConfig đã đúng chưa?<br>
-                        2. Firestore Rules có cho phép đọc không?<br>
-                        3. Collection 'classes' đã tồn tại chưa?
-                    </div>`;
-            }
+            }, 1000);
         }
+    });
 
-        // --- 2. RENDER ---
-        function renderClasses(dataArray) {
-            classListContainer.innerHTML = '';
-            if (dataArray.length === 0) {
-                classListContainer.innerHTML = '<div class="loading">Không có lớp nào.</div>';
+    // --- 1. FETCH DATA ---
+    async function fetchClasses() {
+        try {
+            classListContainer.innerHTML = '<div class="loading">Đang tải...</div>';
+            const querySnapshot = await getDocs(collection(db, "classes"));
+            allClasses = [];
+
+            if (querySnapshot.empty) {
+                classListContainer.innerHTML = '<div class="loading">Chưa có lớp học. Hãy thêm mới!</div>';
                 return;
             }
 
-            dataArray.forEach(data => {
-                const cardHTML = `
-                    <div class="class-card">
-                        <div class="card-actions">
-                            <button class="action-btn btn-edit" onclick="editClass('${data.id}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="action-btn btn-delete" onclick="deleteClass('${data.id}')"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                        <div class="class-name">${data.name || 'Chưa đặt tên'}</div>
-                        <div class="class-info"><i class="fa-solid fa-chalkboard-user"></i> GV: ${data.teacher || 'N/A'}</div>
-                        <div class="class-info"><i class="fa-solid fa-users"></i> Sĩ số: ${data.students || 0}</div>
-                    </div>
-                `;
-                classListContainer.insertAdjacentHTML('beforeend', cardHTML);
+            querySnapshot.forEach((docSnap) => {
+                allClasses.push({ id: docSnap.id, ...docSnap.data() });
             });
+
+            renderClasses(allClasses);
+        } catch (error) {
+            console.error("Lỗi:", error);
+            classListContainer.innerHTML = `
+                <div class="loading" style="color:red; text-align:left;">
+                    <b>Lỗi Firebase:</b> ${error.message}<br>
+                    Kiểm tra firebaseConfig và Firestore Rules.
+                </div>`;
+        }
+    }
+
+    // --- 2. RENDER ---
+    function renderClasses(dataArray) {
+        classListContainer.innerHTML = '';
+        if (dataArray.length === 0) {
+            classListContainer.innerHTML = '<div class="loading">Không có lớp nào.</div>';
+            return;
         }
 
-        // --- 3. MODAL ---
-        document.getElementById('btn-open-modal').addEventListener('click', () => {
-            form.reset();
-            document.getElementById('class-id-hidden').value = '';
-            modalTitle.textContent = 'Thêm lớp học mới';
-            modal.classList.add('show');
+        dataArray.forEach(data => {
+            const cardHTML = `
+                <div class="class-card">
+                    <div class="card-actions">
+                        <button class="action-btn btn-edit" onclick="editClass('${data.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn btn-delete" onclick="deleteClass('${data.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                    <div class="class-name">${data.name || 'Chưa đặt tên'}</div>
+                    <div class="class-info"><i class="fa-solid fa-chalkboard-user"></i> GV: ${data.teacher || 'N/A'}</div>
+                    <div class="class-info"><i class="fa-solid fa-users"></i> Sĩ số: ${data.students || 0}</div>
+                </div>
+            `;
+            classListContainer.insertAdjacentHTML('beforeend', cardHTML);
         });
+    }
 
-        document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('show'));
-        document.getElementById('btn-cancel-modal').addEventListener('click', () => modal.classList.remove('show'));
+    // --- 3. MODAL ---
+    document.getElementById('btn-open-modal').addEventListener('click', () => {
+        form.reset();
+        document.getElementById('class-id-hidden').value = '';
+        modalTitle.textContent = 'Thêm lớp học mới';
+        modal.classList.add('show');
+    });
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('class-id-hidden').value;
-            const classData = {
-                name: document.getElementById('input-class-name').value,
-                teacher: document.getElementById('input-teacher-name').value,
-                students: parseInt(document.getElementById('input-student-count').value) || 0,
-                status: 'active'
-            };
+    document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('show'));
+    document.getElementById('btn-cancel-modal').addEventListener('click', () => modal.classList.remove('show'));
 
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('class-id-hidden').value;
+        const classData = {
+            name: document.getElementById('input-class-name').value,
+            teacher: document.getElementById('input-teacher-name').value,
+            students: parseInt(document.getElementById('input-student-count').value) || 0,
+            status: 'active'
+        };
+
+        try {
+            if (id) {
+                await updateDoc(doc(db, "classes", id), classData);
+            } else {
+                await addDoc(collection(db, "classes"), classData);
+            }
+            modal.classList.remove('show');
+            fetchClasses();
+        } catch (error) { alert('Lỗi: ' + error.message); }
+    });
+
+    window.editClass = (id) => {
+        const cls = allClasses.find(c => c.id === id);
+        if (cls) {
+            document.getElementById('class-id-hidden').value = cls.id;
+            document.getElementById('input-class-name').value = cls.name || '';
+            document.getElementById('input-teacher-name').value = cls.teacher || '';
+            document.getElementById('input-student-count').value = cls.students || 0;
+            modalTitle.textContent = 'Chỉnh sửa lớp học';
+            modal.classList.add('show');
+        }
+    };
+
+    window.deleteClass = async (id) => {
+        if (confirm('Xóa lớp này?')) {
             try {
-                if (id) {
-                    await updateDoc(doc(db, "classes", id), classData);
-                } else {
-                    await addDoc(collection(db, "classes"), classData);
-                }
-                modal.classList.remove('show');
+                await deleteDoc(doc(db, "classes", id));
                 fetchClasses();
             } catch (error) { alert('Lỗi: ' + error.message); }
-        });
+        }
+    };
 
-        // --- 4. EDIT ---
-        window.editClass = (id) => {
-            const cls = allClasses.find(c => c.id === id);
-            if (cls) {
-                document.getElementById('class-id-hidden').value = cls.id;
-                document.getElementById('input-class-name').value = cls.name || '';
-                document.getElementById('input-teacher-name').value = cls.teacher || '';
-                document.getElementById('input-student-count').value = cls.students || 0;
-                modalTitle.textContent = 'Chỉnh sửa lớp học';
-                modal.classList.add('show');
+    searchInput.addEventListener('input', (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filtered = allClasses.filter(cls => cls.name && cls.name.toLowerCase().includes(keyword));
+        renderClasses(filtered);
+    });
+
+    window.switchTab = (tabName, btnElement) => {
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+
+        const titleEl = document.getElementById('page-title-text');
+        const grid = document.getElementById('class-list-container');
+
+        if (tabName === 'dashboard') {
+            titleEl.textContent = 'Danh sách lớp';
+            toolbarEl.style.display = 'flex';
+            grid.style.display = 'grid';
+            fetchClasses();
+        } else if (tabName === 'courses') {
+            titleEl.textContent = 'Khóa học của tôi';
+            toolbarEl.style.display = 'none';
+            grid.style.display = 'block';
+            grid.innerHTML = '<div class="loading">Đang xây dựng...</div>';
+        } else if (tabName === 'stats') {
+            titleEl.textContent = 'Thống kê điểm số';
+            toolbarEl.style.display = 'none';
+            grid.style.display = 'block';
+            grid.innerHTML = '<div class="loading">Đang xây dựng...</div>';
+        }
+    };
+
+    document.getElementById('user-profile-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('user-dropdown').classList.toggle('show');
+    });
+    document.addEventListener('click', () => document.getElementById('user-dropdown').classList.remove('show'));
+
+    window.logout = async () => {
+        if (confirm('Đăng xuất?')) {
+            try {
+                hasRedirected = true; // 🔒 Chặn loop khi logout
+                await signOut(auth);
+                window.location.replace('index.html');
+            } catch (error) {
+                window.location.replace('index.html');
             }
-        };
-
-        // --- 5. DELETE ---
-        window.deleteClass = async (id) => {
-            if (confirm('Xóa lớp này?')) {
-                try {
-                    await deleteDoc(doc(db, "classes", id));
-                    fetchClasses();
-                } catch (error) { alert('Lỗi: ' + error.message); }
-            }
-        };
-
-        // --- 6. SEARCH ---
-        searchInput.addEventListener('input', (e) => {
-            const keyword = e.target.value.toLowerCase();
-            const filtered = allClasses.filter(cls => cls.name && cls.name.toLowerCase().includes(keyword));
-            renderClasses(filtered);
-        });
-
-        // --- 7. SWITCH TAB (ĐÃ SỬA LỖI) ---
-        window.switchTab = (tabName, btnElement) => {
-            // 1. Xóa active của tất cả nút
-            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-            // 2. Thêm active cho nút được click
-            btnElement.classList.add('active');
-
-            const titleEl = document.getElementById('page-title-text');
-            const grid = document.getElementById('class-list-container');
-
-            // 3. Đổi nội dung dựa trên tab
-            if (tabName === 'dashboard') {
-                titleEl.textContent = 'Danh sách lớp';
-                toolbarEl.style.display = 'flex';
-                grid.style.display = 'grid';
-                fetchClasses(); // Tải lại dữ liệu
-            } else if (tabName === 'courses') {
-                titleEl.textContent = 'Khóa học của tôi';
-                toolbarEl.style.display = 'none';
-                grid.style.display = 'block';
-                grid.innerHTML = '<div class="loading">Chức năng Khóa học đang được xây dựng...</div>';
-            } else if (tabName === 'stats') {
-                titleEl.textContent = 'Thống kê điểm số';
-                toolbarEl.style.display = 'none';
-                grid.style.display = 'block';
-                grid.innerHTML = '<div class="loading">Chức năng Thống kê đang được xây dựng...</div>';
-            }
-        };
-
-        // --- 8. USER DROPDOWN ---
-        document.getElementById('user-profile-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.getElementById('user-dropdown').classList.toggle('show');
-        });
-        document.addEventListener('click', () => document.getElementById('user-dropdown').classList.remove('show'));
-
-        // --- 9. LOGOUT ---
-        window.logout = async () => {
-            if (confirm('Đăng xuất?')) {
-                try {
-                    await signOut(auth);
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    window.location.href = 'index.html';
-                }
-            }
-        };
-    </script>
+        }
+    };
+</script>
 </body>
 </html>
