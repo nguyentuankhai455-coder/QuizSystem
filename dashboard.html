@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuizSystem - Dashboard</title>
+    <title>QuizSystem - Dashboard (Full Chức Năng)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- CSS GIỮ NGUYÊN NHƯ BẢN TRƯỚC --- */
+        /* --- CSS CƠ BẢN --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body { background-color: #2341cc; height: 100vh; display: flex; overflow: hidden; }
         
@@ -29,11 +29,31 @@
         .btn-premium { background-color: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
         .flag-icon { font-size: 20px; cursor: pointer; }
         .notification { font-size: 20px; color: #64748b; cursor: pointer; }
-        .user-profile { display: flex; align-items: center; gap: 12px; }
+        
+        /* User Profile Dropdown */
+        .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 600; font-size: 14px; color: #1e293b; }
         .user-role { font-size: 12px; color: #64748b; }
+        
+        /* Dropdown Menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 150px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+        }
+        .dropdown-menu.show { display: flex; }
+        .dropdown-item { padding: 12px 16px; font-size: 14px; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+        .dropdown-item:hover { background-color: #f1f5f9; color: #ef4444; } /* Màu đỏ cho logout */
 
         /* Page Title & Toolbar */
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 30px; }
@@ -44,124 +64,145 @@
         .btn-add-teacher { background-color: #2a52d4; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(42, 82, 212, 0.3); transition: background 0.2s; }
         .btn-add-teacher:hover { background-color: #1e3ea8; }
 
-        /* --- CSS MỚI CHO DANH SÁCH LỚP HỌC --- */
-        .class-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 10px;
-        }
+        /* Class Grid */
+        .class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 10px; }
+        .class-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-left: 5px solid #2a52d4; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; gap: 10px; position: relative; }
+        .class-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .class-name { font-size: 18px; font-weight: 700; color: #1e293b; padding-right: 60px; }
+        .class-info { font-size: 14px; color: #64748b; display: flex; align-items: center; gap: 8px; }
+        .class-info i { width: 16px; text-align: center; }
+        
+        /* Card Actions (Sửa/Xóa) */
+        .card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
+        .class-card:hover .card-actions { opacity: 1; }
+        .action-btn { width: 30px; height: 30px; border-radius: 6px; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+        .btn-edit { background-color: #e0e7ff; color: #2a52d4; }
+        .btn-edit:hover { background-color: #2a52d4; color: white; }
+        .btn-delete { background-color: #fee2e2; color: #ef4444; }
+        .btn-delete:hover { background-color: #ef4444; color: white; }
+        
+        .loading { text-align: center; padding: 40px; color: #64748b; font-style: italic; grid-column: 1 / -1; }
 
-        .class-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border-left: 5px solid #2a52d4;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        /* --- MODAL (Hộp thoại Thêm/Sửa) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000;
         }
-
-        .class-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: white; width: 400px; border-radius: 12px;
+            padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
         }
-
-        .class-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .class-info {
-            font-size: 14px;
-            color: #64748b;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .class-info i {
-            width: 16px;
-            text-align: center;
-        }
-
-        /* Loading state */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #64748b;
-            font-style: italic;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .close-modal { background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; }
+        .form-group input:focus { border-color: #2a52d4; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+        .btn-cancel { padding: 10px 16px; border-radius: 6px; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; font-weight: 500; }
+        .btn-save { padding: 10px 16px; border-radius: 6px; border: none; background: #2a52d4; color: white; cursor: pointer; font-weight: 500; }
+        .btn-save:hover { background: #1e3ea8; }
 
     </style>
 </head>
 <body>
 
-    <!-- Sidebar (Giữ nguyên) -->
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo"><i class="fa-solid fa-shapes"></i></div>
         <div class="menu-items">
-            <button class="menu-btn active"><i class="fa-solid fa-layer-group"></i></button>
-            <button class="menu-btn"><i class="fa-solid fa-book"></i></button>
-            <button class="menu-btn"><i class="fa-solid fa-chart-simple"></i></button>
+            <button class="menu-btn active" onclick="switchTab('dashboard', this)"><i class="fa-solid fa-layer-group"></i></button>
+            <button class="menu-btn" onclick="switchTab('courses', this)"><i class="fa-solid fa-book"></i></button>
+            <button class="menu-btn" onclick="switchTab('stats', this)"><i class="fa-solid fa-chart-simple"></i></button>
         </div>
         <div class="sidebar-bottom">
-            <button class="menu-btn"><i class="fa-solid fa-gear"></i></button>
+            <button class="menu-btn" onclick="alert('Cài đặt hệ thống')"><i class="fa-solid fa-gear"></i></button>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
         <header class="header">
-            <button class="btn-premium"><i class="fa-regular fa-gem"></i> Bo quảng cáo</button>
+            <button class="btn-premium" onclick="alert('Tính năng Bo quảng cáo đang phát triển!')"><i class="fa-regular fa-gem"></i> Bo quảng cáo</button>
             <div class="flag-icon">🇻🇳</div>
-            <div class="notification"><i class="fa-regular fa-bell"></i></div>
-            <div class="user-profile">
-                <!-- Ảnh avatar sẽ được cập nhật từ Firebase Auth nếu có, tạm thời để mặc định -->
-                <img src="https://ui-avatars.com/api/?name=Tuan+Khai&background=random" alt="Avatar" class="avatar" id="user-avatar">
+            <div class="notification" onclick="alert('Bạn không có thông báo mới nào.')"><i class="fa-regular fa-bell"></i></div>
+            
+            <!-- User Profile với Dropdown -->
+            <div class="user-profile" id="user-profile-btn">
+                <img src="https://ui-avatars.com/api/?name=Tuan+Khai&background=random" alt="Avatar" class="avatar">
                 <div class="user-info">
-                    <span class="user-name" id="user-name">Đang tải...</span>
-                    <span class="user-role" id="user-role">Học sinh</span>
+                    <span class="user-name">tuấn khải nguyên</span>
+                    <span class="user-role">Học sinh</span>
+                </div>
+                <!-- Dropdown Menu -->
+                <div class="dropdown-menu" id="user-dropdown">
+                    <div class="dropdown-item" onclick="alert('Chuyển đến trang cá nhân')"><i class="fa-regular fa-user"></i> Trang cá nhân</div>
+                    <div class="dropdown-item" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</div>
                 </div>
             </div>
         </header>
 
-        <h1 class="page-title">Danh sách lớp</h1>
+        <h1 class="page-title" id="page-title-text">Danh sách lớp</h1>
 
         <div class="toolbar">
             <div class="search-box">
                 <input type="text" id="search-input" placeholder="Tìm kiếm theo tên lớp">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </div>
-            <button class="btn-add-teacher" id="btn-add-class">
+            <button class="btn-add-teacher" id="btn-open-modal">
                 <i class="fa-solid fa-plus"></i> Tìm giáo viên
             </button>
         </div>
 
-        <!-- KHU VỰC HIỂN THỊ DỮ LIỆU TỪ FIREBASE -->
+        <!-- Danh sách lớp học -->
         <div class="class-grid" id="class-list-container">
-            <!-- Dữ liệu sẽ được JavaScript đổ vào đây -->
             <div class="loading">Đang kết nối Firebase và tải dữ liệu...</div>
         </div>
     </div>
 
-    <!-- --- BẮT ĐẦU PHẦN JAVASCRIPT & FIREBASE --- -->
-    
-    <!-- 1. Nhúng Firebase SDK (Phiên bản 9 - Modular) -->
-    <script type="module">
-        // Import các hàm cần thiết từ Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        // Nếu bạn dùng Authentication, import thêm getAuth, onAuthStateChanged
-        // import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    <!-- MODAL THÊM/SỬA LỚP HỌC -->
+    <div class="modal-overlay" id="class-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Thêm lớp học mới</h2>
+                <button class="close-modal" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="class-form">
+                <input type="hidden" id="class-id-hidden"> <!-- Dùng để lưu ID khi Sửa -->
+                <div class="form-group">
+                    <label>Tên lớp học</label>
+                    <input type="text" id="input-class-name" placeholder="Ví dụ: Lớp 10A1 - Toán" required>
+                </div>
+                <div class="form-group">
+                    <label>Giáo viên phụ trách</label>
+                    <input type="text" id="input-teacher-name" placeholder="Ví dụ: Thầy Nguyễn Văn A" required>
+                </div>
+                <div class="form-group">
+                    <label>Sĩ số</label>
+                    <input type="number" id="input-student-count" placeholder="Ví dụ: 35" value="0">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="btn-cancel-modal">Hủy</button>
+                    <button type="submit" class="btn-save" id="btn-save-class">Lưu lớp học</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        // 2. Cấu hình Firebase của bạn (THAY THẾ BẰNG CONFIG CỦA BẠN)
+    <!-- --- JAVASCRIPT & FIREBASE --- -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // ⚠️ THAY THẾ BẰNG CONFIG CỦA BẠN
         const firebaseConfig = {
-            apiKey: "AIzaSy...", // Thay bằng API Key của bạn
+            apiKey: "AIzaSy...",
             authDomain: "quizsystem-demo.firebaseapp.com",
             projectId: "quizsystem-demo",
             storageBucket: "quizsystem-demo.appspot.com",
@@ -169,113 +210,218 @@
             appId: "1:123456789:web:abcdef"
         };
 
-        // Khởi tạo Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 3. Lấy các phần tử HTML để hiển thị
+        // DOM Elements
         const classListContainer = document.getElementById('class-list-container');
-        const userNameEl = document.getElementById('user-name');
-        const userRoleEl = document.getElementById('user-role');
         const searchInput = document.getElementById('search-input');
-
-        // Biến lưu trữ dữ liệu gốc để phục vụ tìm kiếm
+        const modal = document.getElementById('class-modal');
+        const form = document.getElementById('class-form');
+        const modalTitle = document.getElementById('modal-title');
+        
+        // Biến lưu trữ dữ liệu
         let allClasses = [];
 
-        // 4. Hàm lấy dữ liệu từ Firestore
+        // --- 1. LẤY DỮ LIỆU TỪ FIREBASE ---
         async function fetchClasses() {
             try {
-                // Lấy collection 'classes'
+                classListContainer.innerHTML = '<div class="loading">Đang tải dữ liệu...</div>';
                 const querySnapshot = await getDocs(collection(db, "classes"));
+                allClasses = []; 
                 
-                // Xóa thông báo loading
-                classListContainer.innerHTML = ''; 
-                allClasses = []; // Reset mảng
-
                 if (querySnapshot.empty) {
-                    classListContainer.innerHTML = '<div class="loading">Chưa có lớp học nào.</div>';
+                    classListContainer.innerHTML = '<div class="loading">Chưa có lớp học nào. Hãy thêm mới!</div>';
                     return;
                 }
 
-                // Duyệt qua từng document và tạo HTML
                 querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const classId = doc.id;
-                    
-                    // Lưu vào mảng để tìm kiếm
-                    allClasses.push({ id: classId, ...data });
-
-                    // Tạo card HTML
-                    const cardHTML = `
-                        <div class="class-card" onclick="alert('Bạn đã chọn lớp: ${data.name}')">
-                            <div class="class-name">${data.name || 'Chưa đặt tên'}</div>
-                            <div class="class-info">
-                                <i class="fa-solid fa-chalkboard-user"></i> 
-                                Giáo viên: ${data.teacher || 'Chưa cập nhật'}
-                            </div>
-                            <div class="class-info">
-                                <i class="fa-solid fa-users"></i> 
-                                Sĩ số: ${data.students || 0} học sinh
-                            </div>
-                            <div class="class-info" style="color: #10b981; font-weight: 500;">
-                                <i class="fa-solid fa-circle-check"></i> 
-                                ${data.status === 'active' ? 'Đang hoạt động' : 'Tạm dừng'}
-                            </div>
-                        </div>
-                    `;
-                    classListContainer.insertAdjacentHTML('beforeend', cardHTML);
+                    allClasses.push({ id: doc.id, ...doc.data() });
                 });
 
+                renderClasses(allClasses);
+
             } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu Firebase: ", error);
-                classListContainer.innerHTML = `<div class="loading" style="color: red;">Lỗi kết nối Firebase: ${error.message}</div>`;
+                console.error("Lỗi Firebase: ", error);
+                classListContainer.innerHTML = `<div class="loading" style="color: red;">Lỗi: ${error.message}</div>`;
             }
         }
 
-        // 5. Gọi hàm lấy dữ liệu khi trang tải xong
-        fetchClasses();
-
-        // --- (Tùy chọn) Cập nhật thông tin người dùng từ Firebase Auth ---
-        // Nếu bạn đã làm chức năng Đăng nhập, đoạn này sẽ hiển thị tên thật
-        /*
-        const auth = getAuth();
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                userNameEl.textContent = user.displayName || user.email;
-                // userRoleEl.textContent = ... (lấy từ database user)
-            } else {
-                userNameEl.textContent = "Khách";
-            }
-        });
-        */
-
-        // 6. Logic Tìm kiếm (Client-side)
-        searchInput.addEventListener('input', (e) => {
-            const keyword = e.target.value.toLowerCase();
-            
-            // Lọc mảng dữ liệu gốc
-            const filtered = allClasses.filter(cls => 
-                cls.name && cls.name.toLowerCase().includes(keyword)
-            );
-
-            // Render lại giao diện
+        // --- 2. RENDER GIAO DIỆN ---
+        function renderClasses(dataArray) {
             classListContainer.innerHTML = '';
-            if (filtered.length === 0) {
-                classListContainer.innerHTML = '<div class="loading">Không tìm thấy lớp nào phù hợp.</div>';
+            
+            if (dataArray.length === 0) {
+                classListContainer.innerHTML = '<div class="loading">Không tìm thấy lớp nào.</div>';
                 return;
             }
 
-            filtered.forEach(data => {
+            dataArray.forEach(data => {
                 const cardHTML = `
                     <div class="class-card">
-                        <div class="class-name">${data.name}</div>
-                        <div class="class-info"><i class="fa-solid fa-chalkboard-user"></i> GV: ${data.teacher || 'N/A'}</div>
-                        <div class="class-info"><i class="fa-solid fa-users"></i> Sĩ số: ${data.students || 0}</div>
+                        <div class="card-actions">
+                            <button class="action-btn btn-edit" onclick="editClass('${data.id}')" title="Sửa">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteClass('${data.id}')" title="Xóa">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="class-name">${data.name || 'Chưa đặt tên'}</div>
+                        <div class="class-info">
+                            <i class="fa-solid fa-chalkboard-user"></i> 
+                            GV: ${data.teacher || 'Chưa cập nhật'}
+                        </div>
+                        <div class="class-info">
+                            <i class="fa-solid fa-users"></i> 
+                            Sĩ số: ${data.students || 0} học sinh
+                        </div>
+                        <div class="class-info" style="color: #10b981; font-weight: 500;">
+                            <i class="fa-solid fa-circle-check"></i> 
+                            ${data.status === 'active' || !data.status ? 'Đang hoạt động' : 'Tạm dừng'}
+                        </div>
                     </div>
                 `;
                 classListContainer.insertAdjacentHTML('beforeend', cardHTML);
             });
+        }
+
+        // --- 3. CHỨC NĂNG THÊM / SỬA (MODAL) ---
+        document.getElementById('btn-open-modal').addEventListener('click', () => {
+            form.reset();
+            document.getElementById('class-id-hidden').value = '';
+            modalTitle.textContent = 'Thêm lớp học mới';
+            modal.classList.add('show');
         });
+
+        document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('show'));
+        document.getElementById('btn-cancel-modal').addEventListener('click', () => modal.classList.remove('show'));
+
+        // Xử lý submit form
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('class-id-hidden').value;
+            const name = document.getElementById('input-class-name').value;
+            const teacher = document.getElementById('input-teacher-name').value;
+            const students = parseInt(document.getElementById('input-student-count').value) || 0;
+
+            const classData = {
+                name: name,
+                teacher: teacher,
+                students: students,
+                status: 'active'
+            };
+
+            try {
+                if (id) {
+                    // Cập nhật (Update)
+                    await updateDoc(doc(db, "classes", id), classData);
+                    alert('Cập nhật lớp học thành công!');
+                } else {
+                    // Thêm mới (Add)
+                    await addDoc(collection(db, "classes"), classData);
+                    alert('Thêm lớp học thành công!');
+                }
+                modal.classList.remove('show');
+                fetchClasses(); // Tải lại danh sách
+            } catch (error) {
+                console.error("Lỗi khi lưu: ", error);
+                alert('Có lỗi xảy ra: ' + error.message);
+            }
+        });
+
+        // --- 4. CHỨC NĂNG SỬA (LẤY DỮ LIỆU CŨ LÊN FORM) ---
+        window.editClass = (id) => {
+            const cls = allClasses.find(c => c.id === id);
+            if (cls) {
+                document.getElementById('class-id-hidden').value = cls.id;
+                document.getElementById('input-class-name').value = cls.name || '';
+                document.getElementById('input-teacher-name').value = cls.teacher || '';
+                document.getElementById('input-student-count').value = cls.students || 0;
+                
+                modalTitle.textContent = 'Chỉnh sửa lớp học';
+                modal.classList.add('show');
+            }
+        };
+
+        // --- 5. CHỨC NĂNG XÓA ---
+        window.deleteClass = async (id) => {
+            if (confirm('Bạn có chắc chắn muốn xóa lớp học này không?')) {
+                try {
+                    await deleteDoc(doc(db, "classes", id));
+                    alert('Đã xóa lớp học!');
+                    fetchClasses(); // Tải lại danh sách
+                } catch (error) {
+                    console.error("Lỗi khi xóa: ", error);
+                    alert('Lỗi khi xóa: ' + error.message);
+                }
+            }
+        };
+
+        // --- 6. TÌM KIẾM ---
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+            const filtered = allClasses.filter(cls => 
+                cls.name && cls.name.toLowerCase().includes(keyword)
+            );
+            renderClasses(filtered);
+        });
+
+        // --- 7. CHUYỂN TAB (SIDEBAR) ---
+        window.switchTab = (tabName, btnElement) => {
+            // Đổi màu nút active
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            // Đổi tiêu đề và nội dung (giả lập)
+            const titleEl = document.getElementById('page-title-text');
+            const toolbar = document.querySelector('.toolbar');
+            const grid = document.getElementById('class-list-container');
+
+            if (tabName === 'dashboard') {
+                titleEl.textContent = 'Danh sách lớp';
+                toolbar.style.display = 'flex';
+                grid.style.display = 'grid';
+                fetchClasses();
+            } else if (tabName === 'courses') {
+                titleEl.textContent = 'Khóa học của tôi';
+                toolbar.style.display = 'none';
+                grid.innerHTML = '<div class="loading">Chức năng Khóa học đang được xây dựng...</div>';
+            } else if (tabName === 'stats') {
+                titleEl.textContent = 'Thống kê điểm số';
+                toolbar.style.display = 'none';
+                grid.innerHTML = '<div class="loading">Chức năng Thống kê đang được xây dựng...</div>';
+            }
+        };
+
+        // --- 8. MENU NGƯỜI DÙNG (DROPDOWN) ---
+        const userProfileBtn = document.getElementById('user-profile-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+
+        userProfileBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+            userDropdown.classList.toggle('show');
+        });
+
+        // Click ra ngoài thì đóng menu
+        document.addEventListener('click', () => {
+            userDropdown.classList.remove('show');
+        });
+
+        // Hàm Đăng xuất
+        window.logout = () => {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                // Xóa token/session (nếu có)
+                localStorage.removeItem('userToken'); 
+                // Chuyển hướng về trang login (giả lập)
+                alert('Đã đăng xuất! Chuyển về trang Đăng nhập...');
+                window.location.href = 'login.html'; // Thay bằng đường dẫn thật của bạn
+            }
+        };
+
+        // --- KHỞI CHẠY ---
+        fetchClasses();
 
     </script>
 </body>
