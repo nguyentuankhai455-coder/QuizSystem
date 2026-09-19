@@ -1,636 +1,336 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuizTest - Hệ Thống Trắc Nghiệm Online (Chuẩn Azota)</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-    .azota-bg-primary { background-color: #1a4297; }
-    .azota-text-primary { color: #1a4297; }
-    .azota-card { background: #ffffff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease; }
-    .azota-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .sidebar-item { transition: all 0.2s ease; }
-    .sidebar-item:hover, .sidebar-item.active { background-color: rgba(255, 255, 255, 0.18); border-radius: 8px; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-  </style>
-</head>
-<body class="flex h-screen overflow-hidden text-gray-800">
-
-  <!-- SIDEBAR KHỦNG / NAVIGATION CHUẨN AZOTA -->
-  <aside class="w-16 md:w-20 azota-bg-primary flex flex-col justify-between items-center py-4 text-white z-20 shrink-0">
-    <div class="flex flex-col items-center gap-6 w-full">
-      <!-- Logo Azota Style -->
-      <div class="flex items-center justify-center w-10 h-10 bg-white rounded-xl text-blue-900 font-extrabold text-xl shadow-md cursor-pointer" onclick="switchRole('teacher')">
-        <i class="fa-solid font-bold text-blue-700">A</i>
-      </div>
-
-      <!-- Navigation Icons -->
-      <nav class="flex flex-col gap-3 w-full px-2">
-        <button id="nav-home" onclick="navigateTo('home')" class="sidebar-item active p-3 rounded-lg flex flex-col items-center justify-center text-white" title="Trang chủ">
-          <i class="fa-solid fa-house text-lg"></i>
-        </button>
-        <button id="nav-exams" onclick="navigateTo('exams')" class="sidebar-item p-3 rounded-lg flex flex-col items-center justify-center text-white/80 hover:text-white" title="Đề thi">
-          <i class="fa-solid fa-file-signature text-lg"></i>
-        </button>
-        <button id="nav-classes" onclick="navigateTo('classes')" class="sidebar-item p-3 rounded-lg flex flex-col items-center justify-center text-white/80 hover:text-white" title="Quản lý lớp">
-          <i class="fa-solid fa-layer-group text-lg"></i>
-        </button>
-        <button id="nav-bank" onclick="navigateTo('bank')" class="sidebar-item p-3 rounded-lg flex flex-col items-center justify-center text-white/80 hover:text-white" title="Ngân hàng câu hỏi">
-          <i class="fa-solid fa-building-columns text-lg"></i>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Bottom Settings -->
-    <div class="flex flex-col items-center gap-4 w-full px-2">
-      <button onclick="toggleRoleSwitch()" class="sidebar-item p-3 rounded-lg text-white/80 hover:text-white" title="Chuyển vai trò (GV/HS)">
-        <i class="fa-solid fa-arrows-rotate text-lg"></i>
-      </button>
-      <button class="sidebar-item p-3 rounded-lg text-white/80 hover:text-white" title="Cài đặt">
-        <i class="fa-solid fa-gear text-lg"></i>
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTAINER -->
-  <div class="flex-1 flex flex-col min-w-0 bg-[#f4f6fa] overflow-y-auto custom-scrollbar">
-
-    <!-- HEADER CHUẨN AZOTA -->
-    <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
-      <div id="header-title" class="text-sm font-medium text-gray-600">
-        Màn hình chính
-      </div>
-
-      <div class="flex items-center gap-3">
-        <!-- Badge Mua Point / Nâng VIP / Bỏ QC -->
-        <div id="header-badges" class="flex items-center gap-2">
-          <button class="px-3 py-1.5 bg-blue-900 text-white rounded-md text-xs font-medium flex items-center gap-1.5 shadow-sm hover:bg-blue-800">
-            <i class="fa-regular fa-clock"></i> Mua point
-          </button>
-          <button class="px-3 py-1.5 bg-sky-500 text-white rounded-md text-xs font-medium flex items-center gap-1.5 shadow-sm hover:bg-sky-600">
-            <i class="fa-solid fa-gem"></i> Nâng VIP
-          </button>
-        </div>
-
-        <div class="h-4 w-[1px] bg-gray-300 mx-1"></div>
-
-        <!-- Quốc kỳ Việt Nam -->
-        <div class="flex items-center">
-          <span class="text-lg">🇻🇳</span>
-        </div>
-
-        <!-- Notification Icon -->
-        <button class="text-gray-500 hover:text-gray-700 p-1.5 relative">
-          <i class="fa-regular fa-bell text-lg"></i>
-          <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
-
-        <!-- User Info -->
-        <div class="flex items-center gap-2.5 ml-2 cursor-pointer" onclick="toggleRoleSwitch()">
-          <img id="user-avatar" src="https://ui-avatars.com/api/?name=Tuán+Khải&background=0D8ABC&color=fff" class="w-8 h-8 rounded-full border border-gray-300 object-cover" alt="Avatar">
-          <div class="hidden sm:flex flex-col text-left">
-            <span id="user-name" class="text-xs font-semibold text-gray-800 leading-tight">tuấn khải nguyễn</span>
-            <span id="user-role-label" class="text-[10px] text-gray-500">Giáo viên</span>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- CONTENT BODY -->
-    <main class="p-6 max-w-7xl w-full mx-auto flex-1">
-
-      <!-- ==================== VIEW 1: GIÁO VIÊN DASHBOARD ==================== -->
-      <div id="view-teacher-home" class="space-y-6">
-        <!-- Banner Chào mừng -->
-        <div class="bg-gradient-to-r from-[#0f2b66] to-[#1a4297] text-white p-6 rounded-2xl shadow-sm relative overflow-hidden">
-          <div class="relative z-10">
-            <h1 class="text-xl font-bold flex items-center gap-2">
-              Chào mừng trở lại, tuấn khải nguyễn <span class="text-yellow-400">👋</span>
-            </h1>
-            <p class="text-xs text-blue-100 mt-1 opacity-90">Quản lý hệ thống giáo dục của bạn một cách hiệu quả</p>
-          </div>
-        </div>
-
-        <!-- Quản lý học tập -->
-        <div>
-          <h2 class="text-sm font-semibold text-gray-700 mb-3">Quản lý học tập</h2>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div onclick="navigateTo('exams')" class="azota-card p-5 cursor-pointer flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-3">
-                <i class="fa-regular fa-file-lines"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-700">Bài tập</span>
-            </div>
-
-            <div onclick="navigateTo('create-exam')" class="azota-card p-5 cursor-pointer flex flex-col items-center justify-center text-center border-2 border-blue-500/20">
-              <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl mb-3">
-                <i class="fa-solid fa-folder-open"></i>
-              </div>
-              <span class="text-xs font-semibold text-blue-900">Tạo Đề thi mới</span>
-            </div>
-
-            <div onclick="navigateTo('classes')" class="azota-card p-5 cursor-pointer flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl mb-3">
-                <i class="fa-solid fa-layer-group"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-700">Quản lý lớp</span>
-            </div>
-
-            <div class="azota-card p-5 cursor-pointer flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-3">
-                <i class="fa-solid fa-user-gear"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-700">Quản lý giáo viên</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Nội dung & Công cụ -->
-        <div>
-          <h2 class="text-sm font-semibold text-gray-700 mb-3">Nội dung & Công cụ</h2>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div class="azota-card p-5 cursor-pointer flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl mb-3">
-                <i class="fa-solid fa-book-open"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-700">Kho nội dung</span>
-            </div>
-
-            <div class="azota-card p-5 cursor-pointer flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl mb-3">
-                <i class="fa-solid fa-building-columns"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-700">Ngân hàng câu hỏi</span>
-            </div>
-
-            <div class="azota-card p-5 cursor-pointer flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl mb-3">
-                <i class="fa-solid fa-bookmark"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-700">Khóa học</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Đề thi gần đây -->
-        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-gray-800">Đề thi đã khởi tạo</h3>
-            <button onclick="navigateTo('create-exam')" class="text-xs text-blue-700 font-semibold hover:underline flex items-center gap-1">
-              <i class="fa-solid fa-plus"></i> Tạo đề mới
-            </button>
-          </div>
-          <div id="teacher-exam-list" class="space-y-3">
-            <!-- Render danh sách đề thi từ Firebase/Local -->
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== VIEW 2: TẠO ĐỀ THI ==================== -->
-      <div id="view-create-exam" class="hidden space-y-6">
-        <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-gray-800">Tạo đề thi trắc nghiệm mới</h2>
-          <button onclick="navigateTo('home')" class="text-xs px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-            <i class="fa-solid fa-arrow-left"></i> Quay lại
-          </button>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tên đề thi / Bài kiểm tra</label>
-            <input type="text" id="exam-title" placeholder="VD: Kiểm tra 1 tiết Toán 12 - Chương 1" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Thời gian làm bài (Phút)</label>
-              <input type="number" id="exam-duration" value="15" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Mật khẩu đề thi (Để trống nếu không đặt)</label>
-              <input type="text" id="exam-password" placeholder="Nhập mật khẩu..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
-            </div>
-          </div>
-
-          <div class="border-t border-gray-200 pt-4 mt-4">
-            <h3 class="text-sm font-bold text-gray-800 mb-3">Nội dung câu hỏi trắc nghiệm</h3>
-            <div id="questions-container" class="space-y-4">
-              <!-- Render các câu hỏi ở đây -->
-            </div>
-
-            <button onclick="addQuestionItem()" class="mt-4 w-full py-2.5 border-2 border-dashed border-blue-400 text-blue-600 rounded-xl font-semibold text-xs hover:bg-blue-50 flex items-center justify-center gap-2">
-              <i class="fa-solid fa-plus"></i> Thêm câu hỏi trắc nghiệm
-            </button>
-          </div>
-
-          <div class="pt-4 flex justify-end gap-3">
-            <button onclick="saveExam()" class="px-6 py-2.5 bg-blue-900 text-white rounded-xl text-xs font-bold shadow hover:bg-blue-800">
-              <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Lưu & Phát hành đề
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== VIEW 3: HỌC SINH PORTAL ==================== -->
-      <div id="view-student-home" class="hidden space-y-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-lg font-bold text-gray-800">Danh sách đề thi & Lớp học</h2>
-            <p class="text-xs text-gray-500">Nhập mã đề thi do giáo viên cung cấp để bắt đầu làm bài</p>
-          </div>
-          <button class="px-4 py-2 bg-blue-900 text-white rounded-lg text-xs font-semibold shadow hover:bg-blue-800 flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Tìm giáo viên
-          </button>
-        </div>
-
-        <!-- Khung nhập mã đề thi -->
-        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-center gap-4">
-          <div class="flex-1 w-full">
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Mã đề thi (Exam Code)</label>
-            <div class="relative">
-              <input type="text" id="student-exam-code" placeholder="Nhập mã đề thi..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-600 font-mono">
-              <i class="fa-solid fa-key absolute left-3.5 top-3 text-gray-400"></i>
-            </div>
-          </div>
-          <button onclick="startStudentExam()" class="w-full md:w-auto px-6 py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-lg shadow hover:bg-emerald-700 self-end">
-            Vào thi ngay
-          </button>
-        </div>
-
-        <!-- Danh sách bài tập/đề thi có sẵn -->
-        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-          <h3 class="text-sm font-bold text-gray-800 mb-3">Đề thi công khai hiện có</h3>
-          <div id="student-available-exams" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Dynamic Exam List -->
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== VIEW 4: GIAO DIỆN LÀM BÀI THI ==================== -->
-      <div id="view-taking-exam" class="hidden space-y-4">
-        <!-- Header bài thi -->
-        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between sticky top-16 z-10">
-          <div>
-            <h2 id="active-exam-title" class="text-base font-bold text-gray-800">Đề thi trắc nghiệm</h2>
-            <p id="student-info-tag" class="text-xs text-gray-500">Học sinh: tuấn khải nguyễn</p>
-          </div>
-          <div class="flex items-center gap-4">
-            <div class="text-right">
-              <span class="text-[10px] text-gray-400 block uppercase font-bold">Thời gian còn lại</span>
-              <span id="exam-timer" class="text-lg font-mono font-bold text-red-600">15:00</span>
-            </div>
-            <button onclick="submitExam()" class="px-5 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg shadow hover:bg-emerald-700">
-              Nộp bài
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          <!-- Danh sách câu hỏi -->
-          <div class="lg:col-span-3 space-y-4" id="quiz-questions-render">
-            <!-- Dynamic Quiz Questions -->
-          </div>
-
-          <!-- Question Palette (Bảng chọn nhanh câu hỏi) -->
-          <div class="lg:col-span-1">
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm sticky top-36">
-              <h3 class="text-xs font-bold text-gray-700 mb-3 uppercase">Danh sách câu hỏi</h3>
-              <div id="question-palette" class="grid grid-cols-5 gap-2">
-                <!-- Buttons for questions -->
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== VIEW 5: KẾT QUẢ BÀI THI ==================== -->
-      <div id="view-exam-result" class="hidden max-w-xl mx-auto space-y-6">
-        <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm text-center space-y-4">
-          <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto">
-            <i class="fa-solid fa-trophy"></i>
-          </div>
-          <h2 class="text-xl font-bold text-gray-800">Nộp bài thành công!</h2>
-          <div class="bg-blue-50 py-4 px-6 rounded-xl inline-block">
-            <span class="text-xs text-blue-700 uppercase font-bold tracking-wider block">Điểm số của bạn</span>
-            <span id="final-score" class="text-4xl font-extrabold text-blue-900">8.5 / 10</span>
-          </div>
-          <p id="result-detail-text" class="text-xs text-gray-500">Đã lưu kết quả thi vào hệ thống Firebase</p>
-          <button onclick="navigateTo('home')" class="w-full py-2.5 bg-blue-900 text-white rounded-xl text-xs font-bold shadow hover:bg-blue-800">
-            Quay về trang chủ
-          </button>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- SCRIPT LOGIC -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
-      authDomain: "quizsystem-1d1c2.firebaseapp.com",
-      databaseURL: "https://quizsystem-1d1c2-default-rtdb.firebaseio.com",
-      projectId: "quizsystem-1d1c2",
-      storageBucket: "quizsystem-1d1c2.firebasestorage.app",
-      messagingSenderId: "435483557148",
-      appId: "1:435483557148:web:bde77e8d41f46009518ed9",
-      measurementId: "G-FS5YZWPDD9"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-
-    // State Mặc định
-    window.currentUser = { name: "tuấn khải nguyễn", role: "teacher" };
-    window.exams = JSON.parse(localStorage.getItem('quiz_exams') || "[]");
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizSystem - Quản lý lớp học</title>
+    <!-- Nhúng Font Google (Roboto) để giống giao diện -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Nhúng Font Awesome để lấy icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    // Sample Exams nếu rỗng
-    if(window.exams.length === 0) {
-      window.exams = [
-        {
-          id: "AZ-101",
-          title: "Kiểm tra Giữa kỳ Toán 12 - Trắc nghiệm",
-          duration: 15,
-          questions: [
-            { id: 1, title: "Hàm số y = x^3 - 3x đồng biến trên khoảng nào?", options: ["(-1; 1)", "(1; +∞)", "(-∞; 0)", "(-1; 0)"], correct: 1 },
-            { id: 2, title: "Giá trị lớn nhất của hàm số y = -x^4 + 2x^2 trên [-1; 2] là?", options: ["1", "0", "8", "-8"], correct: 0 }
-          ]
+    <style>
+        /* --- CÀI ĐẶT CHUNG --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
         }
-      ];
-      localStorage.setItem('quiz_exams', JSON.stringify(window.exams));
-    }
 
-    window.currentExam = null;
-    window.userAnswers = {};
-    window.timerInterval = null;
-
-    // Navigation & Role Swapper
-    window.switchRole = function(role) {
-      window.currentUser.role = role;
-      const roleLabel = document.getElementById('user-role-label');
-      const badges = document.getElementById('header-badges');
-
-      if(role === 'teacher') {
-        roleLabel.innerText = 'Giáo viên';
-        badges.innerHTML = `
-          <button class="px-3 py-1.5 bg-blue-900 text-white rounded-md text-xs font-medium flex items-center gap-1.5 shadow-sm hover:bg-blue-800"><i class="fa-regular fa-clock"></i> Mua point</button>
-          <button class="px-3 py-1.5 bg-sky-500 text-white rounded-md text-xs font-medium flex items-center gap-1.5 shadow-sm hover:bg-sky-600"><i class="fa-solid fa-gem"></i> Nâng VIP</button>
-        `;
-        window.navigateTo('home');
-      } else {
-        roleLabel.innerText = 'Học sinh';
-        badges.innerHTML = `
-          <button class="px-3 py-1.5 bg-sky-500 text-white rounded-md text-xs font-medium flex items-center gap-1.5 shadow-sm hover:bg-sky-600"><i class="fa-solid fa-gem"></i> Bỏ quảng cáo</button>
-        `;
-        window.navigateTo('student-home');
-      }
-    };
-
-    window.toggleRoleSwitch = function() {
-      if(window.currentUser.role === 'teacher') window.switchRole('student');
-      else window.switchRole('teacher');
-    };
-
-    window.navigateTo = function(targetView) {
-      const views = ['view-teacher-home', 'view-create-exam', 'view-student-home', 'view-taking-exam', 'view-exam-result'];
-      views.forEach(v => document.getElementById(v)?.classList.add('hidden'));
-
-      if(targetView === 'home') {
-        if(window.currentUser.role === 'teacher') {
-          document.getElementById('view-teacher-home').classList.remove('hidden');
-          renderTeacherExamList();
-        } else {
-          document.getElementById('view-student-home').classList.remove('hidden');
-          renderStudentExams();
+        body {
+            background-color: #2341cc; /* Màu nền xanh đậm bên ngoài */
+            height: 100vh;
+            display: flex;
+            overflow: hidden; /* Ngăn cuộn toàn trang */
         }
-      } else if(targetView === 'create-exam') {
-        document.getElementById('view-create-exam').classList.remove('hidden');
-        if(document.getElementById('questions-container').children.length === 0) {
-          addQuestionItem();
-        }
-      } else if(targetView === 'student-home') {
-        document.getElementById('view-student-home').classList.remove('hidden');
-        renderStudentExams();
-      } else if(targetView === 'taking-exam') {
-        document.getElementById('view-taking-exam').classList.remove('hidden');
-      } else if(targetView === 'result') {
-        document.getElementById('view-exam-result').classList.remove('hidden');
-      }
-    };
 
-    // Teacher Logic: Render & Tạo đề
-    function renderTeacherExamList() {
-      const container = document.getElementById('teacher-exam-list');
-      container.innerHTML = window.exams.map(e => `
-        <div class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-blue-50 text-blue-700 rounded-lg font-mono font-bold text-xs">${e.id}</div>
-            <div>
-              <h4 class="text-xs font-bold text-gray-800">${e.title}</h4>
-              <p class="text-[10px] text-gray-400">${e.questions.length} câu hỏi • ${e.duration} phút</p>
+        /* --- SIDEBAR (THANH BÊN TRÁI) --- */
+        .sidebar {
+            width: 80px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 40px;
+            margin-top: 10px;
+        }
+
+        /* Các nút menu */
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .menu-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #a5b4fc; /* Màu icon chưa chọn */
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+        }
+
+        .menu-btn:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Nút đang được chọn (Active) */
+        .menu-btn.active {
+            background-color: #f0f4ff; /* Màu nền sáng */
+            color: #2341cc; /* Màu icon xanh */
+            border-radius: 50%; /* Bo tròn hoàn toàn */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            /* Tạo hình dáng lồi ra một chút */
+            width: 55px;
+            height: 55px;
+            margin-left: -5px; 
+        }
+
+        /* Nút Settings ở dưới cùng */
+        .sidebar-bottom {
+            margin-top: auto;
+            margin-bottom: 30px;
+        }
+
+        /* --- MAIN CONTENT (KHU VỰC CHÍNH) --- */
+        .main-content {
+            flex: 1;
+            background-color: #f3f6fd; /* Màu nền xám nhạt */
+            border-top-left-radius: 40px; /* Bo góc trên trái */
+            border-bottom-left-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* --- HEADER (THANH TRÊN CÙNG) --- */
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding-top: 10px;
+        }
+
+        /* Nút Bo quảng cáo */
+        .btn-premium {
+            background-color: #0ea5e9; /* Màu xanh lơ */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .flag-icon {
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .notification {
+            font-size: 20px;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        /* Thông tin người dùng */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* --- NỘI DUNG CHÍNH --- */
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 30px;
+        }
+
+        /* Thanh tìm kiếm và nút thêm */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 350px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-right: 40px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: white;
+            font-size: 14px;
+            outline: none;
+            color: #334155;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .search-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .btn-add-teacher {
+            background-color: #2a52d4; /* Màu xanh đậm */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(42, 82, 212, 0.3);
+            transition: background 0.2s;
+        }
+
+        .btn-add-teacher:hover {
+            background-color: #1e3ea8;
+        }
+
+        /* Khu vực hiển thị danh sách (Đang trống theo hình) */
+        .list-area {
+            flex: 1;
+            /* Có thể thêm grid hoặc flex để hiển thị danh sách lớp học ở đây */
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar bên trái -->
+    <div class="sidebar">
+        <!-- Logo -->
+        <div class="logo">
+            <!-- Sử dụng icon hình tam giác lồng nhau giống logo -->
+            <i class="fa-solid fa-shapes"></i>
+        </div>
+
+        <!-- Menu -->
+        <div class="menu-items">
+            <!-- Nút được chọn (Active) - Giống hình 2 -->
+            <button class="menu-btn active">
+                <i class="fa-solid fa-layer-group"></i>
+            </button>
+            <!-- Các nút khác -->
+            <button class="menu-btn">
+                <i class="fa-solid fa-book"></i>
+            </button>
+            <button class="menu-btn">
+                <i class="fa-solid fa-chart-simple"></i>
+            </button>
+        </div>
+
+        <!-- Nút cài đặt dưới cùng -->
+        <div class="sidebar-bottom">
+            <button class="menu-btn">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Nội dung chính bên phải -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <!-- Nút Bo quảng cáo -->
+            <button class="btn-premium">
+                <i class="fa-regular fa-gem"></i> Bo quảng cáo
+            </button>
+            
+            <!-- Cờ Việt Nam -->
+            <div class="flag-icon">
+                🇻🇳
             </div>
-          </div>
-          <button onclick="copyCode('${e.id}')" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] font-semibold rounded-md flex items-center gap-1">
-            <i class="fa-regular fa-copy"></i> Mã: ${e.id}
-          </button>
+
+            <!-- Chuông thông báo -->
+            <div class="notification">
+                <i class="fa-regular fa-bell"></i>
+            </div>
+
+            <!-- Thông tin người dùng -->
+            <div class="user-profile">
+                <!-- Ảnh đại diện (Placeholder) -->
+                <img src="https://ui-avatars.com/api/?name=Tuan+Khai&background=random" alt="Avatar" class="avatar">
+                <div class="user-info">
+                    <span class="user-name">tuấn khải nguyên</span>
+                    <span class="user-role">Học sinh</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tiêu đề trang -->
+        <h1 class="page-title">Danh sách lớp</h1>
+
+        <!-- Thanh công cụ (Tìm kiếm + Nút thêm) -->
+        <div class="toolbar">
+            <div class="search-box">
+                <input type="text" placeholder="Tìm kiếm theo tên lớp">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <!-- Nút này trong hình là "Tìm giáo viên" -->
+            <!-- Nếu là giao diện Học viên, bạn có thể đổi thành "Tham gia lớp" -->
+            <button class="btn-add-teacher">
+                <i class="fa-solid fa-plus"></i> Tìm giáo viên
+            </button>
         </div>
-      `).join('');
-    }
 
-    window.copyCode = function(code) {
-      navigator.clipboard.writeText(code);
-      alert('Đã sao chép mã đề thi: ' + code);
-    };
-
-    window.addQuestionItem = function() {
-      const container = document.getElementById('questions-container');
-      const idx = container.children.length + 1;
-      const div = document.createElement('div');
-      div.className = "p-4 border border-gray-200 rounded-lg bg-gray-50/50 space-y-3 relative";
-      div.innerHTML = `
-        <span class="text-xs font-bold text-blue-900 block">Câu hỏi ${idx}</span>
-        <input type="text" class="q-title w-full px-3 py-1.5 border border-gray-300 rounded text-xs" placeholder="Nội dung câu hỏi...">
-        <div class="grid grid-cols-2 gap-2">
-          <input type="text" class="q-opt-0 w-full px-2.5 py-1 border border-gray-300 rounded text-xs" placeholder="Đáp án A">
-          <input type="text" class="q-opt-1 w-full px-2.5 py-1 border border-gray-300 rounded text-xs" placeholder="Đáp án B">
-          <input type="text" class="q-opt-2 w-full px-2.5 py-1 border border-gray-300 rounded text-xs" placeholder="Đáp án C">
-          <input type="text" class="q-opt-3 w-full px-2.5 py-1 border border-gray-300 rounded text-xs" placeholder="Đáp án D">
+        <!-- Khu vực danh sách (Trống) -->
+        <div class="list-area">
+            <!-- Nội dung danh sách lớp sẽ được render ở đây -->
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-[11px] text-gray-600">Đáp án đúng:</span>
-          <select class="q-correct px-2 py-1 border border-gray-300 rounded text-xs">
-            <option value="0">A</option>
-            <option value="1">B</option>
-            <option value="2">C</option>
-            <option value="3">D</option>
-          </select>
-        </div>
-      `;
-      container.appendChild(div);
-    };
+    </div>
 
-    window.saveExam = function() {
-      const title = document.getElementById('exam-title').value;
-      const duration = parseInt(document.getElementById('exam-duration').value) || 15;
-      const items = document.querySelectorAll('#questions-container > div');
-      
-      if(!title) { alert('Vui lòng nhập tên đề thi'); return; }
-
-      const questions = [];
-      items.forEach((item, i) => {
-        const qTitle = item.querySelector('.q-title').value;
-        const opt0 = item.querySelector('.q-opt-0').value;
-        const opt1 = item.querySelector('.q-opt-1').value;
-        const opt2 = item.querySelector('.q-opt-2').value;
-        const opt3 = item.querySelector('.q-opt-3').value;
-        const correct = parseInt(item.querySelector('.q-correct').value);
-
-        if(qTitle) {
-          questions.push({
-            id: i + 1,
-            title: qTitle,
-            options: [opt0 || 'A', opt1 || 'B', opt2 || 'C', opt3 || 'D'],
-            correct: correct
-          });
-        }
-      });
-
-      const newExam = {
-        id: 'AZ-' + Math.floor(1000 + Math.random() * 9000),
-        title,
-        duration,
-        questions
-      };
-
-      window.exams.push(newExam);
-      localStorage.setItem('quiz_exams', JSON.stringify(window.exams));
-      alert('Tạo đề thi thành công! Mã đề: ' + newExam.id);
-      window.navigateTo('home');
-    };
-
-    // Student Logic
-    function renderStudentExams() {
-      const container = document.getElementById('student-available-exams');
-      container.innerHTML = window.exams.map(e => `
-        <div class="p-4 border border-gray-200 rounded-xl bg-white space-y-2">
-          <span class="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded">MÃ: ${e.id}</span>
-          <h4 class="text-xs font-bold text-gray-800">${e.title}</h4>
-          <p class="text-[11px] text-gray-500">${e.questions.length} câu • ${e.duration} phút</p>
-          <button onclick="startStudentExamById('${e.id}')" class="w-full mt-2 py-1.5 bg-blue-900 text-white rounded text-xs font-semibold hover:bg-blue-800">
-            Làm bài
-          </button>
-        </div>
-      `).join('');
-    }
-
-    window.startStudentExam = function() {
-      const code = document.getElementById('student-exam-code').value.trim();
-      if(!code) { alert('Vui lòng nhập mã đề'); return; }
-      window.startStudentExamById(code);
-    };
-
-    window.startStudentExamById = function(code) {
-      const exam = window.exams.find(e => e.id.toLowerCase() === code.toLowerCase());
-      if(!exam) { alert('Không tìm thấy đề thi với mã này'); return; }
-
-      window.currentExam = exam;
-      window.userAnswers = {};
-
-      document.getElementById('active-exam-title').innerText = exam.title;
-      renderQuizQuestions();
-      renderPalette();
-      startTimer(exam.duration * 60);
-
-      window.navigateTo('taking-exam');
-    };
-
-    function renderQuizQuestions() {
-      const container = document.getElementById('quiz-questions-render');
-      container.innerHTML = window.currentExam.questions.map((q, idx) => `
-        <div id="q-card-${idx}" class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
-          <div class="font-semibold text-xs text-gray-800">
-            <span class="text-blue-700 font-bold">Câu ${idx + 1}:</span> ${q.title}
-          </div>
-          <div class="space-y-2">
-            ${q.options.map((opt, oIdx) => `
-              <label class="flex items-center gap-3 p-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer text-xs">
-                <input type="radio" name="q_${idx}" value="${oIdx}" onchange="selectAnswer(${idx},${oIdx})" class="w-4 h-4 text-blue-600">
-                <span>${['A','B','C','D'][oIdx]}.${opt}</span>
-              </label>
-            `).join('')}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderPalette() {
-      const container = document.getElementById('question-palette');
-      container.innerHTML = window.currentExam.questions.map((_, idx) => `
-        <button id="p-btn-${idx}" onclick="scrollToQuestion(${idx})" class="w-8 h-8 rounded-lg border border-gray-300 text-xs font-semibold text-gray-600 flex items-center justify-center hover:bg-gray-100">
-          ${idx + 1}
-        </button>
-      `).join('');
-    }
-
-    window.selectAnswer = function(qIdx, optIdx) {
-      window.userAnswers[qIdx] = optIdx;
-      const btn = document.getElementById(`p-btn-${qIdx}`);
-      if(btn) {
-        btn.classList.add('bg-blue-900', 'text-white', 'border-blue-900');
-        btn.classList.remove('text-gray-600');
-      }
-    };
-
-    window.scrollToQuestion = function(idx) {
-      document.getElementById(`q-card-${idx}`)?.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    function startTimer(seconds) {
-      clearInterval(window.timerInterval);
-      let left = seconds;
-      const timerEl = document.getElementById('exam-timer');
-
-      window.timerInterval = setInterval(() => {
-        left--;
-        const m = Math.floor(left / 60);
-        const s = left % 60;
-        timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-
-        if(left <= 0) {
-          clearInterval(window.timerInterval);
-          alert('Hết giờ làm bài!');
-          window.submitExam();
-        }
-      }, 1000);
-    }
-
-    window.submitExam = function() {
-      clearInterval(window.timerInterval);
-      let correctCount = 0;
-      window.currentExam.questions.forEach((q, idx) => {
-        if(window.userAnswers[idx] === q.correct) correctCount++;
-      });
-
-      const score = ((correctCount / window.currentExam.questions.length) * 10).toFixed(1);
-      document.getElementById('final-score').innerText = `${score} / 10`;
-      document.getElementById('result-detail-text').innerText = `Trả lời đúng ${correctCount}/${window.currentExam.questions.length} câu hỏi.`;
-
-      window.navigateTo('result');
-    };
-
-    // Khởi tạo ban đầu
-    window.navigateTo('home');
-  </script>
 </body>
 </html>
