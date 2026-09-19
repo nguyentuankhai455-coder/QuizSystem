@@ -4,300 +4,446 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - QuizSystem</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #eef2ff 0%, #c7d2fe 100%);
             min-height: 100vh;
+            background: linear-gradient(135deg, #2341cc 0%, #4c6ef5 100%);
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             padding: 20px;
         }
+
         .login-container {
             background: white;
-            border-radius: 24px;
-            padding: 48px 40px;
-            max-width: 420px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            box-shadow: 0 20px 60px rgba(79, 70, 229, 0.15);
-            animation: slideUp 0.5s ease;
+            max-width: 420px;
+            padding: 40px;
+            animation: fadeInUp 0.5s ease;
         }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .login-container .logo { text-align: center; margin-bottom: 32px; }
-        .login-container .logo .icon { font-size: 48px; display: block; margin-bottom: 8px; }
-        .login-container .logo h1 { font-size: 28px; font-weight: 700; color: #1a1a2e; }
-        .login-container .logo h1 span { color: #4f46e5; }
-        .login-container .logo p { color: #718096; font-size: 14px; margin-top: 4px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-weight: 600; font-size: 13px; color: #4a5568; margin-bottom: 6px; }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2341cc;
+            letter-spacing: 1px;
+        }
+
+        .logo-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
         .form-group input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 16px 12px 42px;
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            background: #f8fafc;
-        }
-        .form-group input:focus {
+            border-radius: 10px;
+            font-size: 14px;
             outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
-            background: white;
+            transition: all 0.2s;
         }
+
+        .form-group input:focus {
+            border-color: #2341cc;
+            box-shadow: 0 0 0 3px rgba(35, 65, 204, 0.1);
+        }
+
+        .form-group .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 42px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
         .form-options {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
-            font-size: 14px;
+            font-size: 13px;
         }
-        .form-options label { display: flex; align-items: center; gap: 8px; color: #4a5568; cursor: pointer; }
-        .form-options label input[type="checkbox"] { width: 16px; height: 16px; accent-color: #4f46e5; cursor: pointer; }
-        .form-options a { color: #4f46e5; text-decoration: none; font-weight: 600; }
-        .form-options a:hover { text-decoration: underline; }
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
+
+        .form-options label {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 6px;
+            color: #64748b;
+            cursor: pointer;
         }
-        .btn-primary { background: #4f46e5; color: white; }
-        .btn-primary:hover { background: #4338ca; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .btn-google {
-            background: white;
-            color: #1a1a2e;
-            border: 2px solid #e2e8f0;
+
+        .form-options a {
+            color: #2341cc;
+            text-decoration: none;
+            font-weight: 500;
         }
-        .btn-google:hover { background: #f8fafc; border-color: #cbd5e0; }
+
+        .form-options a:hover { text-decoration: underline; }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #2341cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-login:hover { background: #1e3ea8; transform: translateY(-1px); }
+        .btn-login:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+
         .divider {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             margin: 24px 0;
-            color: #a0aec0;
+            color: #94a3b8;
             font-size: 13px;
         }
-        .divider::before, .divider::after {
-            content: '';
+
+        .divider::before,
+        .divider::after {
+            content: "";
             flex: 1;
             height: 1px;
             background: #e2e8f0;
         }
+
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #334155;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .btn-google img { width: 20px; height: 20px; }
+
         .register-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 24px;
             font-size: 14px;
-            color: #718096;
+            color: #64748b;
         }
-        .register-link a { color: #4f46e5; text-decoration: none; font-weight: 600; }
+
+        .register-link a {
+            color: #2341cc;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
         .register-link a:hover { text-decoration: underline; }
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #1a1a2e;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
-            animation: slideUp 0.3s ease;
-            font-size: 14px;
-            max-width: 400px;
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #dc2626;
         }
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
-        .toast.hidden { display: none; }
-        @media (max-width: 480px) {
-            .login-container { padding: 32px 24px; }
-            .form-options { flex-direction: column; gap: 10px; align-items: flex-start; }
-            .toast { bottom: 12px; right: 12px; left: 12px; max-width: none; }
+
+        .error-message.show { display: block; }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
         }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
     <div class="login-container">
         <div class="logo">
-            <span class="icon">📚</span>
-            <h1><span>Quiz</span>System</h1>
-            <p>Hệ thống quản lý thi trắc nghiệm</p>
+            <div class="logo-icon">📚</div>
+            <div class="logo-text">QuizSystem</div>
         </div>
-        
-        <form id="login-form" onsubmit="handleLogin(event)">
+        <p class="logo-subtitle">Hệ thống quản lý thi trắc nghiệm</p>
+
+        <div class="error-message" id="error-message"></div>
+
+        <form id="login-form">
             <div class="form-group">
-                <label for="email">📧 Email</label>
-                <input type="email" id="email" placeholder="Nhập email của bạn..." required>
+                <label>📧 Email</label>
+                <i class="fa-solid fa-envelope input-icon"></i>
+                <input type="email" id="email" placeholder="Nhập email của bạn" required>
             </div>
+
             <div class="form-group">
-                <label for="password">🔑 Mật khẩu</label>
-                <input type="password" id="password" placeholder="Nhập mật khẩu..." required>
+                <label>🔑 Mật khẩu</label>
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="password" placeholder="Nhập mật khẩu" required>
             </div>
+
             <div class="form-options">
-                <label><input type="checkbox" id="remember-me"> Ghi nhớ đăng nhập</label>
-                <a href="#" onclick="showToast('📧 Vui lòng liên hệ admin để đặt lại mật khẩu', 'error')">Quên mật khẩu?</a>
+                <label>
+                    <input type="checkbox" id="remember"> Ghi nhớ đăng nhập
+                </label>
+                <a href="#" onclick="alert('Vui lòng liên hệ admin để reset mật khẩu')">Quên mật khẩu?</a>
             </div>
-            <button type="submit" class="btn btn-primary" id="login-btn">🔓 Đăng nhập</button>
+
+            <button type="submit" class="btn-login" id="btn-login">
+                🔓 Đăng nhập
+            </button>
         </form>
-        
+
         <div class="divider">Hoặc</div>
-        <button class="btn btn-google" onclick="handleGoogleLogin()">
-            <svg width="20" height="20" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
+
+        <button class="btn-google" id="btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
             Đăng nhập với Google
         </button>
-        
-        <div class="register-link">
-            Chưa có tài khoản? <a href="#" onclick="showToast('📧 Vui lòng liên hệ admin để tạo tài khoản', 'error')">Đăng ký ngay</a>
-        </div>
+
+        <p class="register-link">
+            Chưa có tài khoản? <a href="#" onclick="alert('Chức năng đăng ký đang phát triển')">Đăng ký ngay</a>
+        </p>
     </div>
-    
-    <div id="toast" class="toast hidden"></div>
-    
-    <script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            GoogleAuthProvider, 
+            signInWithPopup,
+            onAuthStateChanged,
+            setPersistence,
+            browserLocalPersistence,
+            browserSessionPersistence
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+        // ⚠️⚠️⚠️ THAY BẰNG CONFIG CỦA BẠN ⚠️⚠️⚠️
         const firebaseConfig = {
-            apiKey: "AIzaSyAF2LoIaOiM666hS7iqI5dLvdDZcgBis-k",
-            authDomain: "quizsystem-1d1c2.firebaseapp.com",
-            databaseURL: "https://quizsystem-1d1c2-default-rtdb.firebaseio.com",
-            projectId: "quizsystem-1d1c2",
-            storageBucket: "quizsystem-1d1c2.firebasestorage.app",
-            messagingSenderId: "435483557148",
-            appId: "1:435483557148:web:bde77e8d41f46009518ed9",
-            measurementId: "G-FS5YZWPDD9"
+            apiKey: "AIzaSy...",
+            authDomain: "quizsystem-demo.firebaseapp.com",
+            projectId: "quizsystem-demo",
+            storageBucket: "quizsystem-demo.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
         };
-        
-        let auth = null;
-        let firebaseReady = false;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            firebaseReady = true;
-            console.log('✅ Firebase Auth connected');
-        } catch (e) {
-            console.warn('⚠️ Firebase init failed:', e.message);
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        const loginForm = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const rememberCheckbox = document.getElementById('remember');
+        const btnLogin = document.getElementById('btn-login');
+        const btnGoogle = document.getElementById('btn-google');
+        const errorMessage = document.getElementById('error-message');
+
+        // Hàm hiển thị lỗi
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.classList.add('show');
+            setTimeout(() => errorMessage.classList.remove('show'), 5000);
         }
-        
-        function showToast(msg, type = 'success') {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.className = `toast ${type}`;
-            el.classList.remove('hidden');
-            clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.add('hidden'), 4000);
+
+        // Hàm chuyển sang dashboard (dùng replace để không bị back)
+        function goToDashboard() {
+            window.location.replace('dashboard.html');
         }
+
+        // ==========================================
+        // 🔒 CHỐNG LOOP REDIRECT - LOGIC CHÍNH
+        // ==========================================
         
-        function checkAuthState() {
-            if (!firebaseReady || !auth) return;
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    localStorage.setItem('userId', user.uid);
-                    localStorage.setItem('userEmail', user.email);
-                    localStorage.setItem('userName', user.displayName || user.email?.split('@')[0] || 'User');
-                    window.location.href = 'dashboard.html';
+        // Cờ đánh dấu đang trong quá trình đăng nhập (tránh bị redirect tự động)
+        let isLoggingIn = false;
+        
+        // Kiểm tra xem user vừa logout (để không tự động đăng nhập lại)
+        const justLoggedOut = sessionStorage.getItem('justLoggedOut') === 'true';
+        
+        if (justLoggedOut) {
+            // Xóa cờ sau khi đã kiểm tra
+            sessionStorage.removeItem('justLoggedOut');
+            console.log("Vừa logout → không tự động chuyển trang");
+        }
+
+        // Lắng nghe trạng thái đăng nhập
+        onAuthStateChanged(auth, (user) => {
+            console.log("Auth state:", user ? `Đã đăng nhập (${user.email})` : "Chưa đăng nhập");
+            
+            // Chỉ tự động chuyển nếu:
+            // 1. Đã đăng nhập
+            // 2. KHÔNG phải đang trong quá trình login thủ công
+            // 3. KHÔNG phải vừa logout
+            // 4. Chưa từng redirect (dùng sessionStorage để chống loop)
+            if (user && !isLoggingIn && !justLoggedOut) {
+                const hasRedirected = sessionStorage.getItem('redirected_to_dashboard');
+                if (hasRedirected) {
+                    console.log("Đã redirect trước đó → bỏ qua để tránh loop");
+                    return;
                 }
-            });
-        }
-        
-        async function handleLogin(event) {
-            event.preventDefault();
-            if (!firebaseReady || !auth) {
-                showToast('⚠️ Không thể kết nối Firebase. Vui lòng thử lại.', 'error');
-                return;
+                
+                console.log("Đã đăng nhập sẵn → chuyển dashboard");
+                sessionStorage.setItem('redirected_to_dashboard', 'true');
+                
+                // Delay 1 chút để đảm bảo session đã ổn định
+                setTimeout(goToDashboard, 300);
             }
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const btn = document.getElementById('login-btn');
+        });
+
+        // ==========================================
+        // ĐĂNG NHẬP BẰNG EMAIL/PASSWORD
+        // ==========================================
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            isLoggingIn = true; // 🔒 Đặt cờ
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const remember = rememberCheckbox.checked;
+
             if (!email || !password) {
-                showToast('⚠️ Vui lòng nhập email và mật khẩu', 'error');
+                showError('Vui lòng nhập đầy đủ email và mật khẩu');
+                isLoggingIn = false;
                 return;
             }
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Đang đăng nhập...';
+
+            // Hiển thị loading
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="loading-spinner"></span> Đang đăng nhập...';
+
             try {
-                const result = await auth.signInWithEmailAndPassword(email, password);
-                const user = result.user;
-                localStorage.setItem('userId', user.uid);
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName || user.email?.split('@')[0] || 'User');
-                if (document.getElementById('remember-me').checked) {
-                    localStorage.setItem('rememberMe', 'true');
-                } else {
-                    localStorage.removeItem('rememberMe');
-                }
-                showToast('✅ Đăng nhập thành công!', 'success');
-                setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+                // Set persistence (ghi nhớ đăng nhập)
+                await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+                
+                // Đăng nhập
+                await signInWithEmailAndPassword(auth, email, password);
+                
+                console.log("✅ Đăng nhập thành công");
+                
+                // Xóa cờ "đã redirect" để lần sau vào dashboard bình thường
+                sessionStorage.removeItem('redirected_to_dashboard');
+                
+                // Chuyển trang
+                goToDashboard();
+                
             } catch (error) {
-                console.error('Login error:', error);
-                let errorMsg = '❌ Đăng nhập thất bại. Vui lòng thử lại.';
+                console.error("Lỗi đăng nhập:", error);
+                isLoggingIn = false;
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = '🔓 Đăng nhập';
+
+                // Dịch lỗi sang tiếng Việt
+                let msg = 'Đăng nhập thất bại';
                 switch (error.code) {
-                    case 'auth/user-not-found': errorMsg = '❌ Không tìm thấy tài khoản với email này.'; break;
-                    case 'auth/wrong-password': errorMsg = '❌ Mật khẩu không đúng. Vui lòng thử lại.'; break;
-                    case 'auth/invalid-email': errorMsg = '❌ Email không hợp lệ.'; break;
-                    case 'auth/user-disabled': errorMsg = '❌ Tài khoản đã bị vô hiệu hóa.'; break;
-                    case 'auth/too-many-requests': errorMsg = '❌ Quá nhiều lần đăng nhập sai. Vui lòng thử lại sau.'; break;
+                    case 'auth/user-not-found':
+                        msg = 'Email không tồn tại trong hệ thống'; break;
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        msg = 'Email hoặc mật khẩu không đúng'; break;
+                    case 'auth/invalid-email':
+                        msg = 'Email không hợp lệ'; break;
+                    case 'auth/too-many-requests':
+                        msg = 'Quá nhiều lần thử. Vui lòng thử lại sau'; break;
+                    case 'auth/network-request-failed':
+                        msg = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet'; break;
+                    default:
+                        msg = error.message;
                 }
-                showToast(errorMsg, 'error');
-                btn.disabled = false;
-                btn.innerHTML = '🔓 Đăng nhập';
+                showError(msg);
             }
-        }
-        
-        async function handleGoogleLogin() {
-            if (!firebaseReady || !auth) {
-                showToast('⚠️ Không thể kết nối Firebase. Vui lòng thử lại.', 'error');
-                return;
-            }
+        });
+
+        // ==========================================
+        // ĐĂNG NHẬP BẰNG GOOGLE
+        // ==========================================
+        btnGoogle.addEventListener('click', async () => {
+            isLoggingIn = true;
+            btnGoogle.disabled = true;
+            btnGoogle.innerHTML = '<span class="loading-spinner" style="border-top-color:#2341cc;border-color:rgba(35,65,204,0.3);border-top-color:#2341cc"></span> Đang xử lý...';
+
             try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-                localStorage.setItem('userId', user.uid);
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName || user.email?.split('@')[0] || 'User');
-                localStorage.setItem('userPhoto', user.photoURL || '');
-                showToast('✅ Đăng nhập thành công!', 'success');
-                setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+                await setPersistence(auth, browserLocalPersistence);
+                await signInWithPopup(auth, googleProvider);
+                
+                console.log("✅ Đăng nhập Google thành công");
+                sessionStorage.removeItem('redirected_to_dashboard');
+                goToDashboard();
+                
             } catch (error) {
-                console.error('Google login error:', error);
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    showToast('❌ Đăng nhập Google thất bại. Vui lòng thử lại.', 'error');
+                console.error("Lỗi đăng nhập Google:", error);
+                isLoggingIn = false;
+                btnGoogle.disabled = false;
+                btnGoogle.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Đăng nhập với Google';
+
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showError('Bạn đã đóng cửa sổ đăng nhập');
+                } else if (error.code === 'auth/popup-blocked') {
+                    showError('Trình duyệt đã chặn popup. Vui lòng cho phép popup');
+                } else {
+                    showError('Lỗi đăng nhập Google: ' + error.message);
                 }
             }
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            if (localStorage.getItem('rememberMe') === 'true') {
-                const savedEmail = localStorage.getItem('userEmail');
-                if (savedEmail) {
-                    document.getElementById('email').value = savedEmail;
-                    document.getElementById('remember-me').checked = true;
-                }
-            }
-            checkAuthState();
         });
     </script>
 </body>
