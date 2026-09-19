@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuizSystem - Dashboard (Full Chức Năng)</title>
+    <title>QuizSystem - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         /* --- CSS CƠ BẢN --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body { background-color: #2341cc; height: 100vh; display: flex; overflow: hidden; }
-        
+
         /* Sidebar */
         .sidebar { width: 80px; height: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 10; }
         .logo { color: white; font-size: 32px; margin-bottom: 40px; margin-top: 10px; }
@@ -23,37 +23,26 @@
 
         /* Main Content */
         .main-content { flex: 1; background-color: #f3f6fd; border-top-left-radius: 40px; border-bottom-left-radius: 40px; display: flex; flex-direction: column; padding: 20px 40px; overflow-y: auto; }
-        
+
         /* Header */
         .header { display: flex; justify-content: flex-end; align-items: center; gap: 20px; margin-bottom: 40px; padding-top: 10px; }
         .btn-premium { background-color: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
         .flag-icon { font-size: 20px; cursor: pointer; }
         .notification { font-size: 20px; color: #64748b; cursor: pointer; }
-        
+
         /* User Profile Dropdown */
         .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 600; font-size: 14px; color: #1e293b; }
         .user-role { font-size: 12px; color: #64748b; }
-        
+
         /* Dropdown Menu */
-        .dropdown-menu {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            width: 150px;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 100;
-        }
+        .dropdown-menu { position: absolute; top: 50px; right: 0; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 170px; display: none; flex-direction: column; overflow: hidden; z-index: 100; }
         .dropdown-menu.show { display: flex; }
         .dropdown-item { padding: 12px 16px; font-size: 14px; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
-        .dropdown-item:hover { background-color: #f1f5f9; color: #ef4444; } /* Màu đỏ cho logout */
+        .dropdown-item:hover { background-color: #f1f5f9; }
+        .dropdown-item.logout:hover { background-color: #fef2f2; color: #ef4444; }
 
         /* Page Title & Toolbar */
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 30px; }
@@ -71,8 +60,8 @@
         .class-name { font-size: 18px; font-weight: 700; color: #1e293b; padding-right: 60px; }
         .class-info { font-size: 14px; color: #64748b; display: flex; align-items: center; gap: 8px; }
         .class-info i { width: 16px; text-align: center; }
-        
-        /* Card Actions (Sửa/Xóa) */
+
+        /* Card Actions */
         .card-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
         .class-card:hover .card-actions { opacity: 1; }
         .action-btn { width: 30px; height: 30px; border-radius: 6px; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; transition: all 0.2s; }
@@ -80,22 +69,13 @@
         .btn-edit:hover { background-color: #2a52d4; color: white; }
         .btn-delete { background-color: #fee2e2; color: #ef4444; }
         .btn-delete:hover { background-color: #ef4444; color: white; }
-        
+
         .loading { text-align: center; padding: 40px; color: #64748b; font-style: italic; grid-column: 1 / -1; }
 
-        /* --- MODAL (Hộp thoại Thêm/Sửa) --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none; justify-content: center; align-items: center;
-            z-index: 1000;
-        }
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.show { display: flex; }
-        .modal-box {
-            background: white; width: 400px; border-radius: 12px;
-            padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: fadeIn 0.3s ease;
-        }
+        .modal-box { background: white; width: 400px; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; }
@@ -108,7 +88,6 @@
         .btn-cancel { padding: 10px 16px; border-radius: 6px; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; font-weight: 500; }
         .btn-save { padding: 10px 16px; border-radius: 6px; border: none; background: #2a52d4; color: white; cursor: pointer; font-weight: 500; }
         .btn-save:hover { background: #1e3ea8; }
-
     </style>
 </head>
 <body>
@@ -129,28 +108,34 @@
     <!-- Main Content -->
     <div class="main-content">
         <header class="header">
-            <button class="btn-premium" onclick="alert('Tính năng Bo quảng cáo đang phát triển!')"><i class="fa-regular fa-gem"></i> Bo quảng cáo</button>
+            <button class="btn-premium" onclick="alert('Tính năng Bo quảng cáo đang phát triển!')">
+                <i class="fa-regular fa-gem"></i> Bo quảng cáo
+            </button>
             <div class="flag-icon">🇻🇳</div>
-            <div class="notification" onclick="alert('Bạn không có thông báo mới nào.')"><i class="fa-regular fa-bell"></i></div>
-            
-            <!-- User Profile với Dropdown -->
+            <div class="notification" onclick="alert('Bạn không có thông báo mới nào.')">
+                <i class="fa-regular fa-bell"></i>
+            </div>
+
             <div class="user-profile" id="user-profile-btn">
-                <img src="https://ui-avatars.com/api/?name=Tuan+Khai&background=random" alt="Avatar" class="avatar">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="user-avatar">
                 <div class="user-info">
-                    <span class="user-name">tuấn khải nguyên</span>
-                    <span class="user-role">Học sinh</span>
+                    <span class="user-name" id="user-name">Đang tải...</span>
+                    <span class="user-role" id="user-role">Học sinh</span>
                 </div>
-                <!-- Dropdown Menu -->
                 <div class="dropdown-menu" id="user-dropdown">
-                    <div class="dropdown-item" onclick="alert('Chuyển đến trang cá nhân')"><i class="fa-regular fa-user"></i> Trang cá nhân</div>
-                    <div class="dropdown-item" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</div>
+                    <div class="dropdown-item" onclick="alert('Chuyển đến trang cá nhân')">
+                        <i class="fa-regular fa-user"></i> Trang cá nhân
+                    </div>
+                    <div class="dropdown-item logout" onclick="logout()">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                    </div>
                 </div>
             </div>
         </header>
 
         <h1 class="page-title" id="page-title-text">Danh sách lớp</h1>
 
-        <div class="toolbar">
+        <div class="toolbar" id="toolbar">
             <div class="search-box">
                 <input type="text" id="search-input" placeholder="Tìm kiếm theo tên lớp">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -160,13 +145,12 @@
             </button>
         </div>
 
-        <!-- Danh sách lớp học -->
         <div class="class-grid" id="class-list-container">
             <div class="loading">Đang kết nối Firebase và tải dữ liệu...</div>
         </div>
     </div>
 
-    <!-- MODAL THÊM/SỬA LỚP HỌC -->
+    <!-- MODAL THÊM/SỬA -->
     <div class="modal-overlay" id="class-modal">
         <div class="modal-box">
             <div class="modal-header">
@@ -174,7 +158,7 @@
                 <button class="close-modal" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="class-form">
-                <input type="hidden" id="class-id-hidden"> <!-- Dùng để lưu ID khi Sửa -->
+                <input type="hidden" id="class-id-hidden">
                 <div class="form-group">
                     <label>Tên lớp học</label>
                     <input type="text" id="input-class-name" placeholder="Ví dụ: Lớp 10A1 - Toán" required>
@@ -199,8 +183,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-        // ⚠️ THAY THẾ BẰNG CONFIG CỦA BẠN
+        // ⚠️⚠️⚠️ THAY THẾ BẰNG CONFIG FIREBASE CỦA BẠN ⚠️⚠️⚠️
         const firebaseConfig = {
             apiKey: "AIzaSy...",
             authDomain: "quizsystem-demo.firebaseapp.com",
@@ -212,6 +197,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         // DOM Elements
         const classListContainer = document.getElementById('class-list-container');
@@ -219,28 +205,43 @@
         const modal = document.getElementById('class-modal');
         const form = document.getElementById('class-form');
         const modalTitle = document.getElementById('modal-title');
-        
-        // Biến lưu trữ dữ liệu
+        const userNameEl = document.getElementById('user-name');
+        const userRoleEl = document.getElementById('user-role');
+        const userAvatarEl = document.getElementById('user-avatar');
+        const toolbarEl = document.getElementById('toolbar');
+
         let allClasses = [];
+
+        // --- 0. KIỂM TRA ĐĂNG NHẬP ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userNameEl.textContent = user.displayName || user.email.split('@')[0];
+                userRoleEl.textContent = "Học sinh";
+                if (user.photoURL) userAvatarEl.src = user.photoURL;
+                fetchClasses();
+            } else {
+                console.log("Chưa đăng nhập, chuyển về index.html");
+                window.location.href = 'index.html';
+            }
+        });
 
         // --- 1. LẤY DỮ LIỆU TỪ FIREBASE ---
         async function fetchClasses() {
             try {
                 classListContainer.innerHTML = '<div class="loading">Đang tải dữ liệu...</div>';
                 const querySnapshot = await getDocs(collection(db, "classes"));
-                allClasses = []; 
-                
+                allClasses = [];
+
                 if (querySnapshot.empty) {
                     classListContainer.innerHTML = '<div class="loading">Chưa có lớp học nào. Hãy thêm mới!</div>';
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    allClasses.push({ id: doc.id, ...doc.data() });
+                querySnapshot.forEach((docSnap) => {
+                    allClasses.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
                 renderClasses(allClasses);
-
             } catch (error) {
                 console.error("Lỗi Firebase: ", error);
                 classListContainer.innerHTML = `<div class="loading" style="color: red;">Lỗi: ${error.message}</div>`;
@@ -250,7 +251,7 @@
         // --- 2. RENDER GIAO DIỆN ---
         function renderClasses(dataArray) {
             classListContainer.innerHTML = '';
-            
+
             if (dataArray.length === 0) {
                 classListContainer.innerHTML = '<div class="loading">Không tìm thấy lớp nào.</div>';
                 return;
@@ -286,7 +287,7 @@
             });
         }
 
-        // --- 3. CHỨC NĂNG THÊM / SỬA (MODAL) ---
+        // --- 3. MODAL THÊM / SỬA ---
         document.getElementById('btn-open-modal').addEventListener('click', () => {
             form.reset();
             document.getElementById('class-id-hidden').value = '';
@@ -297,41 +298,33 @@
         document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('show'));
         document.getElementById('btn-cancel-modal').addEventListener('click', () => modal.classList.remove('show'));
 
-        // Xử lý submit form
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const id = document.getElementById('class-id-hidden').value;
-            const name = document.getElementById('input-class-name').value;
-            const teacher = document.getElementById('input-teacher-name').value;
+            const name = document.getElementById('input-class-name').value.trim();
+            const teacher = document.getElementById('input-teacher-name').value.trim();
             const students = parseInt(document.getElementById('input-student-count').value) || 0;
 
-            const classData = {
-                name: name,
-                teacher: teacher,
-                students: students,
-                status: 'active'
-            };
+            const classData = { name, teacher, students, status: 'active' };
 
             try {
                 if (id) {
-                    // Cập nhật (Update)
                     await updateDoc(doc(db, "classes", id), classData);
                     alert('Cập nhật lớp học thành công!');
                 } else {
-                    // Thêm mới (Add)
                     await addDoc(collection(db, "classes"), classData);
                     alert('Thêm lớp học thành công!');
                 }
                 modal.classList.remove('show');
-                fetchClasses(); // Tải lại danh sách
+                fetchClasses();
             } catch (error) {
                 console.error("Lỗi khi lưu: ", error);
                 alert('Có lỗi xảy ra: ' + error.message);
             }
         });
 
-        // --- 4. CHỨC NĂNG SỬA (LẤY DỮ LIỆU CŨ LÊN FORM) ---
+        // --- 4. SỬA ---
         window.editClass = (id) => {
             const cls = allClasses.find(c => c.id === id);
             if (cls) {
@@ -339,19 +332,18 @@
                 document.getElementById('input-class-name').value = cls.name || '';
                 document.getElementById('input-teacher-name').value = cls.teacher || '';
                 document.getElementById('input-student-count').value = cls.students || 0;
-                
                 modalTitle.textContent = 'Chỉnh sửa lớp học';
                 modal.classList.add('show');
             }
         };
 
-        // --- 5. CHỨC NĂNG XÓA ---
+        // --- 5. XÓA ---
         window.deleteClass = async (id) => {
             if (confirm('Bạn có chắc chắn muốn xóa lớp học này không?')) {
                 try {
                     await deleteDoc(doc(db, "classes", id));
                     alert('Đã xóa lớp học!');
-                    fetchClasses(); // Tải lại danh sách
+                    fetchClasses();
                 } catch (error) {
                     console.error("Lỗi khi xóa: ", error);
                     alert('Lỗi khi xóa: ' + error.message);
@@ -362,66 +354,63 @@
         // --- 6. TÌM KIẾM ---
         searchInput.addEventListener('input', (e) => {
             const keyword = e.target.value.toLowerCase();
-            const filtered = allClasses.filter(cls => 
+            const filtered = allClasses.filter(cls =>
                 cls.name && cls.name.toLowerCase().includes(keyword)
             );
             renderClasses(filtered);
         });
 
-        // --- 7. CHUYỂN TAB (SIDEBAR) ---
+        // --- 7. CHUYỂN TAB ---
         window.switchTab = (tabName, btnElement) => {
-            // Đổi màu nút active
             document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
-            // Đổi tiêu đề và nội dung (giả lập)
             const titleEl = document.getElementById('page-title-text');
-            const toolbar = document.querySelector('.toolbar');
             const grid = document.getElementById('class-list-container');
 
             if (tabName === 'dashboard') {
                 titleEl.textContent = 'Danh sách lớp';
-                toolbar.style.display = 'flex';
+                toolbarEl.style.display = 'flex';
                 grid.style.display = 'grid';
                 fetchClasses();
             } else if (tabName === 'courses') {
                 titleEl.textContent = 'Khóa học của tôi';
-                toolbar.style.display = 'none';
+                toolbarEl.style.display = 'none';
                 grid.innerHTML = '<div class="loading">Chức năng Khóa học đang được xây dựng...</div>';
             } else if (tabName === 'stats') {
                 titleEl.textContent = 'Thống kê điểm số';
-                toolbar.style.display = 'none';
+                toolbarEl.style.display = 'none';
                 grid.innerHTML = '<div class="loading">Chức năng Thống kê đang được xây dựng...</div>';
             }
         };
 
-        // --- 8. MENU NGƯỜI DÙNG (DROPDOWN) ---
+        // --- 8. MENU NGƯỜI DÙNG ---
         const userProfileBtn = document.getElementById('user-profile-btn');
         const userDropdown = document.getElementById('user-dropdown');
 
         userProfileBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+            e.stopPropagation();
             userDropdown.classList.toggle('show');
         });
 
-        // Click ra ngoài thì đóng menu
         document.addEventListener('click', () => {
             userDropdown.classList.remove('show');
         });
 
-        // Hàm Đăng xuất
-        window.logout = () => {
+        // --- 9. ĐĂNG XUẤT -> VỀ index.html ---
+        window.logout = async () => {
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
-                // Xóa token/session (nếu có)
-                localStorage.removeItem('userToken'); 
-                // Chuyển hướng về trang login (giả lập)
-                alert('Đã đăng xuất! Chuyển về trang Đăng nhập...');
-                window.location.href = 'login.html'; // Thay bằng đường dẫn thật của bạn
+                try {
+                    await signOut(auth);
+                    localStorage.removeItem('userToken');
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error("Lỗi đăng xuất: ", error);
+                    window.location.href = 'index.html';
+                }
             }
         };
-
-        // --- KHỞI CHẠY ---
-        fetchClasses();
 
     </script>
 </body>
